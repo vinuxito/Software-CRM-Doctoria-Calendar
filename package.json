@@ -1,0 +1,24 @@
+{
+  "name": "software-crm-doctoria-calendar",
+  "version": "1.0.0",
+  "description": "1.  **Database Setup**     *   Create a database named `crm_doctoria` (or whatever you prefer).     *   Import the `setup.sql` file into your database.     *   This will create the `users` and `appointments` tables and a default admin user.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/D3C0D1/Software-CRM-Doctoria-Calendar.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/D3C0D1/Software-CRM-Doctoria-Calendar/issues"
+  },
+  "homepage": "https://github.com/D3C0D1/Software-CRM-Doctoria-Calendar#readme",
+  "dependencies": {
+    "puppeteer": "^24.39.1"
+  }
+}
