@@ -537,6 +537,7 @@
                     <div class="calendar-modal-head">
                         <h3>Expediente Clínico Digital</h3>
                         <span id="wizard-autosave-status" style="font-size: 11px; color: #888; margin-left: 15px; display: inline-flex; align-items: center;"></span>
+                        <span id="wizard-offline-banner" style="display: none; background: #dc3545; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-left: 10px; align-items: center;">SIN CONEXIÓN</span>
                         <button type="button" id="patient-file-modal-close" class="calendar-modal-close">×</button>
                     </div>
                     <form id="wizard-form" class="calendar-modal-form" onsubmit="event.preventDefault();">
@@ -1928,6 +1929,129 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    function populateForm(data) {
+        // Populate Step 1 (Datos del Paciente)
+        document.getElementById('patient-name').value = data.patient.name || '';
+        document.getElementById('patient-ocupacion').value = data.patient.ocupacion || '';
+        document.getElementById('patient-fecha-nacimiento').value = data.patient.fecha_nacimiento || '';
+        document.getElementById('patient-edad').value = data.patient.fecha_nacimiento ? computeAge(data.patient.fecha_nacimiento) : '';
+        document.getElementById('patient-sexo').value = data.patient.sexo || '';
+        document.getElementById('patient-estado-civil').value = data.patient.estado_civil || '';
+        document.getElementById('patient-domicilio').value = data.patient.domicilio || '';
+        document.getElementById('patient-tel').value = data.patient.tel || '';
+        document.getElementById('patient-cel').value = data.patient.cel || '';
+        document.getElementById('patient-familiar-responsable').value = data.patient.familiar_responsable || '';
+        document.getElementById('patient-familiar-tel-cel').value = data.patient.familiar_cel || data.patient.familiar_tel || '';
+
+        // Populate Step 2 (Antecedentes)
+        if (data.antecedentes && data.antecedentes.length > 0) {
+            data.antecedentes.forEach(function (ant) {
+                setSegmentedValue(ant.item_key, ant.valor);
+                var specInput = document.getElementById(`spec-${ant.item_key}`);
+                if (specInput) specInput.value = ant.especificacion || '';
+            });
+        } else {
+            antecedenteItems.forEach(function(item) {
+                setSegmentedValue(item.key, 'null');
+            });
+        }
+
+        // Populate Step 3
+        if (data.exploracion) {
+            document.getElementById('exploracion-estatura').value = data.exploracion.estatura_cm || '';
+            document.getElementById('exploracion-peso').value = data.exploracion.peso_kg || '';
+            document.getElementById('exploracion-ta').value = data.exploracion.ta || '';
+            document.getElementById('exploracion-fc').value = data.exploracion.fc || '';
+            document.getElementById('exploracion-fr').value = data.exploracion.fr || '';
+            document.getElementById('exploracion-arcos').value = data.exploracion.arcos_movimiento || '';
+            document.getElementById('exploracion-fuerza').value = data.exploracion.fuerza_muscular || '';
+            document.getElementById('exploracion-reflejos').value = data.exploracion.reflejos || '';
+            document.getElementById('exploracion-sensibilidad').value = data.exploracion.sensibilidad || '';
+            document.getElementById('exploracion-lenguaje-orientacion').value = data.exploracion.lenguaje_orientacion || '';
+            document.getElementById('exploracion-otros').value = data.exploracion.otros || '';
+        }
+
+        if (data.cicatriz) {
+            setCicatrizMaster(parseInt(data.cicatriz.presenta));
+            document.getElementById('cicatriz-sitio').value = data.cicatriz.sitio || '';
+            document.getElementById('cicatriz-queloide').checked = data.cicatriz.queloide === 'si';
+            document.getElementById('cicatriz-retractil').checked = data.cicatriz.retractil === 'si';
+            document.getElementById('cicatriz-abierta').checked = data.cicatriz.abierta === 'si';
+            document.getElementById('cicatriz-con-adherencia').checked = data.cicatriz.con_adherencia === 'si';
+            document.getElementById('cicatriz-hipertrofica').checked = data.cicatriz.hipertrofica === 'si';
+        }
+
+        if (data.padecimiento) {
+            document.getElementById('padecimiento-motivo').value = data.padecimiento.motivo_consulta || '';
+            document.getElementById('padecimiento-inicio').value = data.padecimiento.inicio || '';
+            document.getElementById('padecimiento-evolucion').value = data.padecimiento.evolucion || '';
+            document.getElementById('padecimiento-estudios').value = data.padecimiento.estudios || '';
+            document.getElementById('padecimiento-tratamientos').value = data.padecimiento.tratamientos_previos || '';
+        }
+
+        var eva_val = data.expediente ? data.expediente.eva_dolor : null;
+        if (data.eva_dolor !== undefined) eva_val = data.eva_dolor;
+        
+        if (eva_val !== null && eva_val !== undefined) {
+            evaTouched = true;
+            evaSlider.value = eva_val;
+            updateEvaScaleDisplay(eva_val, true);
+        } else {
+            evaTouched = false;
+            evaSlider.value = 0;
+            updateEvaScaleDisplay(0, false);
+        }
+
+        if (data.problemas && data.problemas.length > 0) {
+            data.problemas.forEach(function (prob) {
+                var sevSelect = document.getElementById(`prob-sev-${prob.item_key}`);
+                var noteInput = document.getElementById(`prob-nota-${prob.item_key}`);
+                if (sevSelect) sevSelect.value = prob.severidad || 'null';
+                if (noteInput) noteInput.value = prob.nota || '';
+            });
+        }
+
+        // Populate Step 4
+        planContainer.innerHTML = '';
+        if (data.plan_sesiones && data.plan_sesiones.length > 0) {
+            data.plan_sesiones.forEach(function (ses) {
+                createTreatmentRow(ses.fecha, ses.indicaciones);
+            });
+        } else {
+            createTreatmentRow('', '');
+        }
+        
+        var notes_val = data.expediente ? data.expediente.notas_generales : '';
+        if (data.notas_generales !== undefined) notes_val = data.notas_generales;
+        document.getElementById('expediente-notas-generales').value = notes_val || '';
+
+        // Populate Step 5
+        if (data.marcha) {
+            document.getElementById('gait-libre').checked = parseInt(data.marcha.libre) === 1;
+            document.getElementById('gait-claudicante').checked = parseInt(data.marcha.claudicante) === 1;
+            document.getElementById('gait-con-ayuda').checked = parseInt(data.marcha.con_ayuda) === 1;
+            document.getElementById('gait-espasticas').checked = parseInt(data.marcha.espasticas) === 1;
+            document.getElementById('gait-ataxica').checked = parseInt(data.marcha.ataxica) === 1;
+            document.getElementById('gait-otros').checked = parseInt(data.marcha.otros) === 1;
+            gaitOtrosSpecContainer.style.display = data.marcha.otros ? 'block' : 'none';
+            document.getElementById('gait-otros-spec').value = data.marcha.otros_spec || '';
+            document.getElementById('gait-observaciones').value = data.marcha.observaciones || '';
+
+            tinettiCriteria.forEach(function (crit) {
+                var val = data.marcha[crit.key];
+                if (val !== null && val !== undefined && val !== '') {
+                    var radio = document.querySelector(`input[name="tinetti-${crit.key}"][value="${val}"]`);
+                    if (radio) radio.checked = true;
+                }
+            });
+
+            balanceInput.value = data.marcha.total_balance_manual !== null ? data.marcha.total_balance_manual : 0;
+            calculateGaitTotals();
+        }
+
+        checkClinicalWarnings();
+    }
+
     function openWizard(patientId) {
         currentStep = 1;
         showStep(1);
@@ -1938,130 +2062,36 @@ document.addEventListener('DOMContentLoaded', function () {
         renderTinettiContainer();
         planContainer.innerHTML = '';
         
-        // Call load endpoint
         var statusLabel = document.getElementById('wizard-autosave-status');
         statusLabel.textContent = 'Cargando expediente...';
+
+        // Check localStorage first (GC-5)
+        var localDraftStr = localStorage.getItem(`expediente_draft_${patientId}`);
+        var useLocal = false;
+        
+        if (localDraftStr) {
+            try {
+                var localDraft = JSON.parse(localDraftStr);
+                if (localDraft && localDraft.data && localDraft.data.patient.name) {
+                    if (confirm('Se encontró un borrador local más reciente de este expediente. ¿Desea restaurarlo?')) {
+                        populateForm(localDraft.data);
+                        useLocal = true;
+                        statusLabel.textContent = 'Borrador local restaurado';
+                        modal.classList.add('active');
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        if (useLocal) return;
 
         fetch(`<?php echo URLROOT; ?>/dashboard/loadExpediente/${patientId}`)
             .then(function (res) { return res.json(); })
             .then(function (data) {
                 currentExpedienteId = data.expediente.id;
-                
-                // Populate Step 1 (Datos del Paciente)
-                document.getElementById('patient-name').value = data.patient.name || '';
-                document.getElementById('patient-ocupacion').value = data.patient.ocupacion || '';
-                document.getElementById('patient-fecha-nacimiento').value = data.patient.fecha_nacimiento || '';
-                document.getElementById('patient-edad').value = data.patient.fecha_nacimiento ? computeAge(data.patient.fecha_nacimiento) : '';
-                document.getElementById('patient-sexo').value = data.patient.sexo || '';
-                document.getElementById('patient-estado-civil').value = data.patient.estado_civil || '';
-                document.getElementById('patient-domicilio').value = data.patient.domicilio || '';
-                document.getElementById('patient-tel').value = data.patient.tel || '';
-                document.getElementById('patient-cel').value = data.patient.cel || '';
-                document.getElementById('patient-familiar-responsable').value = data.patient.familiar_responsable || '';
-                document.getElementById('patient-familiar-tel-cel').value = data.patient.familiar_cel || data.patient.familiar_tel || '';
-
-                // Populate Step 2 (Antecedentes)
-                if (data.antecedentes && data.antecedentes.length > 0) {
-                    data.antecedentes.forEach(function (ant) {
-                        setSegmentedValue(ant.item_key, ant.valor);
-                        var specInput = document.getElementById(`spec-${ant.item_key}`);
-                        if (specInput) specInput.value = ant.especificacion || '';
-                    });
-                } else {
-                    antecedenteItems.forEach(function(item) {
-                        setSegmentedValue(item.key, 'null');
-                    });
-                }
-
-                // Populate Step 3
-                if (data.exploracion) {
-                    document.getElementById('exploracion-estatura').value = data.exploracion.estatura_cm || '';
-                    document.getElementById('exploracion-peso').value = data.exploracion.peso_kg || '';
-                    document.getElementById('exploracion-ta').value = data.exploracion.ta || '';
-                    document.getElementById('exploracion-fc').value = data.exploracion.fc || '';
-                    document.getElementById('exploracion-fr').value = data.exploracion.fr || '';
-                    document.getElementById('exploracion-arcos').value = data.exploracion.arcos_movimiento || '';
-                    document.getElementById('exploracion-fuerza').value = data.exploracion.fuerza_muscular || '';
-                    document.getElementById('exploracion-reflejos').value = data.exploracion.reflejos || '';
-                    document.getElementById('exploracion-sensibilidad').value = data.exploracion.sensibilidad || '';
-                    document.getElementById('exploracion-lenguaje-orientacion').value = data.exploracion.lenguaje_orientacion || '';
-                    document.getElementById('exploracion-otros').value = data.exploracion.otros || '';
-                }
-
-                if (data.cicatriz) {
-                    setCicatrizMaster(parseInt(data.cicatriz.presenta));
-                    document.getElementById('cicatriz-sitio').value = data.cicatriz.sitio || '';
-                    document.getElementById('cicatriz-queloide').checked = data.cicatriz.queloide === 'si';
-                    document.getElementById('cicatriz-retractil').checked = data.cicatriz.retractil === 'si';
-                    document.getElementById('cicatriz-abierta').checked = data.cicatriz.abierta === 'si';
-                    document.getElementById('cicatriz-con-adherencia').checked = data.cicatriz.con_adherencia === 'si';
-                    document.getElementById('cicatriz-hipertrofica').checked = data.cicatriz.hipertrofica === 'si';
-                }
-
-                if (data.padecimiento) {
-                    document.getElementById('padecimiento-motivo').value = data.padecimiento.motivo_consulta || '';
-                    document.getElementById('padecimiento-inicio').value = data.padecimiento.inicio || '';
-                    document.getElementById('padecimiento-evolucion').value = data.padecimiento.evolucion || '';
-                    document.getElementById('padecimiento-estudios').value = data.padecimiento.estudios || '';
-                    document.getElementById('padecimiento-tratamientos').value = data.padecimiento.tratamientos_previos || '';
-                }
-
-                if (data.expediente.eva_dolor !== null) {
-                    evaTouched = true;
-                    evaSlider.value = data.expediente.eva_dolor;
-                    updateEvaScaleDisplay(data.expediente.eva_dolor, true);
-                } else {
-                    evaTouched = false;
-                    evaSlider.value = 0;
-                    updateEvaScaleDisplay(0, false);
-                }
-
-                if (data.problemas && data.problemas.length > 0) {
-                    data.problemas.forEach(function (prob) {
-                        var sevSelect = document.getElementById(`prob-sev-${prob.item_key}`);
-                        var noteInput = document.getElementById(`prob-nota-${prob.item_key}`);
-                        if (sevSelect) sevSelect.value = prob.severidad || 'null';
-                        if (noteInput) noteInput.value = prob.nota || '';
-                    });
-                }
-
-                // Populate Step 4
-                if (data.plan_sesiones && data.plan_sesiones.length > 0) {
-                    data.plan_sesiones.forEach(function (ses) {
-                        createTreatmentRow(ses.fecha, ses.indicaciones);
-                    });
-                } else {
-                    createTreatmentRow('', '');
-                }
-                document.getElementById('expediente-notas-generales').value = data.expediente.notas_generales || '';
-
-                // Populate Step 5
-                if (data.marcha) {
-                    document.getElementById('gait-libre').checked = parseInt(data.marcha.libre) === 1;
-                    document.getElementById('gait-claudicante').checked = parseInt(data.marcha.claudicante) === 1;
-                    document.getElementById('gait-con-ayuda').checked = parseInt(data.marcha.con_ayuda) === 1;
-                    document.getElementById('gait-espasticas').checked = parseInt(data.marcha.espasticas) === 1;
-                    document.getElementById('gait-ataxica').checked = parseInt(data.marcha.ataxica) === 1;
-                    document.getElementById('gait-otros').checked = parseInt(data.marcha.otros) === 1;
-                    gaitOtrosSpecContainer.style.display = data.marcha.otros ? 'block' : 'none';
-                    document.getElementById('gait-otros-spec').value = data.marcha.otros_spec || '';
-                    document.getElementById('gait-observaciones').value = data.marcha.observaciones || '';
-
-                    tinettiCriteria.forEach(function (crit) {
-                        var val = data.marcha[crit.key];
-                        if (val !== null) {
-                            var radio = document.querySelector(`input[name="tinetti-${crit.key}"][value="${val}"]`);
-                            if (radio) radio.checked = true;
-                        }
-                    });
-
-                    balanceInput.value = data.marcha.total_balance_manual !== null ? data.marcha.total_balance_manual : 0;
-                    calculateGaitTotals();
-                }
-
-                // Initial safety indicator check
-                checkClinicalWarnings();
-
+                populateForm(data);
                 statusLabel.textContent = 'Expediente cargado';
                 modal.classList.add('active');
             })
@@ -2232,15 +2262,32 @@ document.addEventListener('DOMContentLoaded', function () {
         return el ? parseInt(el.value) : '';
     }
 
-    // Server Autosave / manual save function
+    // Server Autosave / local storage mirroring (GC-5)
     var saveTimeout = null;
     function runAutosave() {
+        // Save to localStorage immediately
+        var payload = collectFormPayload();
+        if (activePatientId) {
+            localStorage.setItem(`expediente_draft_${activePatientId}`, JSON.stringify({
+                timestamp: Date.now(),
+                data: payload
+            }));
+        }
+
         if (saveTimeout) clearTimeout(saveTimeout);
         saveTimeout = setTimeout(function () {
             var statusLabel = document.getElementById('wizard-autosave-status');
-            statusLabel.textContent = 'Guardando...';
+            var offlineBanner = document.getElementById('wizard-offline-banner');
 
-            var payload = collectFormPayload();
+            if (!navigator.onLine) {
+                statusLabel.textContent = 'Guardado localmente';
+                offlineBanner.style.display = 'inline-flex';
+                return;
+            }
+
+            statusLabel.textContent = 'Guardando...';
+            offlineBanner.style.display = 'none';
+
             if (!payload.patient.name) return; // GC-4 name required
 
             fetch(`<?php echo URLROOT; ?>/dashboard/saveExpediente/${activePatientId}`, {
@@ -2259,7 +2306,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             })
             .catch(function () {
-                statusLabel.textContent = 'Error de conexión';
+                statusLabel.textContent = 'Error de conexión (Guardado local)';
+                offlineBanner.style.display = 'inline-flex';
             });
         }, 1000);
     }
@@ -2330,6 +2378,18 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
+    window.addEventListener('online', function () {
+        var offlineBanner = document.getElementById('wizard-offline-banner');
+        if (offlineBanner) offlineBanner.style.display = 'none';
+        runAutosave();
+    });
+
+    window.addEventListener('offline', function () {
+        var offlineBanner = document.getElementById('wizard-offline-banner');
+        if (offlineBanner) offlineBanner.style.display = 'inline-flex';
+        var statusLabel = document.getElementById('wizard-autosave-status');
+        if (statusLabel) statusLabel.textContent = 'Guardado localmente';
+    });
 });
 </script>
 <?php endif; ?>

@@ -64,3 +64,11 @@ Implement the 5-step interactive clinical intake wizard for physiotherapist Naxi
   * Aligned touch targets to a minimum of 44px for tablet interface compliance (expanded buttons padding, segmented height, larger list items).
   * Refined portrait layout parameters for a seamless 10-inch portrait tablet rendering without overflows or scroll traps.
 * **Verify/Build**: Interface loaded and tested in browser viewport simulating tablet dimensions. Swiping/clicking and navigation flowed without friction.
+
+### 6. Iteration 6 — SECURITY, RESILIENCE & OBSERVABILITY
+* **Lens**: *Can this run in production without exploding silently?*
+* **Results**:
+  * Programmed LocalStorage draft mirroring (`expediente_draft_${patientId}`) to catch inputs instantly before AJAX server sync.
+  * Added conflict resolution warning check: on opening, checks if local draft contains more recent unsaved details and prompts user to restore.
+  * Integrated window online/offline listeners toggle displaying red connection caution banner and caching input offline seamlessly.
+* **Verify/Build**: Verified connectivity toggling and local draft recovery flags in browser simulation. No JS exceptions occurred.
