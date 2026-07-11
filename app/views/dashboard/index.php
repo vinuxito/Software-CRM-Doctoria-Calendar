@@ -73,7 +73,15 @@
 
     <main class="main-view">
         <?php if (!empty($data['flash'])) : ?>
-            <div class="calendar-flash"><?php echo htmlspecialchars($data['flash']); ?></div>
+            <?php 
+                $isError = preg_match('/(error|incorrecto|ya está|no puedes|no válido|campos obligatorios|completados)/i', $data['flash']);
+                $flashClass = $isError ? 'calendar-flash flash-danger' : 'calendar-flash flash-success';
+                $flashIcon = $isError ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
+            ?>
+            <div class="<?php echo $flashClass; ?>" style="display: flex; align-items: center; gap: 10px; padding: 12px 15px; margin: 15px; border-radius: 6px; font-weight: 500; font-size: 14px; background: <?php echo $isError ? '#f8d7da' : '#d1e7dd'; ?>; color: <?php echo $isError ? '#842029' : '#0f5132'; ?>; border: 1px solid <?php echo $isError ? '#f5c2c7' : '#badbcc'; ?>;">
+                <i class="<?php echo $flashIcon; ?>"></i>
+                <span><?php echo htmlspecialchars($data['flash']); ?></span>
+            </div>
         <?php endif; ?>
         <?php if ($section === 'calendar') : ?>
         <header class="toolbar">
@@ -367,13 +375,13 @@
                         <input type="hidden" name="user_id" id="user-form-id" value="0">
                         
                         <label>Nombre</label>
-                        <input type="text" name="name" id="user-form-name" required>
+                        <input type="text" name="name" id="user-form-name" placeholder="Ej. Pepe Paciente" required>
                         
                         <label>Email</label>
-                        <input type="email" name="email" id="user-form-email" required>
+                        <input type="email" name="email" id="user-form-email" placeholder="Ej. pepe@doctoria.com" required>
                         
                         <label>Teléfono</label>
-                        <input type="text" name="phone" id="user-form-phone">
+                        <input type="text" name="phone" id="user-form-phone" placeholder="Ej. +57 300 100 0005">
                         
                         <label>Rol</label>
                         <select name="role" id="user-form-role" required>
@@ -383,7 +391,7 @@
                         </select>
                         
                         <label id="user-form-pass-label">Contraseña</label>
-                        <input type="password" name="password" id="user-form-password">
+                        <input type="password" name="password" id="user-form-password" placeholder="••••••••">
                         
                         <div class="calendar-modal-actions">
                             <button type="submit" class="btn-configurar">Guardar</button>
