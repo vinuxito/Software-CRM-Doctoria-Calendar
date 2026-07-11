@@ -3,6 +3,7 @@ class Dashboard extends Controller {
     private $appointmentModel;
     private $userModel;
     private $chatModel;
+    private $patientFileModel;
 
     public function __construct(){
         if(!isset($_SESSION['user_id'])){
@@ -12,6 +13,7 @@ class Dashboard extends Controller {
         $this->appointmentModel = $this->model('Appointment');
         $this->userModel = $this->model('User');
         $this->chatModel = $this->model('Chat');
+        $this->patientFileModel = $this->model('PatientFile');
     }
 
     public function index(){
@@ -300,6 +302,91 @@ class Dashboard extends Controller {
         $users = $this->userModel->getAllUsers();
         $data = $this->baseData('users');
         $data['users'] = $users;
+        $this->view('dashboard/index', $data);
+    }
+
+    public function patients(){
+        $role = $_SESSION['user_role'] ?? 'cliente';
+        // Only admin and medico can manage patient digital files
+        if(!in_array($role, ['admin', 'medico'], true)){
+            header('location: ' . URLROOT . '/dashboard');
+            return;
+        }
+
+        // Handle POST actions: update patient profile + clinical file
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            $patientId = (int)($_POST['patient_id'] ?? 0);
+            $name = trim($_POST['name'] ?? '');
+            $email = trim($_POST['email'] ?? '');
+            $phone = trim($_POST['phone'] ?? '');
+            
+            $dob = trim($_POST['dob'] ?? '');
+            $address = trim($_POST['address'] ?? '');
+            $bloodType = trim($_POST['blood_type'] ?? '');
+            $allergies = trim($_POST['allergies'] ?? '');
+            $medicalHistory = trim($_POST['medical_history'] ?? '');
+            $medications = trim($_POST['medications'] ?? '');
+            $clinicalNotes = trim($_POST['clinical_notes'] ?? '');
+
+            $existingUser = $this->userModel->getUserByEmail($email);
+
+            if($patientId <= 0){
+                $_SESSION['flash'] = 'ID de paciente no válido.';
+            } elseif(empty($name) || empty($email)){
+                $_SESSION['flash'] = 'Nombre y Correo electrónico son obligatorios.';
+            } elseif(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+                $_SESSION['flash'] = 'El formato del correo electrónico no es válido.';
+            } elseif($existingUser && (int)$existingUser->id !== $patientId){
+                $_SESSION['flash'] = 'El correo electrónico ya está registrado por otro usuario.';
+            } else {
+                // 1. Update User basic info
+                $userData = [
+                    'id' => $patientId,
+                    'name' => $name,
+                    'email' => $email,
+                    'phone' => $phone,
+                    'role' => 'cliente',
+                    'password' => '' // Keep existing password
+                ];
+                $userSuccess = $this->userModel->updateUser($userData);
+
+                // 2. Update Patient File clinical info
+                $fileData = [
+                    'patient_id' => $patientId,
+                    'dob' => $dob,
+                    'address' => $address,
+                    'blood_type' => $bloodType,
+                    'allergies' => $allergies,
+                    'medical_history' => $medicalHistory,
+                    'medications' => $medications,
+                    'clinical_notes' => $clinicalNotes
+                ];
+                $fileSuccess = $this->patientFileModel->updateFile($fileData);
+
+                if($userSuccess && $fileSuccess){
+                    $_SESSION['flash'] = 'Expediente digital actualizado exitosamente.';
+                    error_log("AUDIT LOG: Admin/Medico User [{$_SESSION['user_email']}] UPDATED Patient Digital File for ID [{$patientId}]. SUCCESS.");
+                } else {
+                    $_SESSION['flash'] = 'Ocurrió un error al guardar el expediente.';
+                    error_log("AUDIT LOG: Admin/Medico User [{$_SESSION['user_email']}] UPDATED Patient Digital File for ID [{$patientId}]. FAILED.");
+                }
+            }
+            header('location: ' . URLROOT . '/dashboard/patients');
+            return;
+        }
+
+        $patients = $this->userModel->getUsersByRole('cliente');
+        // Attach clinical record to each patient
+        foreach($patients as $p){
+            $p->clinical_record = $this->patientFileModel->getOrCreateFile($p->id);
+        }
+
+        $appointments = $this->appointmentModel->getAppointments();
+
+        $data = $this->baseData('patients');
+        $data['patients'] = $patients;
+        $data['appointments'] = $appointments;
+        
         $this->view('dashboard/index', $data);
     }
 }

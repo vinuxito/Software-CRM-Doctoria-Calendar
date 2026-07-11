@@ -9,7 +9,12 @@
         <a href="<?php echo URLROOT; ?>/dashboard/doctors" class="nav-icon <?php echo $section === 'doctors' ? 'active' : ''; ?>"><i class="far fa-user"></i></a>
         <a href="<?php echo URLROOT; ?>/dashboard/chat" class="nav-icon <?php echo $section === 'chat' ? 'active' : ''; ?>"><i class="far fa-comment"></i></a>
         <a href="<?php echo URLROOT; ?>/dashboard/panel" class="nav-icon <?php echo $section === 'panel' ? 'active' : ''; ?>"><i class="far fa-chart-bar"></i></a>
-        <a href="<?php echo URLROOT; ?>/dashboard/users" class="nav-icon <?php echo $section === 'users' ? 'active' : ''; ?>"><i class="fas fa-users"></i></a>
+        <?php if (in_array($data['user_role'], ['admin', 'medico'], true)) : ?>
+        <a href="<?php echo URLROOT; ?>/dashboard/patients" class="nav-icon <?php echo $section === 'patients' ? 'active' : ''; ?>" title="Expedientes Clínicos"><i class="fas fa-notes-medical"></i></a>
+        <?php endif; ?>
+        <?php if ($data['user_role'] === 'admin') : ?>
+        <a href="<?php echo URLROOT; ?>/dashboard/users" class="nav-icon <?php echo $section === 'users' ? 'active' : ''; ?>" title="Control de Usuarios"><i class="fas fa-users"></i></a>
+        <?php endif; ?>
         <div class="bottom-actions">
             <a href="<?php echo URLROOT; ?>/dashboard/settings" class="nav-icon <?php echo $section === 'settings' ? 'active' : ''; ?>"><i class="fas fa-cog"></i></a>
             <a href="<?php echo URLROOT; ?>/dashboard/profile" class="user-avatar user-avatar-link <?php echo $section === 'profile' ? 'active' : ''; ?>"><?php echo strtoupper(substr($data['user_name'], 0, 1)); ?></a>
@@ -315,6 +320,149 @@
                         <label><span>Especialidad</span><input type="text" value="Medicina general"></label>
                     </div>
                     <button class="btn-outline setting-save">Actualizar perfil</button>
+                </div>
+            </div>
+        </section>
+        <?php elseif ($section === 'patients') : ?>
+        <header class="toolbar">
+            <div class="tol-left"><div class="date-title"><span>Gestión de Expedientes</span></div></div>
+            <div class="tol-right">
+                <div class="panel-search-wrap">
+                    <i class="fas fa-search"></i>
+                    <input id="patient-live-search" type="text" placeholder="Buscar paciente...">
+                </div>
+            </div>
+        </header>
+        <section class="crm-content">
+            <div class="settings-card">
+                <h3>Expedientes Clínicos (Fichas Digitales)</h3>
+                <table class="report-table crud-table" id="patients-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Grupo Sanguíneo</th><th>Dirección</th><th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach (($data['patients'] ?? []) as $p) : ?>
+                            <?php $record = $p->clinical_record; ?>
+                            <tr class="crud-record-row">
+                                <td>#<?php echo (int)$p->id; ?></td>
+                                <td><strong><?php echo htmlspecialchars($p->name); ?></strong></td>
+                                <td><?php echo htmlspecialchars($p->email); ?></td>
+                                <td><?php echo htmlspecialchars($p->phone ?? 'N/A'); ?></td>
+                                <td>
+                                    <?php if (!empty($record->blood_type)) : ?>
+                                        <span class="status-chip status-approved" style="background:#cfe2ff; color:#084298; border:1px solid #b6d4fe;"><?php echo htmlspecialchars($record->blood_type); ?></span>
+                                    <?php else : ?>
+                                        <span class="status-chip status-pending">No definido</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?php echo htmlspecialchars($record->address ?? 'N/A'); ?></td>
+                                <td>
+                                    <button class="btn-agendar btn-view-patient-file" 
+                                            data-id="<?php echo (int)$p->id; ?>"
+                                            data-name="<?php echo htmlspecialchars($p->name); ?>"
+                                            data-email="<?php echo htmlspecialchars($p->email); ?>"
+                                            data-phone="<?php echo htmlspecialchars($p->phone ?? ''); ?>"
+                                            data-dob="<?php echo htmlspecialchars($record->dob ?? ''); ?>"
+                                            data-address="<?php echo htmlspecialchars($record->address ?? ''); ?>"
+                                            data-blood_type="<?php echo htmlspecialchars($record->blood_type ?? ''); ?>"
+                                            data-allergies="<?php echo htmlspecialchars($record->allergies ?? ''); ?>"
+                                            data-medical_history="<?php echo htmlspecialchars($record->medical_history ?? ''); ?>"
+                                            data-medications="<?php echo htmlspecialchars($record->medications ?? ''); ?>"
+                                            data-clinical_notes="<?php echo htmlspecialchars($record->clinical_notes ?? ''); ?>"><i class="fas fa-file-medical"></i> Abrir Expediente</button>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Modal for Patient Clinical File -->
+            <div id="patient-file-modal" class="calendar-modal-overlay">
+                <div class="calendar-modal-card" style="max-width: 900px; width: 90%;">
+                    <div class="calendar-modal-head">
+                        <h3>Expediente Clínico Digital</h3>
+                        <button type="button" id="patient-file-modal-close" class="calendar-modal-close">×</button>
+                    </div>
+                    <form action="<?php echo URLROOT; ?>/dashboard/patients" method="post" class="calendar-modal-form">
+                        <input type="hidden" name="patient_id" id="patient-form-id" value="0">
+                        
+                        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px;">
+                            <!-- Left Column: Patient File Form -->
+                            <div>
+                                <h4 style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px; color: #333;"><i class="fas fa-id-card"></i> Datos Clínicos & Personales</h4>
+                                
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <div>
+                                        <label>Nombre</label>
+                                        <input type="text" name="name" id="patient-form-name" required>
+                                    </div>
+                                    <div>
+                                        <label>Email</label>
+                                        <input type="email" name="email" id="patient-form-email" required>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                                    <div>
+                                        <label>Teléfono</label>
+                                        <input type="text" name="phone" id="patient-form-phone">
+                                    </div>
+                                    <div>
+                                        <label>Fecha de Nacimiento</label>
+                                        <input type="date" name="dob" id="patient-form-dob">
+                                    </div>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 10px; margin-top: 10px;">
+                                    <div>
+                                        <label>Dirección de Residencia</label>
+                                        <input type="text" name="address" id="patient-form-address" placeholder="Ej. Calle 45 #12-34">
+                                    </div>
+                                    <div>
+                                        <label>Grupo Sanguíneo</label>
+                                        <select name="blood_type" id="patient-form-blood-type">
+                                            <option value="">No definido</option>
+                                            <option value="O+">O Positivo (O+)</option>
+                                            <option value="O-">O Negativo (O-)</option>
+                                            <option value="A+">A Positivo (A+)</option>
+                                            <option value="A-">A Negativo (A-)</option>
+                                            <option value="B+">B Positivo (B+)</option>
+                                            <option value="B-">B Negativo (B-)</option>
+                                            <option value="AB+">AB Positivo (AB+)</option>
+                                            <option value="AB-">AB Negativo (AB-)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <label style="margin-top: 10px;">Alergias & Contraindicaciones</label>
+                                <textarea name="allergies" id="patient-form-allergies" rows="2" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;" placeholder="Ej. Penicilina, AINEs..."></textarea>
+
+                                <label style="margin-top: 10px;">Antecedentes Médicos</label>
+                                <textarea name="medical_history" id="patient-form-medical-history" rows="2" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;" placeholder="Ej. Hipertensión arterial, Diabetes tipo 2..."></textarea>
+
+                                <label style="margin-top: 10px;">Medicamentos Activos</label>
+                                <textarea name="medications" id="patient-form-medications" rows="2" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;" placeholder="Ej. Losartán 50mg/día..."></textarea>
+
+                                <label style="margin-top: 10px;">Notas Clínicas / Observaciones</label>
+                                <textarea name="clinical_notes" id="patient-form-clinical-notes" rows="3" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;" placeholder="Anotaciones de la última consulta..."></textarea>
+                            </div>
+                            
+                            <!-- Right Column: Medical Context (Appointments list) -->
+                            <div style="background: #f8f9fa; border-radius: 6px; padding: 15px; border: 1px solid #e9ecef; display: flex; flex-direction: column;">
+                                <h4 style="margin-bottom: 12px; border-bottom: 1px solid #ddd; padding-bottom: 5px; color: #333;"><i class="far fa-calendar-alt"></i> Historial de Citas</h4>
+                                <div id="patient-appointments-history" style="flex: 1; overflow-y: auto; max-height: 400px; display: flex; flex-direction: column; gap: 8px;">
+                                    <!-- Populated dynamically via JS -->
+                                    <div style="text-align: center; color: #888; margin-top: 20px;">Seleccione un paciente para ver su historial</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="calendar-modal-actions" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                            <button type="submit" class="btn-configurar"><i class="fas fa-save"></i> Guardar Expediente</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </section>
@@ -911,6 +1059,138 @@ document.addEventListener('DOMContentLoaded', function () {
             if (event.target === modal) {
                 closeModal();
             }
+        });
+    }
+});
+<?php elseif ($section === 'patients') : ?>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var modal = document.getElementById('patient-file-modal');
+    var closeBtn = document.getElementById('patient-file-modal-close');
+    var viewBtns = document.querySelectorAll('.btn-view-patient-file');
+    
+    var formId = document.getElementById('patient-form-id');
+    var formName = document.getElementById('patient-form-name');
+    var formEmail = document.getElementById('patient-form-email');
+    var formPhone = document.getElementById('patient-form-phone');
+    var formDob = document.getElementById('patient-form-dob');
+    var formAddress = document.getElementById('patient-form-address');
+    var formBloodType = document.getElementById('patient-form-blood-type');
+    var formAllergies = document.getElementById('patient-form-allergies');
+    var formMedicalHistory = document.getElementById('patient-form-medical-history');
+    var formMedications = document.getElementById('patient-form-medications');
+    var formClinicalNotes = document.getElementById('patient-form-clinical-notes');
+    
+    var appointmentsHistory = document.getElementById('patient-appointments-history');
+    
+    // Load all appointments passed from PHP controller
+    var dbAppointments = <?php echo json_encode($data['appointments'] ?? []); ?>;
+
+    function openPatientModal(btn) {
+        var patientId = parseInt(btn.dataset.id);
+        
+        formId.value = patientId;
+        formName.value = btn.dataset.name;
+        formEmail.value = btn.dataset.email;
+        formPhone.value = btn.dataset.phone;
+        formDob.value = btn.dataset.dob;
+        formAddress.value = btn.dataset.address;
+        formBloodType.value = btn.dataset.blood_type;
+        formAllergies.value = btn.dataset.allergies;
+        formMedicalHistory.value = btn.dataset.medical_history;
+        formMedications.value = btn.dataset.medications;
+        formClinicalNotes.value = btn.dataset.clinical_notes;
+        
+        // Render appointments history
+        renderAppointmentsHistory(patientId);
+        
+        modal.classList.add('active');
+    }
+
+    function renderAppointmentsHistory(patientId) {
+        appointmentsHistory.innerHTML = '';
+        var patientApps = dbAppointments.filter(function (app) {
+            return parseInt(app.patient_id) === patientId;
+        });
+
+        if (patientApps.length === 0) {
+            appointmentsHistory.innerHTML = '<div style="text-align: center; color: #888; margin-top: 20px; font-size: 13px;">No hay citas registradas para este paciente.</div>';
+            return;
+        }
+
+        patientApps.forEach(function (app) {
+            var dateObj = new Date(app.start_date);
+            var dateStr = dateObj.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+            var timeStr = dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            
+            var statusColors = {
+                'pending': { bg: '#fff3cd', text: '#664d03', border: '#ffe69c' },
+                'approved': { bg: '#d1e7dd', text: '#0f5132', border: '#badbcc' },
+                'rejected': { bg: '#f8d7da', text: '#842029', border: '#f5c2c7' },
+                'completed': { bg: '#e2e3e5', text: '#41464b', border: '#d3d6d8' }
+            };
+            var status = app.status || 'pending';
+            var colors = statusColors[status] || statusColors['pending'];
+            
+            var card = document.createElement('div');
+            card.style.background = '#ffffff';
+            card.style.border = '1px solid #e9ecef';
+            card.style.borderRadius = '5px';
+            card.style.padding = '10px 12px';
+            card.style.display = 'flex';
+            card.style.flexDirection = 'column';
+            card.style.gap = '4px';
+            card.style.boxShadow = '0 1px 2px rgba(0,0,0,0.02)';
+            
+            card.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <strong style="color: #333; font-size: 13px;">${app.title}</strong>
+                    <span style="font-size: 10px; font-weight: bold; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; background: ${colors.bg}; color: ${colors.text}; border: 1px solid ${colors.border};">${status}</span>
+                </div>
+                <div style="font-size: 12px; color: #555;">
+                    <i class="far fa-clock"></i> ${dateStr} a las ${timeStr}
+                </div>
+                <div style="font-size: 11px; color: #777;">
+                    Médico: ${app.doctor_name}
+                </div>
+                ${app.description ? `<div style="font-size: 11px; color: #888; font-style: italic; margin-top: 2px; border-left: 2px solid #ddd; padding-left: 5px;">${app.description}</div>` : ''}
+            `;
+            appointmentsHistory.appendChild(card);
+        });
+    }
+
+    function closeModal() {
+        modal.classList.remove('active');
+    }
+
+    viewBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            openPatientModal(btn);
+        });
+    });
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeModal);
+    }
+
+    if (modal) {
+        modal.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+    }
+
+    // Client-side live search for patients
+    var searchInput = document.getElementById('patient-live-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            var query = (searchInput.value || '').toLowerCase().trim();
+            var rows = document.querySelectorAll('#patients-table tbody tr');
+            rows.forEach(function (row) {
+                var text = (row.textContent || '').toLowerCase();
+                row.style.display = query === '' || text.indexOf(query) !== -1 ? '' : 'none';
+            });
         });
     }
 });

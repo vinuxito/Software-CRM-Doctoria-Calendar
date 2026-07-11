@@ -38,6 +38,20 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     FOREIGN KEY (receiver_id) REFERENCES users(id)
 );
 
+CREATE TABLE IF NOT EXISTS patient_files (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT NOT NULL UNIQUE,
+    dob DATE DEFAULT NULL,
+    address VARCHAR(255) DEFAULT NULL,
+    blood_type VARCHAR(10) DEFAULT NULL,
+    allergies TEXT DEFAULT NULL,
+    medical_history TEXT DEFAULT NULL,
+    medications TEXT DEFAULT NULL,
+    clinical_notes TEXT DEFAULT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 INSERT INTO users (id, name, email, phone, role, password) VALUES
 (1, 'Administrador CRM', 'admin@doctoria.com', '+57 300 100 0001', 'admin', '$2y$10$KSmTkuLZX8fHk7g38BYuP.kLVRXGWdgIHYhfOF92aaQuVSb8AbQ5C'),
 (2, 'Dr. Gregory House', 'house@doctoria.com', '+57 300 100 0002', 'medico', '$2y$10$KSmTkuLZX8fHk7g38BYuP.kLVRXGWdgIHYhfOF92aaQuVSb8AbQ5C'),
