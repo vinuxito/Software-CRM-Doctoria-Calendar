@@ -72,6 +72,9 @@
     <?php endif; ?>
 
     <main class="main-view">
+        <?php if (!empty($data['flash'])) : ?>
+            <div class="calendar-flash"><?php echo htmlspecialchars($data['flash']); ?></div>
+        <?php endif; ?>
         <?php if ($section === 'calendar') : ?>
         <header class="toolbar">
             <div class="tol-left">

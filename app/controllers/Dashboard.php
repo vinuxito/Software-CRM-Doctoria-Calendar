@@ -30,8 +30,6 @@ class Dashboard extends Controller {
         $data['doctors'] = $doctors;
         $data['clients'] = $clients;
         $data['can_schedule'] = in_array($role, ['admin', 'medico', 'cliente']);
-        $data['flash'] = $_SESSION['flash'] ?? '';
-        unset($_SESSION['flash']);
         $this->view('dashboard/index', $data);
     }
 
@@ -113,6 +111,8 @@ class Dashboard extends Controller {
     }
 
     private function baseData($section){
+        $flash = $_SESSION['flash'] ?? '';
+        unset($_SESSION['flash']);
         return [
             'title' => 'Dashboard',
             'user_name' => $_SESSION['user_name'],
@@ -120,7 +120,8 @@ class Dashboard extends Controller {
             'section' => $section,
             'hide_navbar' => true,
             'layout_full' => true,
-            'body_class' => 'crm-dashboard-body'
+            'body_class' => 'crm-dashboard-body',
+            'flash' => $flash
         ];
     }
 
@@ -205,31 +206,84 @@ class Dashboard extends Controller {
         // Handle POST actions: create, update, delete
         if($_SERVER['REQUEST_METHOD'] === 'POST'){
             $action = $_POST['user_action'] ?? '';
+            
             if($action === 'create'){
-                $data = [
-                    'name' => trim($_POST['name'] ?? ''),
-                    'email' => trim($_POST['email'] ?? ''),
-                    'phone' => trim($_POST['phone'] ?? ''),
-                    'role' => trim($_POST['role'] ?? 'cliente'),
-                    'password' => password_hash(trim($_POST['password'] ?? '123456'), PASSWORD_DEFAULT)
-                ];
-                $this->userModel->register($data);
+                $name = trim($_POST['name'] ?? '');
+                $email = trim($_POST['email'] ?? '');
+                $phone = trim($_POST['phone'] ?? '');
+                $userRole = trim($_POST['role'] ?? 'cliente');
+                $passwordRaw = trim($_POST['password'] ?? '');
+
+                if(empty($name) || empty($email) || empty($userRole) || empty($passwordRaw)){
+                    $_SESSION['flash'] = 'Todos los campos obligatorios deben ser completados.';
+                } elseif(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+                    $_SESSION['flash'] = 'El formato del correo electrónico no es válido.';
+                } elseif(!in_array($userRole, ['admin', 'medico', 'cliente'], true)){
+                    $_SESSION['flash'] = 'El rol seleccionado no es válido.';
+                } elseif($this->userModel->getUserByEmail($email)){
+                    $_SESSION['flash'] = 'El correo electrónico ya está registrado.';
+                } else {
+                    $data = [
+                        'name' => $name,
+                        'email' => $email,
+                        'phone' => $phone,
+                        'role' => $userRole,
+                        'password' => password_hash($passwordRaw, PASSWORD_DEFAULT)
+                    ];
+                    if($this->userModel->register($data)){
+                        $_SESSION['flash'] = 'Usuario creado exitosamente.';
+                    } else {
+                        $_SESSION['flash'] = 'Ocurrió un error al intentar registrar el usuario.';
+                    }
+                }
             } elseif($action === 'update'){
-                $data = [
-                    'id' => (int)($_POST['user_id'] ?? 0),
-                    'name' => trim($_POST['name'] ?? ''),
-                    'email' => trim($_POST['email'] ?? ''),
-                    'phone' => trim($_POST['phone'] ?? ''),
-                    'role' => trim($_POST['role'] ?? 'cliente'),
-                    'password' => !empty($_POST['password']) ? password_hash(trim($_POST['password']), PASSWORD_DEFAULT) : ''
-                ];
-                if($data['id'] > 0){
-                    $this->userModel->updateUser($data);
+                $userId = (int)($_POST['user_id'] ?? 0);
+                $name = trim($_POST['name'] ?? '');
+                $email = trim($_POST['email'] ?? '');
+                $phone = trim($_POST['phone'] ?? '');
+                $userRole = trim($_POST['role'] ?? 'cliente');
+                $passwordRaw = trim($_POST['password'] ?? '');
+
+                $existingUser = $this->userModel->getUserByEmail($email);
+
+                if($userId <= 0){
+                    $_SESSION['flash'] = 'ID de usuario no válido.';
+                } elseif(empty($name) || empty($email) || empty($userRole)){
+                    $_SESSION['flash'] = 'Los campos nombre, correo y rol son obligatorios.';
+                } elseif(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+                    $_SESSION['flash'] = 'El formato del correo electrónico no es válido.';
+                } elseif(!in_array($userRole, ['admin', 'medico', 'cliente'], true)){
+                    $_SESSION['flash'] = 'El rol seleccionado no es válido.';
+                } elseif($existingUser && (int)$existingUser->id !== $userId){
+                    $_SESSION['flash'] = 'El correo electrónico ya está registrado por otro usuario.';
+                } else {
+                    $data = [
+                        'id' => $userId,
+                        'name' => $name,
+                        'email' => $email,
+                        'phone' => $phone,
+                        'role' => $userRole,
+                        'password' => !empty($passwordRaw) ? password_hash($passwordRaw, PASSWORD_DEFAULT) : ''
+                    ];
+                    if($this->userModel->updateUser($data)){
+                        $_SESSION['flash'] = 'Usuario actualizado exitosamente.';
+                    } else {
+                        $_SESSION['flash'] = 'Ocurrió un error al intentar actualizar el usuario.';
+                    }
                 }
             } elseif($action === 'delete'){
                 $userId = (int)($_POST['user_id'] ?? 0);
-                if($userId > 0){
-                    $this->userModel->deleteUser($userId);
+                // Prevent self-deletion
+                if($userId === (int)$_SESSION['user_id']){
+                    $_SESSION['flash'] = 'No puedes eliminar tu propio usuario administrador.';
+                } elseif($userId > 0){
+                    if($this->userModel->deleteUser($userId)){
+                        $_SESSION['flash'] = 'Usuario eliminado exitosamente.';
+                    } else {
+                        $_SESSION['flash'] = 'Ocurrió un error al intentar eliminar el usuario.';
+                    }
+                } else {
+                    $_SESSION['flash'] = 'ID de usuario no válido para eliminación.';
                 }
             }
             header('location: ' . URLROOT . '/dashboard/users');
