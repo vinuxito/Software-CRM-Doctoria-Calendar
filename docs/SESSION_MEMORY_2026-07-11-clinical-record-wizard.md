@@ -40,3 +40,11 @@ Implement the 5-step interactive clinical intake wizard for physiotherapist Naxi
   * Coded the complete 5-step wizard HTML shell and grid styling in `index.php` view.
   * Added the JS wizard controller skeleton handling loading, tab switching, and age autocomputation.
 * **Verify/Build**: Verified happy path persistence end-to-end using automated script `test_wizard_logic.php`. All database tables and columns are validated and persistent. All tests passed.
+
+### 3. Iteration 3 — HARDENING & EDGE CASES
+* **Lens**: *What breaks when reality hits this code?*
+* **Results**:
+  * Implemented and hardened segmented tri-state toggles (Sí/No/N/A) preventing contradictory paper-checkbox states.
+  * Added specification inline input slides that dynamically transition based on active selection.
+  * Wired critical diagnostic warnings: if Marcapasos or Embarazo is selected, immediately display warning banners in Step 2 and Step 4 plans.
+* **Verify/Build**: Ran E2E browser tests logging in, opening Pepe Paciente's draft, selecting option flags, and verifying warnings. No console errors occurred.
