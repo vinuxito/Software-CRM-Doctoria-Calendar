@@ -138,4 +138,24 @@ if ($reloaded['patient']->ocupacion !== 'Ingeniero de Software' ||
 }
 echo "✓ Validated reloaded clinical record values match perfectly (Byte-Exact persistence check).\n";
 
+// 5. Test Untouched EVA value saving NULL
+$mockPayload['expediente']['eva_dolor'] = null;
+$mockPayload['plan_sesiones'][] = ['fecha' => '', 'indicaciones' => '']; // Add a completely blank session row to test exclusion (GC-4)
+
+$savedNullEva = $expedienteModel->saveExpedienteData(5, $mockPayload);
+if (!$savedNullEva) {
+    die("ERROR: Failed to save mock payload with null EVA.\n");
+}
+
+$reloadedNull = $expedienteModel->loadExpedienteData(5);
+if ($reloadedNull['expediente']->eva_dolor !== null) {
+    die("ERROR: Untouched EVA value should save as NULL, but reloaded: " . var_export($reloadedNull['expediente']->eva_dolor, true) . "\n");
+}
+echo "✓ Verified untouched EVA scale correctly persists as NULL in database.\n";
+
+if (count($reloadedNull['plan_sesiones']) !== 2) {
+    die("ERROR: Blank session rows should be ignored, but found: " . count($reloadedNull['plan_sesiones']) . "\n");
+}
+echo "✓ Verified empty treatment plan session rows are filtered and excluded from database save.\n";
+
 echo "ALL WIZARD LOGIC TESTS PASSED!\n";

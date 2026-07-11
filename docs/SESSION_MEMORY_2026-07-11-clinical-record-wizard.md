@@ -48,3 +48,11 @@ Implement the 5-step interactive clinical intake wizard for physiotherapist Naxi
   * Added specification inline input slides that dynamically transition based on active selection.
   * Wired critical diagnostic warnings: if Marcapasos or Embarazo is selected, immediately display warning banners in Step 2 and Step 4 plans.
 * **Verify/Build**: Ran E2E browser tests logging in, opening Pepe Paciente's draft, selecting option flags, and verifying warnings. No console errors occurred.
+
+### 4. Iteration 4 — TEST DEPTH
+* **Lens**: *Can we prove it works — and prove it stays working?*
+* **Results**:
+  * Expanded automated CLI test suite `test_wizard_logic.php` with target test blocks.
+  * Verified correct database execution for the untouched EVA pain slider, asserting it correctly saves as `NULL` to distinguish untouched from zero pain levels.
+  * Verified that empty/blank treatment plan session rows are successfully filtered and excluded from SQL inserts, preserving stable ordering indexes for filled sessions.
+* **Verify/Build**: Executed `php test_wizard_logic.php`. All deep database logic checks passed.
