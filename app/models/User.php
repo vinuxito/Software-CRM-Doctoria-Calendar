@@ -78,4 +78,14 @@ class User {
         $this->db->bind(':role', $role);
         return $this->db->resultSet();
     }
+
+    public function updateUser($data){
+        // Placeholder for Iteration 2
+        return false;
+    }
+
+    public function deleteUser($id){
+        // Placeholder for Iteration 2
+        return false;
+    }
 }

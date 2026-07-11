@@ -193,4 +193,9 @@ class Dashboard extends Controller {
         }
         header('location: ' . URLROOT . '/dashboard/calendar');
     }
+
+    public function users(){
+        // Placeholder for Iteration 2
+        header('location: ' . URLROOT . '/dashboard/calendar');
+    }
 }

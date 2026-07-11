@@ -9,6 +9,7 @@
         <a href="<?php echo URLROOT; ?>/dashboard/doctors" class="nav-icon <?php echo $section === 'doctors' ? 'active' : ''; ?>"><i class="far fa-user"></i></a>
         <a href="<?php echo URLROOT; ?>/dashboard/chat" class="nav-icon <?php echo $section === 'chat' ? 'active' : ''; ?>"><i class="far fa-comment"></i></a>
         <a href="<?php echo URLROOT; ?>/dashboard/panel" class="nav-icon <?php echo $section === 'panel' ? 'active' : ''; ?>"><i class="far fa-chart-bar"></i></a>
+        <a href="<?php echo URLROOT; ?>/dashboard/users" class="nav-icon <?php echo $section === 'users' ? 'active' : ''; ?>"><i class="fas fa-users"></i></a>
         <div class="bottom-actions">
             <a href="<?php echo URLROOT; ?>/dashboard/settings" class="nav-icon <?php echo $section === 'settings' ? 'active' : ''; ?>"><i class="fas fa-cog"></i></a>
             <a href="<?php echo URLROOT; ?>/dashboard/profile" class="user-avatar user-avatar-link <?php echo $section === 'profile' ? 'active' : ''; ?>"><?php echo strtoupper(substr($data['user_name'], 0, 1)); ?></a>
