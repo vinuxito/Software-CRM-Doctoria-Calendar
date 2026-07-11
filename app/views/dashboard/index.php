@@ -3,7 +3,7 @@
 <div class="crm-calendar-shell">
     <nav class="icon-sidebar">
         <div class="brand-icon">
-            <img src="<?php echo URLROOT; ?>/../img/logo.png" alt="Logo">
+            <img src="<?php echo URLROOT; ?>/img/logo.png" alt="Logo">
         </div>
         <a href="<?php echo URLROOT; ?>/dashboard/calendar" class="nav-icon <?php echo $section === 'calendar' ? 'active' : ''; ?>"><i class="far fa-calendar-alt"></i></a>
         <a href="<?php echo URLROOT; ?>/dashboard/doctors" class="nav-icon <?php echo $section === 'doctors' ? 'active' : ''; ?>"><i class="far fa-user"></i></a>

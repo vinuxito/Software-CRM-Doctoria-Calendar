@@ -65,9 +65,9 @@ if (!$deleted) {
 }
 
 $userDeleted = $userModel->getUserById($user->id);
-if ($userDeleted) {
-    die("ERROR: User still exists after deletion.\n");
+if (!$userDeleted || (int)$userDeleted->is_deleted !== 1) {
+    die("ERROR: User is not soft-deleted.\n");
 }
-echo "✓ Deleted user successfully.\n";
+echo "✓ Soft deleted user successfully.\n";
 
 echo "ALL CRUD TESTS PASSED!\n";

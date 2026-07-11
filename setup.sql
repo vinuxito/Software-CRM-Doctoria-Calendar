@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
     phone VARCHAR(40) DEFAULT NULL,
     role ENUM('admin','medico','cliente') NOT NULL DEFAULT 'cliente',
     password VARCHAR(255) NOT NULL,
+    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -26,7 +26,7 @@ class User {
 
     // Login User
     public function login($email, $password){
-        $this->db->query('SELECT * FROM users WHERE email = :email');
+        $this->db->query('SELECT * FROM users WHERE email = :email AND is_deleted = 0');
         $this->db->bind(':email', $email);
 
         $row = $this->db->single();
@@ -69,12 +69,12 @@ class User {
     }
 
     public function getAllUsers(){
-        $this->db->query('SELECT id, name, email, phone, role, created_at FROM users ORDER BY created_at DESC');
+        $this->db->query('SELECT id, name, email, phone, role, created_at FROM users WHERE is_deleted = 0 ORDER BY created_at DESC');
         return $this->db->resultSet();
     }
 
     public function getUsersByRole($role){
-        $this->db->query('SELECT id, name, email, phone, role, created_at FROM users WHERE role = :role ORDER BY created_at DESC');
+        $this->db->query('SELECT id, name, email, phone, role, created_at FROM users WHERE role = :role AND is_deleted = 0 ORDER BY created_at DESC');
         $this->db->bind(':role', $role);
         return $this->db->resultSet();
     }
@@ -100,18 +100,7 @@ class User {
     }
 
     public function deleteUser($id){
-        // Delete dependent appointments
-        $this->db->query('DELETE FROM appointments WHERE patient_id = :id OR doctor_id = :id OR user_id = :id OR created_by = :id');
-        $this->db->bind(':id', $id);
-        $this->db->execute();
-
-        // Delete dependent chat messages
-        $this->db->query('DELETE FROM chat_messages WHERE sender_id = :id OR receiver_id = :id');
-        $this->db->bind(':id', $id);
-        $this->db->execute();
-
-        // Delete the user
-        $this->db->query('DELETE FROM users WHERE id = :id');
+        $this->db->query('UPDATE users SET is_deleted = 1 WHERE id = :id');
         $this->db->bind(':id', $id);
 
         if($this->db->execute()){
