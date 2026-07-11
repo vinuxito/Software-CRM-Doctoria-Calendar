@@ -232,8 +232,10 @@ class Dashboard extends Controller {
                     ];
                     if($this->userModel->register($data)){
                         $_SESSION['flash'] = 'Usuario creado exitosamente.';
+                        error_log("AUDIT LOG: Admin User [{$_SESSION['user_email']}] CREATED new user [{$email}] with role [{$userRole}]. SUCCESS.");
                     } else {
                         $_SESSION['flash'] = 'Ocurrió un error al intentar registrar el usuario.';
+                        error_log("AUDIT LOG: Admin User [{$_SESSION['user_email']}] CREATED new user [{$email}] with role [{$userRole}]. FAILED.");
                     }
                 }
             } elseif($action === 'update'){
@@ -267,8 +269,10 @@ class Dashboard extends Controller {
                     ];
                     if($this->userModel->updateUser($data)){
                         $_SESSION['flash'] = 'Usuario actualizado exitosamente.';
+                        error_log("AUDIT LOG: Admin User [{$_SESSION['user_email']}] UPDATED user ID [{$userId}] (New Email: [{$email}], Role: [{$userRole}]). SUCCESS.");
                     } else {
                         $_SESSION['flash'] = 'Ocurrió un error al intentar actualizar el usuario.';
+                        error_log("AUDIT LOG: Admin User [{$_SESSION['user_email']}] UPDATED user ID [{$userId}] (New Email: [{$email}], Role: [{$userRole}]). FAILED.");
                     }
                 }
             } elseif($action === 'delete'){
@@ -276,11 +280,14 @@ class Dashboard extends Controller {
                 // Prevent self-deletion
                 if($userId === (int)$_SESSION['user_id']){
                     $_SESSION['flash'] = 'No puedes eliminar tu propio usuario administrador.';
+                    error_log("AUDIT LOG: Admin User [{$_SESSION['user_email']}] ATTEMPTED self-deletion. BLOCKED.");
                 } elseif($userId > 0){
                     if($this->userModel->deleteUser($userId)){
                         $_SESSION['flash'] = 'Usuario eliminado exitosamente.';
+                        error_log("AUDIT LOG: Admin User [{$_SESSION['user_email']}] DELETED user ID [{$userId}]. SUCCESS.");
                     } else {
                         $_SESSION['flash'] = 'Ocurrió un error al intentar eliminar el usuario.';
+                        error_log("AUDIT LOG: Admin User [{$_SESSION['user_email']}] DELETED user ID [{$userId}]. FAILED.");
                     }
                 } else {
                     $_SESSION['flash'] = 'ID de usuario no válido para eliminación.';
