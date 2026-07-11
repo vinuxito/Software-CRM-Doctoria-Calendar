@@ -80,12 +80,44 @@ class User {
     }
 
     public function updateUser($data){
-        // Placeholder for Iteration 2
-        return false;
+        if (!empty($data['password'])) {
+            $this->db->query('UPDATE users SET name = :name, email = :email, phone = :phone, role = :role, password = :password WHERE id = :id');
+            $this->db->bind(':password', $data['password']);
+        } else {
+            $this->db->query('UPDATE users SET name = :name, email = :email, phone = :phone, role = :role WHERE id = :id');
+        }
+        $this->db->bind(':id', $data['id']);
+        $this->db->bind(':name', $data['name']);
+        $this->db->bind(':email', $data['email']);
+        $this->db->bind(':phone', $data['phone']);
+        $this->db->bind(':role', $data['role']);
+
+        if($this->db->execute()){
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public function deleteUser($id){
-        // Placeholder for Iteration 2
-        return false;
+        // Delete dependent appointments
+        $this->db->query('DELETE FROM appointments WHERE patient_id = :id OR doctor_id = :id OR user_id = :id OR created_by = :id');
+        $this->db->bind(':id', $id);
+        $this->db->execute();
+
+        // Delete dependent chat messages
+        $this->db->query('DELETE FROM chat_messages WHERE sender_id = :id OR receiver_id = :id');
+        $this->db->bind(':id', $id);
+        $this->db->execute();
+
+        // Delete the user
+        $this->db->query('DELETE FROM users WHERE id = :id');
+        $this->db->bind(':id', $id);
+
+        if($this->db->execute()){
+            return true;
+        } else {
+            return false;
+        }
     }
 }

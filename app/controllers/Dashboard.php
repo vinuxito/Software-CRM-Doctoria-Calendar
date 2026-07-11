@@ -195,7 +195,50 @@ class Dashboard extends Controller {
     }
 
     public function users(){
-        // Placeholder for Iteration 2
-        header('location: ' . URLROOT . '/dashboard/calendar');
+        $role = $_SESSION['user_role'] ?? 'cliente';
+        // Only admin can access user management
+        if($role !== 'admin'){
+            header('location: ' . URLROOT . '/dashboard');
+            return;
+        }
+
+        // Handle POST actions: create, update, delete
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            $action = $_POST['user_action'] ?? '';
+            if($action === 'create'){
+                $data = [
+                    'name' => trim($_POST['name'] ?? ''),
+                    'email' => trim($_POST['email'] ?? ''),
+                    'phone' => trim($_POST['phone'] ?? ''),
+                    'role' => trim($_POST['role'] ?? 'cliente'),
+                    'password' => password_hash(trim($_POST['password'] ?? '123456'), PASSWORD_DEFAULT)
+                ];
+                $this->userModel->register($data);
+            } elseif($action === 'update'){
+                $data = [
+                    'id' => (int)($_POST['user_id'] ?? 0),
+                    'name' => trim($_POST['name'] ?? ''),
+                    'email' => trim($_POST['email'] ?? ''),
+                    'phone' => trim($_POST['phone'] ?? ''),
+                    'role' => trim($_POST['role'] ?? 'cliente'),
+                    'password' => !empty($_POST['password']) ? password_hash(trim($_POST['password']), PASSWORD_DEFAULT) : ''
+                ];
+                if($data['id'] > 0){
+                    $this->userModel->updateUser($data);
+                }
+            } elseif($action === 'delete'){
+                $userId = (int)($_POST['user_id'] ?? 0);
+                if($userId > 0){
+                    $this->userModel->deleteUser($userId);
+                }
+            }
+            header('location: ' . URLROOT . '/dashboard/users');
+            return;
+        }
+
+        $users = $this->userModel->getAllUsers();
+        $data = $this->baseData('users');
+        $data['users'] = $users;
+        $this->view('dashboard/index', $data);
     }
 }
