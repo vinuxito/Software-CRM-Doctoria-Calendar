@@ -375,97 +375,510 @@
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
-                </table>
-            </div>
-            
-            <!-- Modal for Patient Clinical File -->
+              <!-- Modal for Patient Clinical File -->
             <div id="patient-file-modal" class="calendar-modal-overlay">
-                <div class="calendar-modal-card" style="max-width: 900px; width: 90%;">
+                <style>
+                    .wizard-steps-progress {
+                        display: flex;
+                        justify-content: space-between;
+                        margin-bottom: 20px;
+                        border-bottom: 2px solid #e9ecef;
+                        padding-bottom: 10px;
+                        overflow-x: auto;
+                        gap: 10px;
+                    }
+                    .wizard-step-indicator {
+                        font-size: 12px;
+                        font-weight: 600;
+                        color: #6c757d;
+                        cursor: pointer;
+                        padding: 6px 12px;
+                        border-radius: 4px;
+                        white-space: nowrap;
+                        transition: all 0.2s ease;
+                    }
+                    .wizard-step-indicator.active {
+                        color: #fff;
+                        background: #E8A0AC;
+                    }
+                    .wizard-step-indicator.visited {
+                        color: #E8A0AC;
+                    }
+                    .wizard-step-content {
+                        display: none;
+                        max-height: 60vh;
+                        overflow-y: auto;
+                        padding-right: 5px;
+                    }
+                    .wizard-step-content.active {
+                        display: block;
+                    }
+                    .form-grid-2 {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 12px;
+                        margin-top: 10px;
+                    }
+                    .form-grid-3 {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr 1fr;
+                        gap: 12px;
+                        margin-top: 10px;
+                    }
+                    .segmented-control {
+                        display: inline-flex;
+                        background: #f1f3f5;
+                        padding: 3px;
+                        border-radius: 6px;
+                        border: 1px solid #dee2e6;
+                        margin-bottom: 5px;
+                    }
+                    .segmented-btn {
+                        padding: 4px 12px;
+                        font-size: 11px;
+                        font-weight: 600;
+                        color: #495057;
+                        border: none;
+                        background: transparent;
+                        cursor: pointer;
+                        border-radius: 4px;
+                        transition: all 0.2s ease;
+                    }
+                    .segmented-btn.active-si {
+                        background: #f8d7da;
+                        color: #842029;
+                    }
+                    .segmented-btn.active-no {
+                        background: #d1e7dd;
+                        color: #0f5132;
+                    }
+                    .segmented-btn.active-unset {
+                        background: #e2e3e5;
+                        color: #383d41;
+                    }
+                    .warning-badge-alert {
+                        background: #f8d7da;
+                        color: #842029;
+                        border: 1px solid #f5c2c7;
+                        padding: 10px 15px;
+                        border-radius: 6px;
+                        margin-bottom: 15px;
+                        font-size: 13px;
+                        font-weight: bold;
+                        display: none;
+                        align-items: center;
+                        gap: 8px;
+                    }
+                    .eva-container {
+                        background: #f8f9fa;
+                        padding: 15px;
+                        border-radius: 8px;
+                        border: 1px solid #e9ecef;
+                        margin-top: 15px;
+                        text-align: center;
+                    }
+                    .eva-face {
+                        font-size: 40px;
+                        margin-bottom: 8px;
+                    }
+                    .eva-slider {
+                        width: 100%;
+                        accent-color: #E8A0AC;
+                        cursor: pointer;
+                    }
+                    .gait-grid {
+                        display: grid;
+                        grid-template-columns: 1.5fr 1fr;
+                        gap: 15px;
+                        margin-top: 10px;
+                    }
+                    .repeatable-row {
+                        background: #f8f9fa;
+                        border: 1px solid #dee2e6;
+                        border-radius: 6px;
+                        padding: 10px;
+                        margin-bottom: 10px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 8px;
+                        position: relative;
+                    }
+                    .repeatable-row-remove {
+                        position: absolute;
+                        top: 8px;
+                        right: 8px;
+                        background: none;
+                        border: none;
+                        color: #dc3545;
+                        cursor: pointer;
+                        font-size: 14px;
+                    }
+                </style>
+                <div class="calendar-modal-card" style="max-width: 950px; width: 95%;">
                     <div class="calendar-modal-head">
                         <h3>Expediente Clínico Digital</h3>
+                        <span id="wizard-autosave-status" style="font-size: 11px; color: #888; margin-left: 15px; display: inline-flex; align-items: center;"></span>
                         <button type="button" id="patient-file-modal-close" class="calendar-modal-close">×</button>
                     </div>
-                    <form action="<?php echo URLROOT; ?>/dashboard/patients" method="post" class="calendar-modal-form">
-                        <input type="hidden" name="patient_id" id="patient-form-id" value="0">
-                        
-                        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px;">
-                            <!-- Left Column: Patient File Form -->
-                            <div>
-                                <h4 style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px; color: #333;"><i class="fas fa-id-card"></i> Datos Clínicos & Personales</h4>
-                                
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                    <div>
-                                        <label>Nombre</label>
-                                        <input type="text" name="name" id="patient-form-name" required>
-                                    </div>
-                                    <div>
-                                        <label>Email</label>
-                                        <input type="email" name="email" id="patient-form-email" required>
-                                    </div>
+                    <form id="wizard-form" class="calendar-modal-form" onsubmit="event.preventDefault();">
+                        <!-- Navigation Steps Progress Bar -->
+                        <div class="wizard-steps-progress">
+                            <span class="wizard-step-indicator active" data-step="1">1. Datos Personales</span>
+                            <span class="wizard-step-indicator" data-step="2">2. Antecedentes</span>
+                            <span class="wizard-step-indicator" data-step="3">3. Exploración</span>
+                            <span class="wizard-step-indicator" data-step="4">4. Plan Tratamiento</span>
+                            <span class="wizard-step-indicator" data-step="5">5. Marcha & Tinetti</span>
+                        </div>
+
+                        <!-- Warnings Indicator -->
+                        <div id="wizard-warning-badge" class="warning-badge-alert">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Contraindicación posible: verificar modalidades de electroterapia / agentes físicos</span>
+                        </div>
+
+                        <!-- STEP 1: Datos del Paciente -->
+                        <div class="wizard-step-content active" id="step-content-1">
+                            <h4 style="margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 5px; color: #333;"><i class="fas fa-user"></i> Datos del Paciente</h4>
+                            <div class="form-grid-2">
+                                <div>
+                                    <label>Nombre *</label>
+                                    <input type="text" id="patient-name" required placeholder="Nombre completo">
                                 </div>
-                                
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-                                    <div>
-                                        <label>Teléfono</label>
-                                        <input type="text" name="phone" id="patient-form-phone">
-                                    </div>
-                                    <div>
-                                        <label>Fecha de Nacimiento</label>
-                                        <input type="date" name="dob" id="patient-form-dob">
-                                    </div>
+                                <div>
+                                    <label>Ocupación</label>
+                                    <input type="text" id="patient-ocupacion" placeholder="Profesión / Oficio">
                                 </div>
-
-                                <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 10px; margin-top: 10px;">
-                                    <div>
-                                        <label>Dirección de Residencia</label>
-                                        <input type="text" name="address" id="patient-form-address" placeholder="Ej. Calle 45 #12-34">
-                                    </div>
-                                    <div>
-                                        <label>Grupo Sanguíneo</label>
-                                        <select name="blood_type" id="patient-form-blood-type">
-                                            <option value="">No definido</option>
-                                            <option value="O+">O Positivo (O+)</option>
-                                            <option value="O-">O Negativo (O-)</option>
-                                            <option value="A+">A Positivo (A+)</option>
-                                            <option value="A-">A Negativo (A-)</option>
-                                            <option value="B+">B Positivo (B+)</option>
-                                            <option value="B-">B Negativo (B-)</option>
-                                            <option value="AB+">AB Positivo (AB+)</option>
-                                            <option value="AB-">AB Negativo (AB-)</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <label style="margin-top: 10px;">Alergias & Contraindicaciones</label>
-                                <textarea name="allergies" id="patient-form-allergies" rows="2" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;" placeholder="Ej. Penicilina, AINEs..."></textarea>
-
-                                <label style="margin-top: 10px;">Antecedentes Médicos</label>
-                                <textarea name="medical_history" id="patient-form-medical-history" rows="2" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;" placeholder="Ej. Hipertensión arterial, Diabetes tipo 2..."></textarea>
-
-                                <label style="margin-top: 10px;">Medicamentos Activos</label>
-                                <textarea name="medications" id="patient-form-medications" rows="2" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;" placeholder="Ej. Losartán 50mg/día..."></textarea>
-
-                                <label style="margin-top: 10px;">Notas Clínicas / Observaciones</label>
-                                <textarea name="clinical_notes" id="patient-form-clinical-notes" rows="3" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;" placeholder="Anotaciones de la última consulta..."></textarea>
                             </div>
-                            
-                            <!-- Right Column: Medical Context (Appointments list) -->
-                            <div style="background: #f8f9fa; border-radius: 6px; padding: 15px; border: 1px solid #e9ecef; display: flex; flex-direction: column;">
-                                <h4 style="margin-bottom: 12px; border-bottom: 1px solid #ddd; padding-bottom: 5px; color: #333;"><i class="far fa-calendar-alt"></i> Historial de Citas</h4>
-                                <div id="patient-appointments-history" style="flex: 1; overflow-y: auto; max-height: 400px; display: flex; flex-direction: column; gap: 8px;">
-                                    <!-- Populated dynamically via JS -->
-                                    <div style="text-align: center; color: #888; margin-top: 20px;">Seleccione un paciente para ver su historial</div>
+                            <div class="form-grid-3">
+                                <div>
+                                    <label>Fecha de Nacimiento</label>
+                                    <input type="date" id="patient-fecha-nacimiento">
+                                </div>
+                                <div>
+                                    <label>Edad</label>
+                                    <input type="text" id="patient-edad" readonly style="background: #f1f3f5;" placeholder="Auto-calculada">
+                                </div>
+                                <div>
+                                    <label>Sexo</label>
+                                    <select id="patient-sexo">
+                                        <option value="">Seleccione...</option>
+                                        <option value="Femenino">Femenino</option>
+                                        <option value="Masculino">Masculino</option>
+                                        <option value="Otro">Otro</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-grid-2">
+                                <div>
+                                    <label>Estado Civil</label>
+                                    <select id="patient-estado-civil">
+                                        <option value="">Seleccione...</option>
+                                        <option value="Soltero(a)">Soltero(a)</option>
+                                        <option value="Casado(a)">Casado(a)</option>
+                                        <option value="Union libre">Unión libre</option>
+                                        <option value="Divorciado(a)">Divorciado(a)</option>
+                                        <option value="Viudo(a)">Viudo(a)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Domicilio</label>
+                                    <input type="text" id="patient-domicilio" placeholder="Dirección de residencia">
+                                </div>
+                            </div>
+                            <div class="form-grid-2">
+                                <div>
+                                    <label>Teléfono (Fijo)</label>
+                                    <input type="text" id="patient-tel" placeholder="10 dígitos">
+                                </div>
+                                <div>
+                                    <label>Celular</label>
+                                    <input type="text" id="patient-cel" placeholder="10 dígitos">
+                                </div>
+                            </div>
+                            <div class="form-grid-2" style="margin-top: 15px; border-top: 1px dashed #eee; padding-top: 10px;">
+                                <div>
+                                    <label>Familiar Responsable</label>
+                                    <input type="text" id="patient-familiar-responsable" placeholder="Contacto de emergencia">
+                                </div>
+                                <div>
+                                    <label>Tel/Cel Familiar</label>
+                                    <input type="text" id="patient-familiar-tel-cel" placeholder="Teléfono de contacto">
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="calendar-modal-actions" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
-                            <button type="submit" class="btn-configurar"><i class="fas fa-save"></i> Guardar Expediente</button>
+
+                        <!-- STEP 2: Antecedentes -->
+                        <div class="wizard-step-content" id="step-content-2">
+                            <h4 style="margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 5px; color: #333;"><i class="fas fa-history"></i> Antecedentes Heredofamiliares y Personales</h4>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <!-- Group A: Patológicos -->
+                                <div>
+                                    <h5 style="color: #a83232; margin-bottom: 10px; border-bottom: 1px solid #f8d7da; padding-bottom: 3px;">Grupo A: Patológicos y Heredofamiliares</h5>
+                                    <div id="antecedentes-grupo-a" style="display: flex; flex-direction: column; gap: 10px;">
+                                        <!-- Loaded dynamically -->
+                                    </div>
+                                </div>
+                                <!-- Group B: No Patológicos -->
+                                <div>
+                                    <h5 style="color: #0f5132; margin-bottom: 10px; border-bottom: 1px solid #d1e7dd; padding-bottom: 3px;">Grupo B: No Patológicos y Salud</h5>
+                                    <div id="antecedentes-grupo-b" style="display: flex; flex-direction: column; gap: 10px;">
+                                        <!-- Loaded dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 3: Exploración y Valoración -->
+                        <div class="wizard-step-content" id="step-content-3">
+                            <h4 style="margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 5px; color: #333;"><i class="fas fa-stethoscope"></i> Exploración Física y Funcional</h4>
+                            
+                            <div class="form-grid-3">
+                                <div>
+                                    <label>Estatura (cm)</label>
+                                    <input type="number" id="exploracion-estatura" placeholder="cm">
+                                </div>
+                                <div>
+                                    <label>Peso (kg)</label>
+                                    <input type="number" step="0.1" id="exploracion-peso" placeholder="kg">
+                                </div>
+                                <div>
+                                    <label>T/A (Tensión Arterial)</label>
+                                    <input type="text" id="exploracion-ta" placeholder="###/### mmHg">
+                                </div>
+                            </div>
+                            <div class="form-grid-2">
+                                <div>
+                                    <label>F/C (Frecuencia Cardíaca - lpm)</label>
+                                    <input type="number" id="exploracion-fc" placeholder="lpm">
+                                </div>
+                                <div>
+                                    <label>F/R (Frecuencia Respiratoria - rpm)</label>
+                                    <input type="number" id="exploracion-fr" placeholder="rpm">
+                                </div>
+                            </div>
+
+                            <div class="form-grid-2" style="margin-top: 10px;">
+                                <div>
+                                    <label>Arcos de Movimiento</label>
+                                    <textarea id="exploracion-arcos" rows="2" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;" placeholder="Valoración de movilidad articular"></textarea>
+                                </div>
+                                <div>
+                                    <label>Fuerza Muscular</label>
+                                    <textarea id="exploracion-fuerza" rows="2" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;" placeholder="Escala de Daniels 0-5..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Cicatriz Quirúrgica -->
+                            <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 12px; margin-top: 12px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <strong style="font-size: 13px; color: #333;">¿Presenta Cicatriz Quirúrgica?</strong>
+                                    <div class="segmented-control" id="cicatriz-master-control">
+                                        <button type="button" class="segmented-btn" data-val="1">Sí</button>
+                                        <button type="button" class="segmented-btn" data-val="0">No</button>
+                                    </div>
+                                </div>
+                                <div id="cicatriz-details-container" style="display: none; margin-top: 10px; border-top: 1px dashed #ddd; padding-top: 10px;">
+                                    <div style="margin-bottom: 8px;">
+                                        <label>Sitio / Localización</label>
+                                        <input type="text" id="cicatriz-sitio" placeholder="Ej. Rodilla derecha" style="width: 100%;">
+                                    </div>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px;">
+                                        <label style="display: flex; align-items: center; gap: 5px; font-weight: normal; font-size: 12px; cursor: pointer;">
+                                            <input type="checkbox" id="cicatriz-queloide" value="si"> Queloide
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 5px; font-weight: normal; font-size: 12px; cursor: pointer;">
+                                            <input type="checkbox" id="cicatriz-retractil" value="si"> Retráctil
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 5px; font-weight: normal; font-size: 12px; cursor: pointer;">
+                                            <input type="checkbox" id="cicatriz-abierta" value="si"> Abierta
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 5px; font-weight: normal; font-size: 12px; cursor: pointer;">
+                                            <input type="checkbox" id="cicatriz-con-adherencia" value="si"> Con Adherencia
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 5px; font-weight: normal; font-size: 12px; cursor: pointer;">
+                                            <input type="checkbox" id="cicatriz-hipertrofica" value="si"> Hipertrófica
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Valoración Funcional -->
+                            <h5 style="margin-top: 15px; margin-bottom: 8px; color: #444; border-bottom: 1px solid #eee; padding-bottom: 3px;">Valoración Funcional</h5>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div>
+                                    <label>Reflejos</label>
+                                    <textarea id="exploracion-reflejos" rows="2" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;"></textarea>
+                                </div>
+                                <div>
+                                    <label>Sensibilidad</label>
+                                    <textarea id="exploracion-sensibilidad" rows="2" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;"></textarea>
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
+                                <div>
+                                    <label>Lenguaje / Orientación</label>
+                                    <textarea id="exploracion-lenguaje-orientacion" rows="2" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;"></textarea>
+                                </div>
+                                <div>
+                                    <label>Otros</label>
+                                    <textarea id="exploracion-otros" rows="2" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Padecimiento Actual -->
+                            <h5 style="margin-top: 15px; margin-bottom: 8px; color: #444; border-bottom: 1px solid #eee; padding-bottom: 3px;">Padecimiento Actual</h5>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div>
+                                    <label>Motivo de consulta</label>
+                                    <textarea id="padecimiento-motivo" rows="2" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;"></textarea>
+                                </div>
+                                <div>
+                                    <label>Inicio</label>
+                                    <textarea id="padecimiento-inicio" rows="2" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;"></textarea>
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px;">
+                                <div>
+                                    <label>Evolución</label>
+                                    <textarea id="padecimiento-evolucion" rows="2" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;"></textarea>
+                                </div>
+                                <div>
+                                    <label>Estudios</label>
+                                    <textarea id="padecimiento-estudios" rows="2" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;"></textarea>
+                                </div>
+                                <div>
+                                    <label>Tratamientos previos</label>
+                                    <textarea id="padecimiento-tratamientos" rows="2" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- EVA Dolor Scale -->
+                            <div class="eva-container">
+                                <strong>Valoración Dolor (EVA)</strong>
+                                <div class="eva-face" id="eva-emoji">⚪</div>
+                                <input type="range" min="0" max="10" step="1" class="eva-slider" id="eva-slider-input" value="0">
+                                <div style="font-weight: bold; font-size: 13px;" id="eva-label">No tocado</div>
+                            </div>
+
+                            <!-- Problemas Identificados -->
+                            <h5 style="margin-top: 15px; margin-bottom: 8px; color: #444; border-bottom: 1px solid #eee; padding-bottom: 3px;">Problemas Identificados</h5>
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;" id="problemas-grid-table">
+                                    <thead>
+                                        <tr style="background: #f1f3f5; border-bottom: 1px solid #dee2e6;">
+                                            <th style="padding: 6px;">Problema</th>
+                                            <th style="padding: 6px; width: 180px;">Severidad</th>
+                                            <th style="padding: 6px;">Nota / Valoración</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Fixed 8 rows loaded dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- STEP 4: Plan de Tratamiento -->
+                        <div class="wizard-step-content" id="step-content-4">
+                            <h4 style="margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 5px; color: #333;"><i class="fas fa-calendar-alt"></i> Plan de Tratamiento</h4>
+                            
+                            <!-- Badges Echo Warning -->
+                            <div id="step-4-warning-echo" class="warning-badge-alert" style="margin-bottom: 15px;">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span>Contraindicación posible detectada en antecedentes (Marcapasos / Embarazo). Proceder con precaución.</span>
+                            </div>
+
+                            <div style="margin-bottom: 15px;">
+                                <strong style="font-size: 13px; display: block; margin-bottom: 8px; color: #555;">Sesiones de Tratamiento</strong>
+                                <div id="treatment-sessions-container">
+                                    <!-- Dynamic rows injected here -->
+                                </div>
+                                <button type="button" class="btn-outline" id="btn-add-treatment-row" style="padding: 6px 12px; font-size: 12px; margin-top: 5px;"><i class="fas fa-plus"></i> Agregar Sesión</button>
+                            </div>
+
+                            <div>
+                                <label>Notas Generales / Indicaciones Complementarias</label>
+                                <textarea id="expediente-notas-generales" rows="4" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 8px;" placeholder="Notas y recomendaciones adicionales..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- STEP 5: Marcha y Análisis (Tinetti) -->
+                        <div class="wizard-step-content" id="step-content-5">
+                            <h4 style="margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 5px; color: #333;"><i class="fas fa-walking"></i> Marcha y Análisis de Marcha (Tinetti)</h4>
+                            
+                            <div class="gait-grid">
+                                <!-- Gait checklist -->
+                                <div>
+                                    <strong style="font-size: 13px; color: #444;">Deambulación / Marcha</strong>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px;">
+                                        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: normal; cursor: pointer;">
+                                            <input type="checkbox" id="gait-libre"> Libre
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: normal; cursor: pointer;">
+                                            <input type="checkbox" id="gait-claudicante"> Claudicante
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: normal; cursor: pointer;">
+                                            <input type="checkbox" id="gait-con-ayuda"> Con ayuda
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: normal; cursor: pointer;">
+                                            <input type="checkbox" id="gait-espasticas"> Espásticas
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: normal; cursor: pointer;">
+                                            <input type="checkbox" id="gait-ataxica"> Atáxica
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: normal; cursor: pointer;">
+                                            <input type="checkbox" id="gait-otros"> Otros
+                                        </label>
+                                    </div>
+                                    <div id="gait-otros-spec-container" style="display: none; margin-top: 8px;">
+                                        <input type="text" id="gait-otros-spec" placeholder="Especificar..." style="width: 100%;">
+                                    </div>
+                                    <div style="margin-top: 10px;">
+                                        <label>Observaciones de Deambulación</label>
+                                        <textarea id="gait-observaciones" rows="3" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px;"></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Tinetti scoring parameters -->
+                                <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 12px;">
+                                    <strong style="font-size: 13px; color: #444; border-bottom: 1px solid #ddd; display: block; padding-bottom: 3px; margin-bottom: 8px;">Tinetti Gait Subscale (POMA-G)</strong>
+                                    <div id="tinetti-scoring-container" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 5px;">
+                                        <!-- Radio groups injected dynamically -->
+                                    </div>
+                                    <div style="margin-top: 12px; border-top: 1px dashed #ccc; padding-top: 8px; display: flex; flex-direction: column; gap: 6px;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px;">
+                                            <span>Subtotal Marcha (Max 12):</span>
+                                            <strong id="score-marcha-val">0</strong>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px;">
+                                            <span>Total Equilibrio Manual (0-16):</span>
+                                            <input type="number" min="0" max="16" id="score-balance-manual" value="0" style="width: 60px; padding: 3px; text-align: center;">
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; border-top: 1px solid #ddd; padding-top: 6px;">
+                                            <strong>Total General (Max 28):</strong>
+                                            <strong id="score-general-val" style="color: #a83232; font-size: 14px;">0</strong>
+                                        </div>
+                                        <span id="tinetti-risk-badge" class="status-chip status-approved" style="text-align: center; display: block; margin-top: 5px; font-weight: bold;">Bajo Riesgo</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navigation controls -->
+                        <div class="calendar-modal-actions" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+                            <button type="button" class="btn-outline" id="wizard-btn-prev" style="display: none;"><i class="fas fa-chevron-left"></i> Anterior</button>
+                            <span style="font-size: 11px; color: #888;" id="wizard-step-label">Paso 1 de 5</span>
+                            <div style="display: flex; gap: 10px;">
+                                <button type="button" class="btn-configurar" id="wizard-btn-next">Siguiente <i class="fas fa-chevron-right"></i></button>
+                                <button type="button" class="btn-configurar" id="wizard-btn-save" style="display: none; background: #28a745; border-color: #28a745;"><i class="fas fa-save"></i> Guardar Borrador</button>
+                            </div>
                         </div>
                     </form>
                 </div>
             </div>
         </section>
+        <?php elseif ($section === 'users') : ?>        </section>
         <?php elseif ($section === 'users') : ?>
         <header class="toolbar">
             <div class="tol-left"><div class="date-title"><span>Gestión de Usuarios</span></div></div>
@@ -1069,105 +1482,810 @@ document.addEventListener('DOMContentLoaded', function () {
     var closeBtn = document.getElementById('patient-file-modal-close');
     var viewBtns = document.querySelectorAll('.btn-view-patient-file');
     
-    var formId = document.getElementById('patient-form-id');
-    var formName = document.getElementById('patient-form-name');
-    var formEmail = document.getElementById('patient-form-email');
-    var formPhone = document.getElementById('patient-form-phone');
-    var formDob = document.getElementById('patient-form-dob');
-    var formAddress = document.getElementById('patient-form-address');
-    var formBloodType = document.getElementById('patient-form-blood-type');
-    var formAllergies = document.getElementById('patient-form-allergies');
-    var formMedicalHistory = document.getElementById('patient-form-medical-history');
-    var formMedications = document.getElementById('patient-form-medications');
-    var formClinicalNotes = document.getElementById('patient-form-clinical-notes');
-    
-    var appointmentsHistory = document.getElementById('patient-appointments-history');
-    
-    // Load all appointments passed from PHP controller
-    var dbAppointments = <?php echo json_encode($data['appointments'] ?? []); ?>;
+    // State management
+    var activePatientId = 0;
+    var currentStep = 1;
+    var currentExpedienteId = 0;
 
-    function openPatientModal(btn) {
-        var patientId = parseInt(btn.dataset.id);
-        
-        formId.value = patientId;
-        formName.value = btn.dataset.name;
-        formEmail.value = btn.dataset.email;
-        formPhone.value = btn.dataset.phone;
-        formDob.value = btn.dataset.dob;
-        formAddress.value = btn.dataset.address;
-        formBloodType.value = btn.dataset.blood_type;
-        formAllergies.value = btn.dataset.allergies;
-        formMedicalHistory.value = btn.dataset.medical_history;
-        formMedications.value = btn.dataset.medications;
-        formClinicalNotes.value = btn.dataset.clinical_notes;
-        
-        // Render appointments history
-        renderAppointmentsHistory(patientId);
-        
-        modal.classList.add('active');
+    var antecedenteItems = [
+        {key: "diabetes", label: "Diabetes", grupo: "patologico"},
+        {key: "alergia", label: "Alergia", grupo: "patologico"},
+        {key: "hta", label: "HTA", grupo: "patologico"},
+        {key: "cancer", label: "Cáncer", grupo: "patologico"},
+        {key: "marcapasos", label: "Marcapasos", grupo: "patologico"},
+        {key: "reumaticas", label: "Enf. Reumáticas", grupo: "patologico"},
+        {key: "encames", label: "Encames", grupo: "patologico"},
+        {key: "accidentes", label: "Accidentes", grupo: "patologico"},
+        {key: "cardiopatias", label: "Cardiopatías", grupo: "patologico"},
+        {key: "cirugias", label: "Cirugías", grupo: "patologico"},
+        {key: "fracturas", label: "Fracturas", grupo: "patologico"},
+        {key: "tabaquismo", label: "Tabaquismo", grupo: "no_patologico"},
+        {key: "alcoholismo", label: "Alcoholismo", grupo: "no_patologico"},
+        {key: "drogas", label: "Drogas", grupo: "no_patologico"},
+        {key: "actividad_fisica", label: "Actividad Física", grupo: "no_patologico"},
+        {key: "embarazo", label: "Embarazo", grupo: "no_patologico"},
+        {key: "hijos", label: "Hijos", grupo: "no_patologico", placeholder: "¿Cuántos?"}
+    ];
+
+    var tinettiCriteria = [
+        {key: "inicio_marcha", label: "Inicio de la marcha", options: [
+            {val: 0, text: "Duda, vacila o múltiples intentos para comenzar"},
+            {val: 1, text: "No vacilante"}
+        ]},
+        {key: "paso_pd_longitud", label: "Paso pie derecho - Longitud", options: [
+            {val: 0, text: "El pie derecho no sobrepasa al izquierdo con el paso"},
+            {val: 1, text: "El pie derecho sobrepasa al izquierdo con el paso"}
+        ]},
+        {key: "paso_pd_altura", label: "Paso pie derecho - Altura", options: [
+            {val: 0, text: "El pie derecho no se levanta completamente del suelo"},
+            {val: 1, text: "El pie derecho se levanta completamente"}
+        ]},
+        {key: "paso_pi_longitud", label: "Paso pie izquierdo - Longitud", options: [
+            {val: 0, text: "El pie izquierdo no sobrepasa al derecho con el paso"},
+            {val: 1, text: "El pie izquierdo sobrepasa al derecho con el paso"}
+        ]},
+        {key: "paso_pi_altura", label: "Paso pie izquierdo - Altura", options: [
+            {val: 0, text: "El pie izquierdo no se levanta completamente del suelo"},
+            {val: 1, text: "El pie izquierdo se levanta completamente"}
+        ]},
+        {key: "simetria_paso", label: "Simetría del paso", options: [
+            {val: 0, text: "La longitud del paso con el pie derecho e izquierdo es diferente"},
+            {val: 1, text: "Los pasos son iguales en longitud"}
+        ]},
+        {key: "continuidad_pasos", label: "Continuidad de los pasos", options: [
+            {val: 0, text: "Para o hay discontinuidad entre los pasos"},
+            {val: 1, text: "Los pasos son continuos"}
+        ]},
+        {key: "trayectoria", label: "Trayectoria (Estimada en baldosas)", options: [
+            {val: 0, text: "Marcada desviación"},
+            {val: 1, text: "Desviación moderada, media o utiliza ayudas"},
+            {val: 2, text: "Derecho sin utilizar ayudas"}
+        ]},
+        {key: "tronco", label: "Tronco", options: [
+            {val: 0, text: "Marcado balanceo o utiliza ayudas"},
+            {val: 1, text: "No balanceo pero hay flexión de espalda/brazos extensión"},
+            {val: 2, text: "No balanceo ni flexión, ni utiliza ayudas"}
+        ]},
+        {key: "postura_marcha", label: "Postura en la marcha", options: [
+            {val: 0, text: "Talones separados"},
+            {val: 1, text: "Talones casi se tocan al caminar"}
+        ]}
+    ];
+
+    var problemaRows = [
+        {key: "dolor", label: "Dolor"},
+        {key: "edema", label: "Edema"},
+        {key: "limitacion_articular", label: "Limitación articular"},
+        {key: "contractura", label: "Contractura"},
+        {key: "supuracion", label: "Supuración"},
+        {key: "infeccion", label: "Infección"},
+        {key: "inmovilizacion", label: "Inmovilización"},
+        {key: "ayuda_marcha", label: "Ayuda para marcha"}
+    ];
+
+    // Initialize layout components dynamically
+    function renderAntecedentesList() {
+        var containerA = document.getElementById('antecedentes-grupo-a');
+        var containerB = document.getElementById('antecedentes-grupo-b');
+        containerA.innerHTML = '';
+        containerB.innerHTML = '';
+
+        antecedenteItems.forEach(function (item) {
+            var div = document.createElement('div');
+            div.className = 'antecedente-item-row';
+            div.style.padding = '8px 0';
+            div.style.borderBottom = '1px dashed #eee';
+            
+            div.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                    <span style="font-weight: 500; font-size: 12px; color: #444;">${item.label}</span>
+                    <div class="segmented-control" data-key="${item.key}">
+                        <button type="button" class="segmented-btn" data-val="si">Sí</button>
+                        <button type="button" class="segmented-btn" data-val="no">No</button>
+                        <button type="button" class="segmented-btn" data-val="null">N/A</button>
+                    </div>
+                </div>
+                <div class="spec-input-container" id="spec-container-${item.key}" style="display: none; margin-top: 6px;">
+                    <input type="text" id="spec-${item.key}" placeholder="${item.placeholder || 'Especificaciones...'}" style="width: 100%; font-size: 12px; padding: 5px;">
+                </div>
+            `;
+
+            // Segmented controls event listeners
+            var btns = div.querySelectorAll('.segmented-btn');
+            btns.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var val = btn.dataset.val;
+                    setSegmentedValue(item.key, val);
+                    runAutosave();
+                });
+            });
+
+            if (item.grupo === 'patologico') {
+                containerA.appendChild(div);
+            } else {
+                containerB.appendChild(div);
+            }
+        });
     }
 
-    function renderAppointmentsHistory(patientId) {
-        appointmentsHistory.innerHTML = '';
-        var patientApps = dbAppointments.filter(function (app) {
-            return parseInt(app.patient_id) === patientId;
+    function setSegmentedValue(key, val) {
+        var container = document.querySelector(`.segmented-control[data-key="${key}"]`);
+        if (!container) return;
+        var btns = container.querySelectorAll('.segmented-btn');
+        btns.forEach(function (btn) {
+            btn.className = 'segmented-btn';
+            if (btn.dataset.val === val) {
+                btn.className = `segmented-btn active-${val}`;
+            }
         });
 
-        if (patientApps.length === 0) {
-            appointmentsHistory.innerHTML = '<div style="text-align: center; color: #888; margin-top: 20px; font-size: 13px;">No hay citas registradas para este paciente.</div>';
+        var specContainer = document.getElementById(`spec-container-${key}`);
+        if (specContainer) {
+            if (val === 'si') {
+                specContainer.style.display = 'block';
+            } else {
+                specContainer.style.display = 'none';
+                var specInput = document.getElementById(`spec-${key}`);
+                if (specInput) specInput.value = '';
+            }
+        }
+        checkClinicalWarnings();
+    }
+
+    function getSegmentedValue(key) {
+        var container = document.querySelector(`.segmented-control[data-key="${key}"]`);
+        if (!container) return 'null';
+        var active = container.querySelector('.active-si, .active-no, .active-unset');
+        return active ? active.dataset.val : 'null';
+    }
+
+    function checkClinicalWarnings() {
+        var marcapasos = getSegmentedValue('marcapasos') === 'si';
+        var embarazo = getSegmentedValue('embarazo') === 'si';
+
+        var badge = document.getElementById('wizard-warning-badge');
+        var echo = document.getElementById('step-4-warning-echo');
+
+        if (marcapasos || embarazo) {
+            badge.style.display = 'flex';
+            echo.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+            echo.style.display = 'none';
+        }
+    }
+
+    function renderProblemasGrid() {
+        var tbody = document.querySelector('#problemas-grid-table tbody');
+        tbody.innerHTML = '';
+        problemaRows.forEach(function (row) {
+            var tr = document.createElement('tr');
+            tr.style.borderBottom = '1px solid #eee';
+            tr.innerHTML = `
+                <td style="padding: 6px; font-weight: 500; font-size: 12px; color: #444;">${row.label}</td>
+                <td style="padding: 6px;">
+                    <select id="prob-sev-${row.key}" style="width: 100%; font-size: 11px; padding: 4px;">
+                        <option value="null">No especificado</option>
+                        <option value="leve">Leve</option>
+                        <option value="moderado">Moderado</option>
+                        <option value="severo">Severo</option>
+                        <option value="na">No aplica</option>
+                    </select>
+                </td>
+                <td style="padding: 6px;">
+                    <input type="text" id="prob-nota-${row.key}" placeholder="Notas..." style="width: 100%; font-size: 11px; padding: 4px;">
+                </td>
+            `;
+            // Trigger autosave on change/blur
+            tr.querySelector('select').addEventListener('change', runAutosave);
+            tr.querySelector('input').addEventListener('blur', runAutosave);
+            tbody.appendChild(tr);
+        });
+    }
+
+    function renderTinettiContainer() {
+        var container = document.getElementById('tinetti-scoring-container');
+        container.innerHTML = '';
+        tinettiCriteria.forEach(function (crit) {
+            var div = document.createElement('div');
+            div.style.marginBottom = '10px';
+            div.innerHTML = `
+                <span style="font-weight: 500; font-size: 11px; color: #555; display: block; margin-bottom: 3px;">${crit.label}</span>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    ${crit.options.map(function (opt) {
+                        return `
+                            <label style="display: flex; align-items: flex-start; gap: 6px; font-size: 11px; font-weight: normal; cursor: pointer; line-height: 1.2;">
+                                <input type="radio" name="tinetti-${crit.key}" value="${opt.val}" style="margin-top: 1px;">
+                                <span>(${opt.val} pts) ${opt.text}</span>
+                            </label>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+
+            // Radio events
+            div.querySelectorAll('input[type="radio"]').forEach(function (radio) {
+                radio.addEventListener('change', function () {
+                    calculateGaitTotals();
+                    runAutosave();
+                });
+            });
+            container.appendChild(div);
+        });
+    }
+
+    // EVA Pain scale faces and colors mapping
+    var evaSlider = document.getElementById('eva-slider-input');
+    var evaLabel = document.getElementById('eva-label');
+    var evaEmoji = document.getElementById('eva-emoji');
+
+    var evaStates = {
+        0: { emoji: '😊', label: 'Sin dolor', color: '#6c757d' },
+        1: { emoji: '🙂', label: 'Dolor muy leve', color: '#41464b' },
+        2: { emoji: '💙', label: 'Dolor leve', color: '#0d6efd' },
+        3: { emoji: '😐', label: 'Dolor leve a moderado', color: '#0dcaf0' },
+        4: { emoji: '💛', label: 'Dolor moderado', color: '#ffc107' },
+        5: { emoji: '😕', label: 'Dolor moderado a severo', color: '#fd7e14' },
+        6: { emoji: '💚', label: 'Dolor severo', color: '#198754' },
+        7: { emoji: '😰', label: 'Dolor bastante severo', color: '#20c997' },
+        8: { emoji: '🖤', label: 'Dolor muy severo', color: '#212529' },
+        9: { emoji: '😩', label: 'Dolor casi insoportable', color: '#dc3545' },
+        10: { emoji: '😭', label: 'Máximo dolor', color: '#a83232' }
+    };
+
+    function updateEvaScaleDisplay(val, isTouched) {
+        if (!isTouched) {
+            evaEmoji.textContent = '⚪';
+            evaLabel.textContent = 'No tocado';
+            evaLabel.style.color = '#888';
             return;
         }
-
-        patientApps.forEach(function (app) {
-            var dateObj = new Date(app.start_date);
-            var dateStr = dateObj.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-            var timeStr = dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-            
-            var statusColors = {
-                'pending': { bg: '#fff3cd', text: '#664d03', border: '#ffe69c' },
-                'approved': { bg: '#d1e7dd', text: '#0f5132', border: '#badbcc' },
-                'rejected': { bg: '#f8d7da', text: '#842029', border: '#f5c2c7' },
-                'completed': { bg: '#e2e3e5', text: '#41464b', border: '#d3d6d8' }
-            };
-            var status = app.status || 'pending';
-            var colors = statusColors[status] || statusColors['pending'];
-            
-            var card = document.createElement('div');
-            card.style.background = '#ffffff';
-            card.style.border = '1px solid #e9ecef';
-            card.style.borderRadius = '5px';
-            card.style.padding = '10px 12px';
-            card.style.display = 'flex';
-            card.style.flexDirection = 'column';
-            card.style.gap = '4px';
-            card.style.boxShadow = '0 1px 2px rgba(0,0,0,0.02)';
-            
-            card.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                    <strong style="color: #333; font-size: 13px;">${app.title}</strong>
-                    <span style="font-size: 10px; font-weight: bold; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; background: ${colors.bg}; color: ${colors.text}; border: 1px solid ${colors.border};">${status}</span>
-                </div>
-                <div style="font-size: 12px; color: #555;">
-                    <i class="far fa-clock"></i> ${dateStr} a las ${timeStr}
-                </div>
-                <div style="font-size: 11px; color: #777;">
-                    Médico: ${app.doctor_name}
-                </div>
-                ${app.description ? `<div style="font-size: 11px; color: #888; font-style: italic; margin-top: 2px; border-left: 2px solid #ddd; padding-left: 5px;">${app.description}</div>` : ''}
-            `;
-            appointmentsHistory.appendChild(card);
-        });
+        var state = evaStates[val] || evaStates[0];
+        evaEmoji.textContent = state.emoji;
+        evaLabel.textContent = `${state.label} (${val}/10)`;
+        evaLabel.style.color = state.color;
     }
+
+    var evaTouched = false;
+    evaSlider.addEventListener('input', function () {
+        evaTouched = true;
+        updateEvaScaleDisplay(parseInt(evaSlider.value), true);
+        runAutosave();
+    });
+
+    // Age Auto-compute
+    var dobInput = document.getElementById('patient-fecha-nacimiento');
+    var edadInput = document.getElementById('patient-edad');
+
+    dobInput.addEventListener('change', function () {
+        var birthdateStr = dobInput.value;
+        if (birthdateStr) {
+            var age = computeAge(birthdateStr);
+            edadInput.value = age;
+            edadInput.readOnly = true;
+            edadInput.style.background = '#f1f3f5';
+        } else {
+            edadInput.value = '';
+            edadInput.readOnly = false;
+            edadInput.style.background = '#ffffff';
+        }
+        runAutosave();
+    });
+
+    function computeAge(birthdateStr) {
+        if (!birthdateStr) return '';
+        var today = new Date();
+        var birthDate = new Date(birthdateStr);
+        var age = today.getFullYear() - birthDate.getFullYear();
+        var m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    }
+
+    // Surgical scar master toggle toggle
+    var cicatrizMasterSi = document.querySelector('#cicatriz-master-control button[data-val="1"]');
+    var cicatrizMasterNo = document.querySelector('#cicatriz-master-control button[data-val="0"]');
+    var cicatrizContainer = document.getElementById('cicatriz-details-container');
+
+    function setCicatrizMaster(val) {
+        cicatrizMasterSi.className = 'segmented-btn';
+        cicatrizMasterNo.className = 'segmented-btn';
+
+        if (val === 1) {
+            cicatrizMasterSi.className = 'segmented-btn active-si';
+            cicatrizContainer.style.display = 'block';
+        } else {
+            cicatrizMasterNo.className = 'segmented-btn active-no';
+            cicatrizContainer.style.display = 'none';
+            // Clear inputs
+            document.getElementById('cicatriz-sitio').value = '';
+            document.getElementById('cicatriz-queloide').checked = false;
+            document.getElementById('cicatriz-retractil').checked = false;
+            document.getElementById('cicatriz-abierta').checked = false;
+            document.getElementById('cicatriz-con-adherencia').checked = false;
+            document.getElementById('cicatriz-hipertrofica').checked = false;
+        }
+    }
+
+    cicatrizMasterSi.addEventListener('click', function () { setCicatrizMaster(1); runAutosave(); });
+    cicatrizMasterNo.addEventListener('click', function () { setCicatrizMaster(0); runAutosave(); });
+
+    // Repeatable plan session rows
+    var planContainer = document.getElementById('treatment-sessions-container');
+    var addPlanBtn = document.getElementById('btn-add-treatment-row');
+
+    function createTreatmentRow(fechaVal, indicacionesVal) {
+        var row = document.createElement('div');
+        row.className = 'repeatable-row';
+        row.innerHTML = `
+            <button type="button" class="repeatable-row-remove">×</button>
+            <div style="display: grid; grid-template-columns: 180px 1fr; gap: 10px; align-items: flex-start;">
+                <div>
+                    <label style="font-size: 11px; font-weight: bold; margin-bottom: 2px;">Fecha</label>
+                    <input type="date" class="session-fecha" value="${fechaVal || ''}" style="padding: 4px; font-size: 11px; width: 100%;">
+                </div>
+                <div>
+                    <label style="font-size: 11px; font-weight: bold; margin-bottom: 2px;">Indicaciones (frecuencia y duración)</label>
+                    <textarea class="session-indicaciones" rows="1" style="padding: 4px; font-size: 11px; width: 100%; border: 1px solid #ccc; border-radius: 4px; resize: vertical;">${indicacionesVal || ''}</textarea>
+                </div>
+            </div>
+        `;
+
+        row.querySelector('.repeatable-row-remove').addEventListener('click', function () {
+            row.remove();
+            runAutosave();
+        });
+
+        row.querySelector('.session-fecha').addEventListener('change', runAutosave);
+        row.querySelector('.session-indicaciones').addEventListener('blur', runAutosave);
+
+        planContainer.appendChild(row);
+    }
+
+    addPlanBtn.addEventListener('click', function () {
+        createTreatmentRow('', '');
+    });
+
+    // Gait score checkboxes toggle showing specific inputs
+    var gaitOtrosCheck = document.getElementById('gait-otros');
+    var gaitOtrosSpecContainer = document.getElementById('gait-otros-spec-container');
+    gaitOtrosCheck.addEventListener('change', function () {
+        gaitOtrosSpecContainer.style.display = gaitOtrosCheck.checked ? 'block' : 'none';
+        if (!gaitOtrosCheck.checked) {
+            document.getElementById('gait-otros-spec').value = '';
+        }
+        runAutosave();
+    });
+
+    // Tinetti & totals calculator
+    var balanceInput = document.getElementById('score-balance-manual');
+    balanceInput.addEventListener('input', function () {
+        calculateGaitTotals();
+        runAutosave();
+    });
+
+    function calculateGaitTotals() {
+        var totalMarcha = 0;
+        tinettiCriteria.forEach(function (crit) {
+            var radios = document.getElementsByName(`tinetti-${crit.key}`);
+            radios.forEach(function (radio) {
+                if (radio.checked) {
+                    totalMarcha += parseInt(radio.value);
+                }
+            });
+        });
+
+        var totalBalance = parseInt(balanceInput.value) || 0;
+        if (totalBalance < 0) totalBalance = 0;
+        if (totalBalance > 16) totalBalance = 16;
+        balanceInput.value = totalBalance;
+
+        var grandTotal = totalMarcha + totalBalance;
+
+        document.getElementById('score-marcha-val').textContent = totalMarcha;
+        document.getElementById('score-general-val').textContent = grandTotal;
+
+        var riskBadge = document.getElementById('tinetti-risk-badge');
+        if (grandTotal < 19) {
+            riskBadge.className = 'status-chip status-rejected';
+            riskBadge.textContent = 'Alto Riesgo de Caídas (<19)';
+        } else if (grandTotal >= 19 && grandTotal <= 24) {
+            riskBadge.className = 'status-chip status-pending';
+            riskBadge.textContent = 'Riesgo Moderado (19-24)';
+        } else {
+            riskBadge.className = 'status-chip status-approved';
+            riskBadge.textContent = 'Bajo Riesgo (25+)';
+        }
+    }
+
+    // Modal view initialization trigger
+    viewBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var patientId = parseInt(btn.dataset.id);
+            activePatientId = patientId;
+            openWizard(patientId);
+        });
+    });
+
+    function openWizard(patientId) {
+        currentStep = 1;
+        showStep(1);
+        
+        // Render empty lists
+        renderAntecedentesList();
+        renderProblemasGrid();
+        renderTinettiContainer();
+        planContainer.innerHTML = '';
+        
+        // Call load endpoint
+        var statusLabel = document.getElementById('wizard-autosave-status');
+        statusLabel.textContent = 'Cargando expediente...';
+
+        fetch(`<?php echo URLROOT; ?>/dashboard/loadExpediente/${patientId}`)
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                currentExpedienteId = data.expediente.id;
+                
+                // Populate Step 1 (Datos del Paciente)
+                document.getElementById('patient-name').value = data.patient.name || '';
+                document.getElementById('patient-ocupacion').value = data.patient.ocupacion || '';
+                document.getElementById('patient-fecha-nacimiento').value = data.patient.fecha_nacimiento || '';
+                document.getElementById('patient-edad').value = data.patient.fecha_nacimiento ? computeAge(data.patient.fecha_nacimiento) : '';
+                document.getElementById('patient-sexo').value = data.patient.sexo || '';
+                document.getElementById('patient-estado-civil').value = data.patient.estado_civil || '';
+                document.getElementById('patient-domicilio').value = data.patient.domicilio || '';
+                document.getElementById('patient-tel').value = data.patient.tel || '';
+                document.getElementById('patient-cel').value = data.patient.cel || '';
+                document.getElementById('patient-familiar-responsable').value = data.patient.familiar_responsable || '';
+                document.getElementById('patient-familiar-tel-cel').value = data.patient.familiar_cel || data.patient.familiar_tel || '';
+
+                // Populate Step 2 (Antecedentes)
+                if (data.antecedentes && data.antecedentes.length > 0) {
+                    data.antecedentes.forEach(function (ant) {
+                        setSegmentedValue(ant.item_key, ant.valor);
+                        var specInput = document.getElementById(`spec-${ant.item_key}`);
+                        if (specInput) specInput.value = ant.especificacion || '';
+                    });
+                } else {
+                    antecedenteItems.forEach(function(item) {
+                        setSegmentedValue(item.key, 'null');
+                    });
+                }
+
+                // Populate Step 3
+                if (data.exploracion) {
+                    document.getElementById('exploracion-estatura').value = data.exploracion.estatura_cm || '';
+                    document.getElementById('exploracion-peso').value = data.exploracion.peso_kg || '';
+                    document.getElementById('exploracion-ta').value = data.exploracion.ta || '';
+                    document.getElementById('exploracion-fc').value = data.exploracion.fc || '';
+                    document.getElementById('exploracion-fr').value = data.exploracion.fr || '';
+                    document.getElementById('exploracion-arcos').value = data.exploracion.arcos_movimiento || '';
+                    document.getElementById('exploracion-fuerza').value = data.exploracion.fuerza_muscular || '';
+                    document.getElementById('exploracion-reflejos').value = data.exploracion.reflejos || '';
+                    document.getElementById('exploracion-sensibilidad').value = data.exploracion.sensibilidad || '';
+                    document.getElementById('exploracion-lenguaje-orientacion').value = data.exploracion.lenguaje_orientacion || '';
+                    document.getElementById('exploracion-otros').value = data.exploracion.otros || '';
+                }
+
+                if (data.cicatriz) {
+                    setCicatrizMaster(parseInt(data.cicatriz.presenta));
+                    document.getElementById('cicatriz-sitio').value = data.cicatriz.sitio || '';
+                    document.getElementById('cicatriz-queloide').checked = data.cicatriz.queloide === 'si';
+                    document.getElementById('cicatriz-retractil').checked = data.cicatriz.retractil === 'si';
+                    document.getElementById('cicatriz-abierta').checked = data.cicatriz.abierta === 'si';
+                    document.getElementById('cicatriz-con-adherencia').checked = data.cicatriz.con_adherencia === 'si';
+                    document.getElementById('cicatriz-hipertrofica').checked = data.cicatriz.hipertrofica === 'si';
+                }
+
+                if (data.padecimiento) {
+                    document.getElementById('padecimiento-motivo').value = data.padecimiento.motivo_consulta || '';
+                    document.getElementById('padecimiento-inicio').value = data.padecimiento.inicio || '';
+                    document.getElementById('padecimiento-evolucion').value = data.padecimiento.evolucion || '';
+                    document.getElementById('padecimiento-estudios').value = data.padecimiento.estudios || '';
+                    document.getElementById('padecimiento-tratamientos').value = data.padecimiento.tratamientos_previos || '';
+                }
+
+                if (data.expediente.eva_dolor !== null) {
+                    evaTouched = true;
+                    evaSlider.value = data.expediente.eva_dolor;
+                    updateEvaScaleDisplay(data.expediente.eva_dolor, true);
+                } else {
+                    evaTouched = false;
+                    evaSlider.value = 0;
+                    updateEvaScaleDisplay(0, false);
+                }
+
+                if (data.problemas && data.problemas.length > 0) {
+                    data.problemas.forEach(function (prob) {
+                        var sevSelect = document.getElementById(`prob-sev-${prob.item_key}`);
+                        var noteInput = document.getElementById(`prob-nota-${prob.item_key}`);
+                        if (sevSelect) sevSelect.value = prob.severidad || 'null';
+                        if (noteInput) noteInput.value = prob.nota || '';
+                    });
+                }
+
+                // Populate Step 4
+                if (data.plan_sesiones && data.plan_sesiones.length > 0) {
+                    data.plan_sesiones.forEach(function (ses) {
+                        createTreatmentRow(ses.fecha, ses.indicaciones);
+                    });
+                } else {
+                    createTreatmentRow('', '');
+                }
+                document.getElementById('expediente-notas-generales').value = data.expediente.notas_generales || '';
+
+                // Populate Step 5
+                if (data.marcha) {
+                    document.getElementById('gait-libre').checked = parseInt(data.marcha.libre) === 1;
+                    document.getElementById('gait-claudicante').checked = parseInt(data.marcha.claudicante) === 1;
+                    document.getElementById('gait-con-ayuda').checked = parseInt(data.marcha.con_ayuda) === 1;
+                    document.getElementById('gait-espasticas').checked = parseInt(data.marcha.espasticas) === 1;
+                    document.getElementById('gait-ataxica').checked = parseInt(data.marcha.ataxica) === 1;
+                    document.getElementById('gait-otros').checked = parseInt(data.marcha.otros) === 1;
+                    gaitOtrosSpecContainer.style.display = data.marcha.otros ? 'block' : 'none';
+                    document.getElementById('gait-otros-spec').value = data.marcha.otros_spec || '';
+                    document.getElementById('gait-observaciones').value = data.marcha.observaciones || '';
+
+                    tinettiCriteria.forEach(function (crit) {
+                        var val = data.marcha[crit.key];
+                        if (val !== null) {
+                            var radio = document.querySelector(`input[name="tinetti-${crit.key}"][value="${val}"]`);
+                            if (radio) radio.checked = true;
+                        }
+                    });
+
+                    balanceInput.value = data.marcha.total_balance_manual !== null ? data.marcha.total_balance_manual : 0;
+                    calculateGaitTotals();
+                }
+
+                // Initial safety indicator check
+                checkClinicalWarnings();
+
+                statusLabel.textContent = 'Expediente cargado';
+                modal.classList.add('active');
+            })
+            .catch(function (err) {
+                console.error(err);
+                statusLabel.textContent = 'Error al cargar';
+            });
+    }
+
+    // Step Switching Logic
+    var indicators = document.querySelectorAll('.wizard-step-indicator');
+    
+    function showStep(stepNum) {
+        currentStep = stepNum;
+        document.querySelectorAll('.wizard-step-content').forEach(function (content) {
+            content.classList.remove('active');
+        });
+        document.getElementById(`step-content-${stepNum}`).classList.add('active');
+
+        indicators.forEach(function (ind) {
+            ind.classList.remove('active');
+            var indStep = parseInt(ind.dataset.step);
+            if (indStep === stepNum) {
+                ind.classList.add('active');
+            } else if (indStep < stepNum) {
+                ind.classList.add('visited');
+            }
+        });
+
+        // Toggle buttons
+        var prevBtn = document.getElementById('wizard-btn-prev');
+        var nextBtn = document.getElementById('wizard-btn-next');
+        var saveBtn = document.getElementById('wizard-btn-save');
+        var label = document.getElementById('wizard-step-label');
+
+        prevBtn.style.display = stepNum === 1 ? 'none' : 'block';
+        if (stepNum === 5) {
+            nextBtn.style.display = 'none';
+            saveBtn.style.display = 'block';
+        } else {
+            nextBtn.style.display = 'block';
+            saveBtn.style.display = 'none';
+        }
+        label.textContent = `Paso ${stepNum} de 5`;
+    }
+
+    document.getElementById('wizard-btn-prev').addEventListener('click', function () {
+        if (currentStep > 1) {
+            showStep(currentStep - 1);
+        }
+    });
+
+    document.getElementById('wizard-btn-next').addEventListener('click', function () {
+        if (currentStep < 5) {
+            showStep(currentStep + 1);
+        }
+    });
+
+    indicators.forEach(function (ind) {
+        ind.addEventListener('click', function () {
+            var stepNum = parseInt(ind.dataset.step);
+            showStep(stepNum);
+        });
+    });
+
+    // Collect values from the DOM form and compile payload
+    function collectFormPayload() {
+        var payload = {
+            patient: {
+                name: document.getElementById('patient-name').value,
+                ocupacion: document.getElementById('patient-ocupacion').value,
+                fecha_nacimiento: document.getElementById('patient-fecha-nacimiento').value,
+                sexo: document.getElementById('patient-sexo').value,
+                estado_civil: document.getElementById('patient-estado-civil').value,
+                domicilio: document.getElementById('patient-domicilio').value,
+                phone: document.getElementById('patient-cel').value || document.getElementById('patient-tel').value || '',
+                tel: document.getElementById('patient-tel').value,
+                cel: document.getElementById('patient-cel').value,
+                familiar_responsable: document.getElementById('patient-familiar-responsable').value,
+                familiar_tel: document.getElementById('patient-familiar-tel-cel').value,
+                familiar_cel: document.getElementById('patient-familiar-tel-cel').value
+            },
+            expediente: {
+                eva_dolor: evaTouched ? parseInt(evaSlider.value) : null,
+                notas_generales: document.getElementById('expediente-notas-generales').value,
+                notas_plan: ''
+            },
+            antecedentes: antecedenteItems.map(function (item) {
+                var val = getSegmentedValue(item.key);
+                var spec = document.getElementById(`spec-${item.key}`).value;
+                return {
+                    grupo: item.grupo,
+                    item_key: item.key,
+                    valor: val,
+                    especificacion: spec
+                };
+            }),
+            exploracion: {
+                estatura_cm: document.getElementById('exploracion-estatura').value,
+                peso_kg: document.getElementById('exploracion-peso').value,
+                ta: document.getElementById('exploracion-ta').value,
+                fc: document.getElementById('exploracion-fc').value,
+                fr: document.getElementById('exploracion-fr').value,
+                arcos_movimiento: document.getElementById('exploracion-arcos').value,
+                fuerza_muscular: document.getElementById('exploracion-fuerza').value,
+                reflejos: document.getElementById('exploracion-reflejos').value,
+                sensibilidad: document.getElementById('exploracion-sensibilidad').value,
+                lenguaje_orientacion: document.getElementById('exploracion-lenguaje-orientacion').value,
+                otros: document.getElementById('exploracion-otros').value
+            },
+            cicatriz: {
+                presenta: document.querySelector('#cicatriz-master-control .active-si') ? 1 : 0,
+                sitio: document.getElementById('cicatriz-sitio').value,
+                queloide: document.getElementById('cicatriz-queloide').checked ? 'si' : 'no',
+                retractil: document.getElementById('cicatriz-retractil').checked ? 'si' : 'no',
+                abierta: document.getElementById('cicatriz-abierta').checked ? 'si' : 'no',
+                con_adherencia: document.getElementById('cicatriz-con-adherencia').checked ? 'si' : 'no',
+                hipertrofica: document.getElementById('cicatriz-hipertrofica').checked ? 'si' : 'no'
+            },
+            padecimiento: {
+                motivo_consulta: document.getElementById('padecimiento-motivo').value,
+                inicio: document.getElementById('padecimiento-inicio').value,
+                evolucion: document.getElementById('padecimiento-evolucion').value,
+                estudios: document.getElementById('padecimiento-estudios').value,
+                tratamientos_previos: document.getElementById('padecimiento-tratamientos').value
+            },
+            problemas: problemaRows.map(function (row) {
+                return {
+                    item_key: row.key,
+                    severidad: document.getElementById(`prob-sev-${row.key}`).value,
+                    nota: document.getElementById(`prob-nota-${row.key}`).value
+                };
+            }),
+            plan_sesiones: Array.from(document.querySelectorAll('#treatment-sessions-container .repeatable-row')).map(function (row) {
+                return {
+                    fecha: row.querySelector('.session-fecha').value,
+                    indicaciones: row.querySelector('.session-indicaciones').value
+                };
+            }),
+            marcha: {
+                libre: document.getElementById('gait-libre').checked ? 1 : 0,
+                claudicante: document.getElementById('gait-claudicante').checked ? 1 : 0,
+                con_ayuda: document.getElementById('gait-con-ayuda').checked ? 1 : 0,
+                espasticas: document.getElementById('gait-espasticas').checked ? 1 : 0,
+                ataxica: document.getElementById('gait-ataxica').checked ? 1 : 0,
+                otros: document.getElementById('gait-otros').checked ? 1 : 0,
+                otros_spec: document.getElementById('gait-otros-spec').value,
+                observaciones: document.getElementById('gait-observaciones').value,
+                
+                inicio_marcha: getRadioValue('tinetti-inicio_marcha'),
+                paso_pd_longitud: getRadioValue('tinetti-paso_pd_longitud'),
+                paso_pd_altura: getRadioValue('tinetti-paso_pd_altura'),
+                paso_pi_longitud: getRadioValue('tinetti-paso_pi_longitud'),
+                paso_pi_altura: getRadioValue('tinetti-paso_pi_altura'),
+                simetria_paso: getRadioValue('tinetti-simetria_paso'),
+                continuidad_pasos: getRadioValue('tinetti-continuidad_pasos'),
+                trayectoria: getRadioValue('tinetti-trayectoria'),
+                tronco: getRadioValue('tinetti-tronco'),
+                postura_marcha: getRadioValue('tinetti-postura_marcha'),
+                total_balance_manual: document.getElementById('score-balance-manual').value
+            }
+        };
+        return payload;
+    }
+
+    function getRadioValue(name) {
+        var el = document.querySelector(`input[name="${name}"]:checked`);
+        return el ? parseInt(el.value) : '';
+    }
+
+    // Server Autosave / manual save function
+    var saveTimeout = null;
+    function runAutosave() {
+        if (saveTimeout) clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(function () {
+            var statusLabel = document.getElementById('wizard-autosave-status');
+            statusLabel.textContent = 'Guardando...';
+
+            var payload = collectFormPayload();
+            if (!payload.patient.name) return; // GC-4 name required
+
+            fetch(`<?php echo URLROOT; ?>/dashboard/saveExpediente/${activePatientId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (data.status === 'success') {
+                    var now = new Date();
+                    var timeStr = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    statusLabel.textContent = `Guardado a las ${timeStr}`;
+                } else {
+                    statusLabel.textContent = 'Error al guardar';
+                }
+            })
+            .catch(function () {
+                statusLabel.textContent = 'Error de conexión';
+            });
+        }, 1000);
+    }
+
+    // Attach autosave triggers to Step 1 fields on change / blur
+    var inputs = [
+        'patient-name', 'patient-ocupacion', 'patient-fecha-nacimiento',
+        'patient-sexo', 'patient-estado-civil', 'patient-domicilio',
+        'patient-tel', 'patient-cel', 'patient-familiar-responsable', 'patient-familiar-tel-cel',
+        'exploracion-estatura', 'exploracion-peso', 'exploracion-ta',
+        'exploracion-fc', 'exploracion-fr', 'exploracion-arcos', 'exploracion-fuerza',
+        'exploracion-reflejos', 'exploracion-sensibilidad', 'exploracion-lenguaje-orientacion', 'exploracion-otros',
+        'cicatriz-sitio', 'padecimiento-motivo', 'padecimiento-inicio',
+        'padecimiento-evolucion', 'padecimiento-estudios', 'padecimiento-tratamientos',
+        'expediente-notas-generales', 'gait-observaciones', 'gait-otros-spec'
+    ];
+
+    inputs.forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('blur', runAutosave);
+            el.addEventListener('change', runAutosave);
+        }
+    });
+
+    // Checkboxes click events
+    var checks = [
+        'cicatriz-queloide', 'cicatriz-retractil', 'cicatriz-abierta', 'cicatriz-con-adherencia', 'cicatriz-hipertrofica',
+        'gait-libre', 'gait-claudicante', 'gait-con-ayuda', 'gait-espasticas', 'gait-ataxica'
+    ];
+    checks.forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('change', runAutosave);
+        }
+    });
+
+    document.getElementById('wizard-btn-save').addEventListener('click', function () {
+        runAutosave();
+        closeModal();
+    });
 
     function closeModal() {
         modal.classList.remove('active');
     }
-
-    viewBtns.forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            openPatientModal(btn);
-        });
-    });
 
     if (closeBtn) {
         closeBtn.addEventListener('click', closeModal);

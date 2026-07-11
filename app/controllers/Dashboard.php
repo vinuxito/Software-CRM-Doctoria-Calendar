@@ -4,6 +4,7 @@ class Dashboard extends Controller {
     private $userModel;
     private $chatModel;
     private $patientFileModel;
+    private $expedienteModel;
 
     public function __construct(){
         if(!isset($_SESSION['user_id'])){
@@ -14,6 +15,7 @@ class Dashboard extends Controller {
         $this->userModel = $this->model('User');
         $this->chatModel = $this->model('Chat');
         $this->patientFileModel = $this->model('PatientFile');
+        $this->expedienteModel = $this->model('Expediente');
     }
 
     public function index(){
@@ -388,5 +390,46 @@ class Dashboard extends Controller {
         $data['appointments'] = $appointments;
         
         $this->view('dashboard/index', $data);
+    }
+
+    public function loadExpediente($patientId){
+        if($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'medico'){
+            echo json_encode(['status' => 'error', 'message' => 'No autorizado']);
+            exit;
+        }
+        $data = $this->expedienteModel->loadExpedienteData($patientId);
+        header('Content-Type: application/json');
+        echo json_encode($data);
+        exit;
+    }
+
+    public function saveExpediente($patientId){
+        if($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'medico'){
+            echo json_encode(['status' => 'error', 'message' => 'No autorizado']);
+            exit;
+        }
+
+        $raw = file_get_contents('php://input');
+        $payload = json_decode($raw, true);
+
+        if(!$payload){
+            echo json_encode(['status' => 'error', 'message' => 'Payload inválido']);
+            exit;
+        }
+
+        if(empty($payload['patient']['name'])){
+            echo json_encode(['status' => 'error', 'message' => 'El nombre del paciente es obligatorio']);
+            exit;
+        }
+
+        $saved = $this->expedienteModel->saveExpedienteData($patientId, $payload);
+
+        if($saved){
+            error_log("AUDIT LOG: User [{$_SESSION['user_email']}] SAVED clinical expediente for patient ID [{$patientId}]. STATUS: SUCCESS.");
+            echo json_encode(['status' => 'success']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Error al guardar el expediente']);
+        }
+        exit;
     }
 }

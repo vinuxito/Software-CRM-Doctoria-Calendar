@@ -31,3 +31,12 @@ Implement the 5-step interactive clinical intake wizard for physiotherapist Naxi
   * Generated and executed migrations for `expedientes`, `antecedentes`, `exploraciones`, `cicatrices`, `padecimientos`, `problemas`, `plan_sesiones`, `marchas`.
   * Created model class [Expediente.php](file:///lamp/www/naxielly/app/models/Expediente.php).
 * **Verify/Build**: Compiles without errors.
+
+### 2. Iteration 2 — CORE IMPLEMENTATION
+* **Lens**: *Does the planned feature work end-to-end on the happy path?*
+* **Results**:
+  * Registered `Expediente` model inside `Dashboard.php` controller.
+  * Built action endpoints `loadExpediente` and `saveExpediente` in the controller.
+  * Coded the complete 5-step wizard HTML shell and grid styling in `index.php` view.
+  * Added the JS wizard controller skeleton handling loading, tab switching, and age autocomputation.
+* **Verify/Build**: Verified happy path persistence end-to-end using automated script `test_wizard_logic.php`. All database tables and columns are validated and persistent. All tests passed.
