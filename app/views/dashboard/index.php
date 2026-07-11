@@ -388,18 +388,22 @@
                         gap: 10px;
                     }
                     .wizard-step-indicator {
-                        font-size: 12px;
+                        font-size: 13px;
                         font-weight: 600;
                         color: #6c757d;
                         cursor: pointer;
-                        padding: 6px 12px;
-                        border-radius: 4px;
+                        padding: 10px 14px;
+                        border-radius: 6px;
                         white-space: nowrap;
+                        display: inline-flex;
+                        align-items: center;
+                        min-height: 44px;
                         transition: all 0.2s ease;
                     }
                     .wizard-step-indicator.active {
                         color: #fff;
                         background: #E8A0AC;
+                        box-shadow: 0 4px 6px rgba(232, 160, 172, 0.2);
                     }
                     .wizard-step-indicator.visited {
                         color: #E8A0AC;
@@ -408,7 +412,7 @@
                         display: none;
                         max-height: 60vh;
                         overflow-y: auto;
-                        padding-right: 5px;
+                        padding-right: 8px;
                     }
                     .wizard-step-content.active {
                         display: block;
@@ -416,102 +420,117 @@
                     .form-grid-2 {
                         display: grid;
                         grid-template-columns: 1fr 1fr;
-                        gap: 12px;
+                        gap: 15px;
                         margin-top: 10px;
                     }
                     .form-grid-3 {
                         display: grid;
                         grid-template-columns: 1fr 1fr 1fr;
-                        gap: 12px;
+                        gap: 15px;
                         margin-top: 10px;
                     }
                     .segmented-control {
                         display: inline-flex;
                         background: #f1f3f5;
-                        padding: 3px;
-                        border-radius: 6px;
+                        padding: 4px;
+                        border-radius: 8px;
                         border: 1px solid #dee2e6;
-                        margin-bottom: 5px;
+                        min-height: 44px;
+                        align-items: center;
                     }
                     .segmented-btn {
-                        padding: 4px 12px;
-                        font-size: 11px;
+                        padding: 8px 16px;
+                        font-size: 12px;
                         font-weight: 600;
                         color: #495057;
                         border: none;
                         background: transparent;
                         cursor: pointer;
-                        border-radius: 4px;
+                        border-radius: 6px;
+                        min-height: 36px;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
                         transition: all 0.2s ease;
                     }
                     .segmented-btn.active-si {
                         background: #f8d7da;
                         color: #842029;
+                        box-shadow: 0 2px 4px rgba(132, 32, 41, 0.1);
                     }
                     .segmented-btn.active-no {
                         background: #d1e7dd;
                         color: #0f5132;
+                        box-shadow: 0 2px 4px rgba(15, 81, 50, 0.1);
                     }
                     .segmented-btn.active-unset {
                         background: #e2e3e5;
                         color: #383d41;
+                        box-shadow: 0 2px 4px rgba(56, 61, 65, 0.1);
                     }
                     .warning-badge-alert {
                         background: #f8d7da;
                         color: #842029;
                         border: 1px solid #f5c2c7;
-                        padding: 10px 15px;
-                        border-radius: 6px;
-                        margin-bottom: 15px;
+                        padding: 12px 18px;
+                        border-radius: 8px;
+                        margin-bottom: 18px;
                         font-size: 13px;
                         font-weight: bold;
                         display: none;
                         align-items: center;
-                        gap: 8px;
+                        gap: 10px;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
                     }
                     .eva-container {
                         background: #f8f9fa;
-                        padding: 15px;
-                        border-radius: 8px;
+                        padding: 20px;
+                        border-radius: 10px;
                         border: 1px solid #e9ecef;
                         margin-top: 15px;
                         text-align: center;
+                        box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
                     }
                     .eva-face {
-                        font-size: 40px;
+                        font-size: 48px;
                         margin-bottom: 8px;
+                        transition: transform 0.2s ease;
                     }
                     .eva-slider {
                         width: 100%;
                         accent-color: #E8A0AC;
                         cursor: pointer;
+                        height: 8px;
+                        border-radius: 4px;
                     }
                     .gait-grid {
                         display: grid;
-                        grid-template-columns: 1.5fr 1fr;
-                        gap: 15px;
+                        grid-template-columns: 1.2fr 1fr;
+                        gap: 20px;
                         margin-top: 10px;
                     }
                     .repeatable-row {
                         background: #f8f9fa;
                         border: 1px solid #dee2e6;
-                        border-radius: 6px;
-                        padding: 10px;
-                        margin-bottom: 10px;
+                        border-radius: 8px;
+                        padding: 15px;
+                        margin-bottom: 12px;
                         display: flex;
                         flex-direction: column;
-                        gap: 8px;
+                        gap: 10px;
                         position: relative;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
                     }
                     .repeatable-row-remove {
                         position: absolute;
-                        top: 8px;
-                        right: 8px;
+                        top: 10px;
+                        right: 10px;
                         background: none;
                         border: none;
                         color: #dc3545;
                         cursor: pointer;
-                        font-size: 14px;
+                        font-size: 18px;
+                        padding: 5px;
                     }
                 </style>
                 <div class="calendar-modal-card" style="max-width: 950px; width: 95%;">
