@@ -378,6 +378,56 @@
               <!-- Modal for Patient Clinical File -->
             <div id="patient-file-modal" class="calendar-modal-overlay">
                 <style>
+                    :root {
+                        --brand-pink: #E8A0AC;
+                        --brand-pink-glow: rgba(232, 160, 172, 0.22);
+                        --brand-green-success: #7FB8A6;
+                        --brand-green-glow: rgba(127, 184, 166, 0.15);
+                        --warning-ochre: #E5A87B;
+                        --critical-rose: #D66F7C;
+                        --slate-text: #2D3748;
+                        --slate-muted: #718096;
+                        --bg-light-gray: #F7FAFC;
+                        --border-gray: #E2E8F0;
+                        --font-heading: 'Outfit', 'Plus Jakarta Sans', system-ui, sans-serif;
+                        --font-body: 'Inter', system-ui, sans-serif;
+                    }
+                    .calendar-modal-form input,
+                    .calendar-modal-form select,
+                    .calendar-modal-form textarea {
+                        font-family: var(--font-body) !important;
+                        font-size: 14px;
+                        color: var(--slate-text);
+                        border: 1.5px solid var(--border-gray);
+                        background-color: var(--bg-light-gray);
+                        border-radius: 8px;
+                        padding: 10px 14px;
+                        min-height: 44px;
+                        transition: all 0.2s ease-in-out;
+                        outline: none;
+                        width: 100%;
+                        box-sizing: border-box;
+                    }
+                    .calendar-modal-form input:focus,
+                    .calendar-modal-form select:focus,
+                    .calendar-modal-form textarea:focus {
+                        border-color: var(--brand-pink);
+                        box-shadow: 0 0 0 4px var(--brand-pink-glow);
+                        background-color: #ffffff;
+                    }
+                    .calendar-modal-form label {
+                        font-family: var(--font-body);
+                        font-weight: 600;
+                        color: var(--slate-muted);
+                        font-size: 12px;
+                        margin-bottom: 5px;
+                        display: block;
+                    }
+                    .calendar-modal-card h3, .calendar-modal-card h4 {
+                        font-family: var(--font-heading);
+                        font-weight: 600;
+                        color: var(--slate-text);
+                    }
                     .wizard-steps-progress {
                         display: flex;
                         justify-content: space-between;
@@ -388,6 +438,7 @@
                         gap: 10px;
                     }
                     .wizard-step-indicator {
+                        font-family: var(--font-heading);
                         font-size: 13px;
                         font-weight: 600;
                         color: #6c757d;
@@ -402,11 +453,11 @@
                     }
                     .wizard-step-indicator.active {
                         color: #fff;
-                        background: #E8A0AC;
+                        background: var(--brand-pink);
                         box-shadow: 0 4px 6px rgba(232, 160, 172, 0.2);
                     }
                     .wizard-step-indicator.visited {
-                        color: #E8A0AC;
+                        color: var(--brand-pink);
                     }
                     .wizard-step-content {
                         display: none;
@@ -454,19 +505,113 @@
                         transition: all 0.2s ease;
                     }
                     .segmented-btn.active-si {
-                        background: #f8d7da;
-                        color: #842029;
-                        box-shadow: 0 2px 4px rgba(132, 32, 41, 0.1);
+                        background: #FEE2E2 !important;
+                        color: #991B1B !important;
+                        border: 1.5px solid #FCA5A5 !important;
+                        box-shadow: 0 2px 4px rgba(153, 27, 27, 0.1);
                     }
                     .segmented-btn.active-no {
-                        background: #d1e7dd;
-                        color: #0f5132;
-                        box-shadow: 0 2px 4px rgba(15, 81, 50, 0.1);
+                        background: #D1FAE5 !important;
+                        color: #065F46 !important;
+                        border: 1.5px solid #6EE7B7 !important;
+                        box-shadow: 0 2px 4px rgba(6, 95, 70, 0.1);
                     }
                     .segmented-btn.active-unset {
-                        background: #e2e3e5;
-                        color: #383d41;
-                        box-shadow: 0 2px 4px rgba(56, 61, 65, 0.1);
+                        background: #F3F4F6 !important;
+                        color: #374151 !important;
+                        border: 1.5px solid #D1D5DB !important;
+                        box-shadow: 0 2px 4px rgba(55, 65, 81, 0.1);
+                    }
+                    .option-chips-container {
+                        display: flex;
+                        gap: 8px;
+                        margin-top: 5px;
+                        flex-wrap: wrap;
+                    }
+                    .option-chip {
+                        padding: 10px 16px;
+                        font-size: 13px;
+                        font-weight: 600;
+                        color: #4A5568;
+                        background: #F7FAFC;
+                        border: 1.5px solid #E2E8F0;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        transition: all 0.2s ease-in-out;
+                        min-height: 44px;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                    .option-chip:hover {
+                        border-color: #CBD5E0;
+                        background: #EDF2F7;
+                    }
+                    .option-chip.active {
+                        background: var(--brand-pink) !important;
+                        color: #fff !important;
+                        border-color: var(--brand-pink) !important;
+                        box-shadow: 0 4px 6px rgba(232, 160, 172, 0.2) !important;
+                    }
+                    .spec-input-container {
+                        max-height: 0;
+                        opacity: 0;
+                        overflow: hidden;
+                        transition: max-height 0.3s ease-out, opacity 0.2s ease-out, margin-top 0.2s ease-out;
+                        margin-top: 0;
+                    }
+                    .spec-input-container.active {
+                        max-height: 100px;
+                        opacity: 1;
+                        margin-top: 8px;
+                    }
+                    .tinetti-segmented-row {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 8px;
+                        margin-top: 4px;
+                    }
+                    .tinetti-option-card {
+                        display: block;
+                        cursor: pointer;
+                        border: 1.5px solid var(--border-gray);
+                        border-radius: 8px;
+                        background: #fff;
+                        padding: 10px 14px;
+                        transition: all 0.2s ease-in-out;
+                        min-height: 44px;
+                        box-sizing: border-box;
+                    }
+                    .tinetti-option-card:hover {
+                        border-color: #CBD5E0;
+                        background: var(--bg-light-gray);
+                    }
+                    .tinetti-option-card:has(input[type="radio"]:checked) {
+                        background: #EBF8FF !important;
+                        border-color: #3182CE !important;
+                        box-shadow: 0 4px 6px rgba(49, 130, 206, 0.08) !important;
+                    }
+                    .tinetti-card-content {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        gap: 12px;
+                    }
+                    .tinetti-card-score {
+                        font-family: var(--font-heading);
+                        font-size: 11px;
+                        font-weight: bold;
+                        color: #2B6CB0;
+                        background: #EBF8FF;
+                        padding: 3px 8px;
+                        border-radius: 4px;
+                        white-space: nowrap;
+                    }
+                    .tinetti-card-desc {
+                        font-family: var(--font-body);
+                        font-size: 12px;
+                        color: var(--slate-text);
+                        text-align: right;
                     }
                     .warning-badge-alert {
                         background: #f8d7da;
@@ -481,6 +626,28 @@
                         align-items: center;
                         gap: 10px;
                         box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+                    }
+                    .autosave-glow-dot {
+                        width: 8px;
+                        height: 8px;
+                        border-radius: 50%;
+                        background: #7FB8A6; /* var(--brand-green-success) */
+                        display: inline-block;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 0 8px rgba(127, 184, 166, 0.6);
+                    }
+                    .autosave-glow-dot.saving {
+                        background: #E5A87B !important; /* var(--warning-ochre) */
+                        box-shadow: 0 0 8px rgba(229, 168, 123, 0.8) !important;
+                        animation: pulse-orange 1s infinite alternate;
+                    }
+                    .autosave-glow-dot.error {
+                        background: #D66F7C !important; /* var(--critical-rose) */
+                        box-shadow: 0 0 8px rgba(214, 111, 124, 0.8) !important;
+                    }
+                    @keyframes pulse-orange {
+                        0% { transform: scale(0.9); opacity: 0.6; }
+                        100% { transform: scale(1.3); opacity: 1; }
                     }
                     .eva-container {
                         background: #f8f9fa;
@@ -536,7 +703,10 @@
                 <div class="calendar-modal-card" style="max-width: 950px; width: 95%;">
                     <div class="calendar-modal-head">
                         <h3>Expediente Clínico Digital</h3>
-                        <span id="wizard-autosave-status" style="font-size: 11px; color: #888; margin-left: 15px; display: inline-flex; align-items: center;"></span>
+                        <span id="wizard-autosave-status" style="font-size: 11px; color: #888; margin-left: 15px; display: inline-flex; align-items: center; gap: 6px;">
+                            <span id="autosave-glow-dot" class="autosave-glow-dot"></span>
+                            <span id="autosave-text"></span>
+                        </span>
                         <span id="wizard-offline-banner" style="display: none; background: #dc3545; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-left: 10px; align-items: center;">SIN CONEXIÓN</span>
                         <button type="button" id="patient-file-modal-close" class="calendar-modal-close">×</button>
                     </div>
@@ -580,18 +750,23 @@
                                 </div>
                                 <div>
                                     <label>Sexo</label>
-                                    <select id="patient-sexo">
+                                    <select id="patient-sexo" style="display:none;">
                                         <option value="">Seleccione...</option>
                                         <option value="Femenino">Femenino</option>
                                         <option value="Masculino">Masculino</option>
                                         <option value="Otro">Otro</option>
                                     </select>
+                                    <div class="option-chips-container" data-target="patient-sexo">
+                                        <button type="button" class="option-chip" data-value="Femenino">Femenino</button>
+                                        <button type="button" class="option-chip" data-value="Masculino">Masculino</button>
+                                        <button type="button" class="option-chip" data-value="Otro">Otro</button>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-grid-2">
                                 <div>
                                     <label>Estado Civil</label>
-                                    <select id="patient-estado-civil">
+                                    <select id="patient-estado-civil" style="display:none;">
                                         <option value="">Seleccione...</option>
                                         <option value="Soltero(a)">Soltero(a)</option>
                                         <option value="Casado(a)">Casado(a)</option>
@@ -599,6 +774,13 @@
                                         <option value="Divorciado(a)">Divorciado(a)</option>
                                         <option value="Viudo(a)">Viudo(a)</option>
                                     </select>
+                                    <div class="option-chips-container" data-target="patient-estado-civil">
+                                        <button type="button" class="option-chip" data-value="Soltero(a)">Soltero(a)</button>
+                                        <button type="button" class="option-chip" data-value="Casado(a)">Casado(a)</button>
+                                        <button type="button" class="option-chip" data-value="Union libre">Unión libre</button>
+                                        <button type="button" class="option-chip" data-value="Divorciado(a)">Divorciado(a)</button>
+                                        <button type="button" class="option-chip" data-value="Viudo(a)">Viudo(a)</button>
+                                    </div>
                                 </div>
                                 <div>
                                     <label>Domicilio</label>
@@ -667,6 +849,26 @@
                                     <input type="text" id="exploracion-ta" placeholder="###/### mmHg">
                                 </div>
                             </div>
+
+                            <!-- BMI (IMC) Visual Gauge -->
+                            <div class="imc-gauge-container" id="imc-gauge-block" style="display: none; margin-top: 15px; background: #fff; border: 1.5px solid var(--border-gray); border-radius: 10px; padding: 15px; box-sizing: border-box;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <span style="font-size: 13px; font-weight: bold; color: var(--slate-text);">Análisis de Masa Corporal (IMC)</span>
+                                    <span id="imc-value-badge" style="font-size: 12px; font-weight: bold; padding: 4px 10px; border-radius: 6px; background: var(--bg-light-gray); color: var(--slate-text);">--</span>
+                                </div>
+                                <div class="imc-track" style="position: relative; height: 16px; border-radius: 8px; background: linear-gradient(to right, #63B3ED 0%, #63B3ED 30%, #48BB78 30%, #48BB78 60%, #ECC94B 60%, #ECC94B 80%, #F56565 80%); overflow: visible;">
+                                    <div id="imc-gauge-needle" style="position: absolute; top: -4px; left: 0%; width: 4px; height: 24px; background: var(--slate-text); border-radius: 2px; transition: left 0.3s ease-out; box-shadow: 0 0 4px rgba(0,0,0,0.3);">
+                                        <div style="position: absolute; top: -6px; left: -4px; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid var(--slate-text);"></div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 600; color: var(--slate-muted); margin-top: 6px;">
+                                    <span>Bajo (< 18.5)</span>
+                                    <span>Normal (18.5 - 24.9)</span>
+                                    <span>Sobrepeso (25 - 29.9)</span>
+                                    <span>Obeso (>= 30)</span>
+                                </div>
+                            </div>
+
                             <div class="form-grid-2">
                                 <div>
                                     <label>F/C (Frecuencia Cardíaca - lpm)</label>
@@ -875,11 +1077,28 @@
                                             <span>Total Equilibrio Manual (0-16):</span>
                                             <input type="number" min="0" max="16" id="score-balance-manual" value="0" style="width: 60px; padding: 3px; text-align: center;">
                                         </div>
-                                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; border-top: 1px solid #ddd; padding-top: 6px;">
+                                        <div style="display: none;">
                                             <strong>Total General (Max 28):</strong>
                                             <strong id="score-general-val" style="color: #a83232; font-size: 14px;">0</strong>
+                                            <span id="tinetti-risk-badge" class="status-chip status-approved" style="text-align: center; display: block; margin-top: 5px; font-weight: bold;">Bajo Riesgo</span>
                                         </div>
-                                        <span id="tinetti-risk-badge" class="status-chip status-approved" style="text-align: center; display: block; margin-top: 5px; font-weight: bold;">Bajo Riesgo</span>
+
+                                        <!-- Upgraded SVG Ring Indicator Box -->
+                                        <div style="display: flex; gap: 12px; align-items: center; background: #fff; border: 1.5px solid var(--border-gray); border-radius: 10px; padding: 12px; margin-top: 10px; box-sizing: border-box;">
+                                            <!-- SVG Ring -->
+                                            <div style="position: relative; width: 44px; height: 44px; flex-shrink: 0;">
+                                                <svg width="44" height="44" viewBox="0 0 36 36" style="transform: rotate(-90deg); display: block;">
+                                                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#E2E8F0" stroke-width="3" />
+                                                    <path id="tinetti-svg-ring" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#48BB78" stroke-width="3" stroke-dasharray="0, 100" style="transition: stroke-dasharray 0.3s ease-out;" />
+                                                </svg>
+                                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: var(--font-heading); font-size: 11px; font-weight: bold; color: var(--slate-text);" id="tinetti-svg-text">0/28</div>
+                                            </div>
+                                            <!-- Risk Text -->
+                                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                                <span style="font-size: 9px; font-weight: 600; color: var(--slate-muted); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1;">Riesgo de Caída</span>
+                                                <span id="tinetti-risk-badge-text" style="font-size: 12px; font-weight: bold; color: var(--slate-text); line-height: 1.2;">Bajo Riesgo</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1605,7 +1824,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <button type="button" class="segmented-btn" data-val="null">N/A</button>
                     </div>
                 </div>
-                <div class="spec-input-container" id="spec-container-${item.key}" style="display: none; margin-top: 6px;">
+                <div class="spec-input-container" id="spec-container-${item.key}">
                     <input type="text" id="spec-${item.key}" placeholder="${item.placeholder || 'Especificaciones...'}" style="width: 100%; font-size: 12px; padding: 5px;">
                 </div>
             `;
@@ -1642,9 +1861,9 @@ document.addEventListener('DOMContentLoaded', function () {
         var specContainer = document.getElementById(`spec-container-${key}`);
         if (specContainer) {
             if (val === 'si') {
-                specContainer.style.display = 'block';
+                specContainer.classList.add('active');
             } else {
-                specContainer.style.display = 'none';
+                specContainer.classList.remove('active');
                 var specInput = document.getElementById(`spec-${key}`);
                 if (specInput) specInput.value = '';
             }
@@ -1708,15 +1927,18 @@ document.addEventListener('DOMContentLoaded', function () {
         container.innerHTML = '';
         tinettiCriteria.forEach(function (crit) {
             var div = document.createElement('div');
-            div.style.marginBottom = '10px';
+            div.style.marginBottom = '14px';
             div.innerHTML = `
-                <span style="font-weight: 500; font-size: 11px; color: #555; display: block; margin-bottom: 3px;">${crit.label}</span>
-                <div style="display: flex; flex-direction: column; gap: 4px;">
+                <span style="font-family: var(--font-heading); font-weight: bold; font-size: 12px; color: var(--slate-text); display: block; margin-bottom: 6px;">${crit.label}</span>
+                <div class="tinetti-segmented-row">
                     ${crit.options.map(function (opt) {
                         return `
-                            <label style="display: flex; align-items: flex-start; gap: 6px; font-size: 11px; font-weight: normal; cursor: pointer; line-height: 1.2;">
-                                <input type="radio" name="tinetti-${crit.key}" value="${opt.val}" style="margin-top: 1px;">
-                                <span>(${opt.val} pts) ${opt.text}</span>
+                            <label class="tinetti-option-card">
+                                <input type="radio" name="tinetti-${crit.key}" value="${opt.val}" style="display: none;">
+                                <div class="tinetti-card-content">
+                                    <span class="tinetti-card-score">${opt.val} pts</span>
+                                    <span class="tinetti-card-desc">${opt.text}</span>
+                                </div>
                             </label>
                         `;
                     }).join('')}
@@ -1802,6 +2024,110 @@ document.addEventListener('DOMContentLoaded', function () {
             age--;
         }
         return age;
+    }
+
+    function syncChipsFromSelect(selectId) {
+        var select = document.getElementById(selectId);
+        var val = select.value;
+        var container = document.querySelector(`.option-chips-container[data-target="${selectId}"]`);
+        if (container) {
+            var chips = container.querySelectorAll('.option-chip');
+            chips.forEach(function (chip) {
+                if (chip.dataset.value === val) {
+                    chip.classList.add('active');
+                } else {
+                    chip.classList.remove('active');
+                }
+            });
+        }
+    }
+
+    function setupOptionChips() {
+        var containers = document.querySelectorAll('.option-chips-container');
+        containers.forEach(function (container) {
+            var targetSelectId = container.dataset.target;
+            var select = document.getElementById(targetSelectId);
+            if (select) {
+                select.style.display = 'none'; // Hide select
+                var chips = container.querySelectorAll('.option-chip');
+                chips.forEach(function (chip) {
+                    chip.addEventListener('click', function () {
+                        select.value = chip.dataset.value;
+                        var event = new Event('change');
+                        select.dispatchEvent(event);
+                        syncChipsFromSelect(targetSelectId);
+                    });
+                });
+            }
+        });
+    }
+
+    function updateIMCGauge() {
+        var estaturaInput = document.getElementById('exploracion-estatura');
+        var pesoInput = document.getElementById('exploracion-peso');
+        var gaugeBlock = document.getElementById('imc-gauge-block');
+        var valueBadge = document.getElementById('imc-value-badge');
+        var needle = document.getElementById('imc-gauge-needle');
+
+        if (!estaturaInput || !pesoInput || !gaugeBlock || !valueBadge || !needle) return;
+
+        var estatura = parseFloat(estaturaInput.value);
+        var peso = parseFloat(pesoInput.value);
+
+        if (estatura > 0 && peso > 0) {
+            var h = estatura / 100;
+            var imc = peso / (h * h);
+            gaugeBlock.style.display = 'block';
+
+            var category = '';
+            var bg = '';
+            var fg = '';
+
+            if (imc < 18.5) {
+                category = 'Bajo Peso';
+                bg = '#EBF8FF';
+                fg = '#2B6CB0';
+            } else if (imc >= 18.5 && imc < 25) {
+                category = 'Saludable';
+                bg = '#C6F6D5';
+                fg = '#22543D';
+            } else if (imc >= 25 && imc < 30) {
+                category = 'Sobrepeso';
+                bg = '#FEFCBF';
+                fg = '#744210';
+            } else {
+                category = 'Obesidad';
+                bg = '#FED7D7';
+                fg = '#742A2A';
+            }
+
+            valueBadge.textContent = `${imc.toFixed(1)} - ${category}`;
+            valueBadge.style.backgroundColor = bg;
+            valueBadge.style.color = fg;
+
+            // Map IMC range 15 to 35 onto 0% to 100%
+            var pct = ((imc - 15) / (35 - 15)) * 100;
+            if (pct < 0) pct = 0;
+            if (pct > 100) pct = 100;
+            needle.style.left = pct + '%';
+        } else {
+            gaugeBlock.style.display = 'none';
+        }
+    }
+
+    function setupTAMask() {
+        var taInput = document.getElementById('exploracion-ta');
+        if (!taInput) return;
+        taInput.addEventListener('input', function () {
+            var val = taInput.value;
+            var cleaned = val.replace(/[^\d\/]/g, '');
+            if (cleaned.length === 4 && !cleaned.includes('/')) {
+                cleaned = cleaned.slice(0, 3) + '/' + cleaned.slice(3);
+            }
+            if (cleaned !== val) {
+                taInput.value = cleaned;
+            }
+        });
     }
 
     // Surgical scar master toggle toggle
@@ -1918,6 +2244,31 @@ document.addEventListener('DOMContentLoaded', function () {
             riskBadge.className = 'status-chip status-approved';
             riskBadge.textContent = 'Bajo Riesgo (25+)';
         }
+
+        // Upgraded SVG Ring updates
+        var svgRing = document.getElementById('tinetti-svg-ring');
+        var svgText = document.getElementById('tinetti-svg-text');
+        var riskText = document.getElementById('tinetti-risk-badge-text');
+
+        if (svgRing && svgText && riskText) {
+            svgText.textContent = `${grandTotal}/28`;
+            var pct = (grandTotal / 28) * 100;
+            svgRing.style.strokeDasharray = `${pct}, 100`;
+
+            if (grandTotal < 19) {
+                svgRing.style.stroke = '#D66F7C'; // var(--critical-rose)
+                riskText.textContent = 'Alto Riesgo de Caída';
+                riskText.style.color = '#D66F7C';
+            } else if (grandTotal >= 19 && grandTotal <= 24) {
+                svgRing.style.stroke = '#E5A87B'; // var(--warning-ochre)
+                riskText.textContent = 'Riesgo Moderado';
+                riskText.style.color = '#E5A87B';
+            } else {
+                svgRing.style.stroke = '#7FB8A6'; // var(--brand-green-success)
+                riskText.textContent = 'Bajo Riesgo';
+                riskText.style.color = '#7FB8A6';
+            }
+        }
     }
 
     // Modal view initialization trigger
@@ -1936,7 +2287,9 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('patient-fecha-nacimiento').value = data.patient.fecha_nacimiento || '';
         document.getElementById('patient-edad').value = data.patient.fecha_nacimiento ? computeAge(data.patient.fecha_nacimiento) : '';
         document.getElementById('patient-sexo').value = data.patient.sexo || '';
+        syncChipsFromSelect('patient-sexo');
         document.getElementById('patient-estado-civil').value = data.patient.estado_civil || '';
+        syncChipsFromSelect('patient-estado-civil');
         document.getElementById('patient-domicilio').value = data.patient.domicilio || '';
         document.getElementById('patient-tel').value = data.patient.tel || '';
         document.getElementById('patient-cel').value = data.patient.cel || '';
@@ -1969,6 +2322,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('exploracion-sensibilidad').value = data.exploracion.sensibilidad || '';
             document.getElementById('exploracion-lenguaje-orientacion').value = data.exploracion.lenguaje_orientacion || '';
             document.getElementById('exploracion-otros').value = data.exploracion.otros || '';
+            updateIMCGauge();
         }
 
         if (data.cicatriz) {
@@ -2062,8 +2416,7 @@ document.addEventListener('DOMContentLoaded', function () {
         renderTinettiContainer();
         planContainer.innerHTML = '';
         
-        var statusLabel = document.getElementById('wizard-autosave-status');
-        statusLabel.textContent = 'Cargando expediente...';
+        updateAutosaveUI('saving', 'Cargando expediente...');
 
         // Check localStorage first (GC-5)
         var localDraftStr = localStorage.getItem(`expediente_draft_${patientId}`);
@@ -2076,7 +2429,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (confirm('Se encontró un borrador local más reciente de este expediente. ¿Desea restaurarlo?')) {
                         populateForm(localDraft.data);
                         useLocal = true;
-                        statusLabel.textContent = 'Borrador local restaurado';
+                        updateAutosaveUI('saved', 'Borrador local restaurado');
                         modal.classList.add('active');
                     }
                 }
@@ -2092,12 +2445,12 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(function (data) {
                 currentExpedienteId = data.expediente.id;
                 populateForm(data);
-                statusLabel.textContent = 'Expediente cargado';
+                updateAutosaveUI('saved', 'Expediente cargado');
                 modal.classList.add('active');
             })
             .catch(function (err) {
                 console.error(err);
-                statusLabel.textContent = 'Error al cargar';
+                updateAutosaveUI('error', 'Error al cargar');
             });
     }
 
@@ -2262,6 +2615,20 @@ document.addEventListener('DOMContentLoaded', function () {
         return el ? parseInt(el.value) : '';
     }
 
+    function updateAutosaveUI(state, text) {
+        var dot = document.getElementById('autosave-glow-dot');
+        var txt = document.getElementById('autosave-text');
+        if (!dot || !txt) return;
+
+        txt.textContent = text;
+        dot.className = 'autosave-glow-dot'; // reset
+        if (state === 'saving') {
+            dot.classList.add('saving');
+        } else if (state === 'error') {
+            dot.classList.add('error');
+        }
+    }
+
     // Server Autosave / local storage mirroring (GC-5)
     var saveTimeout = null;
     function runAutosave() {
@@ -2276,19 +2643,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (saveTimeout) clearTimeout(saveTimeout);
         saveTimeout = setTimeout(function () {
-            var statusLabel = document.getElementById('wizard-autosave-status');
             var offlineBanner = document.getElementById('wizard-offline-banner');
 
             if (!navigator.onLine) {
-                statusLabel.textContent = 'Guardado localmente';
+                updateAutosaveUI('error', 'Guardado localmente');
                 offlineBanner.style.display = 'inline-flex';
                 return;
             }
 
-            statusLabel.textContent = 'Guardando...';
+            updateAutosaveUI('saving', 'Guardando...');
             offlineBanner.style.display = 'none';
 
-            if (!payload.patient.name) return; // GC-4 name required
+            if (!payload.patient.name) return; // // GC-4 name required
 
             fetch(`<?php echo URLROOT; ?>/dashboard/saveExpediente/${activePatientId}`, {
                 method: 'POST',
@@ -2300,16 +2666,30 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.status === 'success') {
                     var now = new Date();
                     var timeStr = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                    statusLabel.textContent = `Guardado a las ${timeStr}`;
+                    updateAutosaveUI('saved', `Guardado a las ${timeStr}`);
                 } else {
-                    statusLabel.textContent = 'Error al guardar';
+                    updateAutosaveUI('error', 'Error al guardar');
                 }
             })
             .catch(function () {
-                statusLabel.textContent = 'Error de conexión (Guardado local)';
+                updateAutosaveUI('error', 'Error de conexión (Guardado local)');
                 offlineBanner.style.display = 'inline-flex';
             });
         }, 1000);
+    }
+
+    setupOptionChips();
+    setupTAMask();
+
+    var estInput = document.getElementById('exploracion-estatura');
+    var pesInput = document.getElementById('exploracion-peso');
+    if (estInput) {
+        estInput.addEventListener('input', updateIMCGauge);
+        estInput.addEventListener('change', updateIMCGauge);
+    }
+    if (pesInput) {
+        pesInput.addEventListener('input', updateIMCGauge);
+        pesInput.addEventListener('change', updateIMCGauge);
     }
 
     // Attach autosave triggers to Step 1 fields on change / blur
@@ -2387,8 +2767,7 @@ document.addEventListener('DOMContentLoaded', function () {
     window.addEventListener('offline', function () {
         var offlineBanner = document.getElementById('wizard-offline-banner');
         if (offlineBanner) offlineBanner.style.display = 'inline-flex';
-        var statusLabel = document.getElementById('wizard-autosave-status');
-        if (statusLabel) statusLabel.textContent = 'Guardado localmente';
+        updateAutosaveUI('error', 'Guardado localmente');
     });
 });
 </script>
