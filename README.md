@@ -189,6 +189,12 @@ Software-CRM-Doctoria-Calendar/
 └── ...
 ```
 
+## 📊 Recent Verifications & Reports / Verificaciones y Reportes Recientes
+
+- **Latest Session Memory / Memoria de Sesión Reciente**: [session-2026-07-13-mcp-login-fixes.md](file:///lamp/www/naxielly/docs/memories/session-2026-07-13-mcp-login-fixes.md)
+- **Verification Report / Reporte de Verificación MD**: [2026-07-13-mcp-login-fixes-verification.md](file:///lamp/www/naxielly/docs/reports/2026-07-13-mcp-login-fixes-verification.md)
+- **Interactive Verification Report / Reporte Interactivo HTML**: [2026-07-13-mcp-login-fixes-verification.html](file:///lamp/www/naxielly/docs/reports/2026-07-13-mcp-login-fixes-verification.html)
+
 ## 📄 License / Licencia
 
 Distributed under the MIT License. See `LICENSE` for more information. / Distribuido bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.

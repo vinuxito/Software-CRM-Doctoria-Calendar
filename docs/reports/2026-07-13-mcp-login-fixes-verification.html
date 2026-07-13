@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe de Verificación: Doctoria CRM (2026-07-13)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .date {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            border-bottom: 1.5px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+        .badge {
+            background-color: #27ae60;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .card {
+            background-color: #fcfcfc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        .card h4 {
+            margin: 0 0 8px 0;
+            color: #34495e;
+            font-size: 1.05em;
+        }
+        .card p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #555;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+        th, td {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.95em;
+        }
+        th {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: 600;
+        }
+        .status-pass {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        ul {
+            padding-left: 20px;
+            margin-bottom: 25px;
+        }
+        li {
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+        .footer {
+            margin-top: 30px;
+            border-top: 1.5px solid #ecf0f1;
+            padding-top: 15px;
+            font-size: 0.85em;
+            color: #95a5a6;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🩺 Doctoria CRM & Calendar</h1>
+        <div class="date">Informe de Verificación: 13 de Julio de 2026</div>
+
+        <div class="badge">VEREDICTO: TOTALMENTE OPERATIVO</div>
+
+        <div class="card-grid">
+            <div class="card">
+                <h4>Detalles del Entorno</h4>
+                <p>Servidor local Apache / PHP 8.3 / base de datos MySQL (crm_doctoria).</p>
+            </div>
+            <div class="card">
+                <h4>Estado de Integración</h4>
+                <p>Todos los modelos de datos, validaciones de interfaz y control de acceso verificado con éxito.</p>
+            </div>
+        </div>
+
+        <h2>Resultados de Pruebas Automatizadas</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Comando / Verificación</th>
+                    <th>Estado</th>
+                    <th>Detalles</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>php test_crud.php</code></td>
+                    <td><span class="status-pass">PASÓ</span></td>
+                    <td>Registro de usuarios, colisiones y borrado lógico de forma correcta.</td>
+                </tr>
+                <tr>
+                    <td><code>php test_patient_file.php</code></td>
+                    <td><span class="status-pass">PASÓ</span></td>
+                    <td>Inicialización, lectura y persistencia de fichas de pacientes.</td>
+                </tr>
+                <tr>
+                    <td><code>php test_wizard_logic.php</code></td>
+                    <td><span class="status-pass">PASÓ</span></td>
+                    <td>Flujo de datos de expediente (5 pasos) y escala de dolor EVA.</td>
+                </tr>
+                <tr>
+                    <td><code>php -f scratch_test_render.php</code></td>
+                    <td><span class="status-pass">PASÓ</span></td>
+                    <td>Prueba de renderizado (3 ciclos) de las 8 vistas del dashboard.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Cambios Clave Aplicados</h2>
+        <ul>
+            <li><strong>Desactivación de error de correo:</strong> Se cambió el input de inicio de sesión de <code>type="email"</code> a <code>type="text"</code>, permitiendo el uso de usuarios planos.</li>
+            <li><strong>Resolución de vista en blanco:</strong> Eliminación del tag duplicate <code>elseif</code> en la línea 1138 de <code>dashboard/index.php</code> que impedía renderizar la lista de usuarios.</li>
+            <li><strong>Cierre de tabla de expedientes:</strong> Inyección de tag <code>&lt;/table&gt;</code> al final del listado de pacientes.</li>
+            <li><strong>Actualización del cargador de vistas:</strong> Modificación en <code>Controller::view</code> para usar <code>require</code> en lugar de <code>require_once</code>.</li>
+            <li><strong>Limpieza de advertencias de PHP:</strong> Reemplazo del filtro deprecado <code>FILTER_SANITIZE_STRING</code> por <code>FILTER_DEFAULT</code>.</li>
+        </ul>
+
+        <h2>Próximos Pasos Recomendados</h2>
+        <ul>
+            <li>Verificar acceso y edición del expediente clínico en entorno de producción/pruebas.</li>
+            <li>Revisar configuraciones de red de los agentes locales si se requiere automatización en navegador (CDP).</li>
+        </ul>
+
+        <div class="footer">
+            Creado con ❤️ por la Suite de Verificación de Antigravity (Filemón Coder).
+        </div>
+    </div>
+</body>
+</html>
