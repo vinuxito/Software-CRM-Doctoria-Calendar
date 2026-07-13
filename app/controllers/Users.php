@@ -28,32 +28,32 @@ class Users extends Controller {
 
             // Validate Email
             if(empty($data['email'])){
-                $data['email_err'] = 'Please enter email';
+                $data['email_err'] = 'Ingresa tu correo electrónico';
             } else {
                 // Check email
                 if($this->userModel->findUserByEmail($data['email'])){
-                    $data['email_err'] = 'Email is already taken';
+                    $data['email_err'] = 'Este correo ya está registrado';
                 }
             }
 
             // Validate Name
             if(empty($data['name'])){
-                $data['name_err'] = 'Please enter name';
+                $data['name_err'] = 'Ingresa tu nombre';
             }
 
             // Validate Password
             if(empty($data['password'])){
-                $data['password_err'] = 'Please enter password';
+                $data['password_err'] = 'Ingresa una contraseña';
             } elseif(strlen($data['password']) < 6){
-                $data['password_err'] = 'Password must be at least 6 characters';
+                $data['password_err'] = 'La contraseña debe tener al menos 6 caracteres';
             }
 
             // Validate Confirm Password
             if(empty($data['confirm_password'])){
-                $data['confirm_password_err'] = 'Please confirm password';
+                $data['confirm_password_err'] = 'Confirma tu contraseña';
             } else {
                 if($data['password'] != $data['confirm_password']){
-                    $data['confirm_password_err'] = 'Passwords do not match';
+                    $data['confirm_password_err'] = 'Las contraseñas no coinciden';
                 }
             }
 
@@ -68,7 +68,7 @@ class Users extends Controller {
                 if($this->userModel->register($data)){
                     header('location: ' . URLROOT . '/users/login');
                 } else {
-                    die('Something went wrong');
+                    die('Ocurrió un error');
                 }
 
             } else {
@@ -111,19 +111,19 @@ class Users extends Controller {
 
             // Validate Email
             if(empty($data['email'])){
-                $data['email_err'] = 'Please enter email';
+                $data['email_err'] = 'Ingresa tu correo o usuario';
             }
 
             // Validate Password
             if(empty($data['password'])){
-                $data['password_err'] = 'Please enter password';
+                $data['password_err'] = 'Ingresa tu contraseña';
             }
 
             // Check for user/email
             if($this->userModel->findUserByEmail($data['email'])){
                 // User found
             } else {
-                $data['email_err'] = 'No user found';
+                $data['email_err'] = 'Usuario no encontrado';
             }
 
             // Make sure errors are empty
@@ -136,7 +136,7 @@ class Users extends Controller {
                     // Create Session
                     $this->createUserSession($loggedInUser);
                 } else {
-                    $data['password_err'] = 'Password incorrect';
+                    $data['password_err'] = 'Contraseña incorrecta';
 
                     $this->view('auth/login', $data);
                 }
