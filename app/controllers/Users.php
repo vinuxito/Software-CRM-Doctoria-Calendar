@@ -10,7 +10,7 @@ class Users extends Controller {
         // Check for POST
         if($_SERVER['REQUEST_METHOD'] == 'POST'){
             // Process form
-            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+            $_POST = filter_input_array(INPUT_POST, FILTER_DEFAULT);
 
             // Init data
             $data = [
@@ -100,7 +100,7 @@ class Users extends Controller {
         // Check for POST
         if($_SERVER['REQUEST_METHOD'] == 'POST'){
             // Process form
-            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+            $_POST = filter_input_array(INPUT_POST, FILTER_DEFAULT);
 
             $data = [
                 'email' => trim($_POST['email']),
