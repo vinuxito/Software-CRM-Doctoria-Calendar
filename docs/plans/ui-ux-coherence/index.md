@@ -11,12 +11,12 @@
 | Step | Title | Status | Commit |
 |------|-------|--------|--------|
 | 1 | [Unified Language Pass](step-01-unified-language-pass.md) | ✅ DONE | `05a587a` |
-| 2 | [Design Token Consolidation](step-02-design-token-consolidation.md) | ⬜ TODO | — |
-| 3 | [Auth Views Rebrand](step-03-auth-views-rebrand.md) | ⬜ TODO | — |
-| 4 | [Empty States & User Feedback](step-04-empty-states-user-feedback.md) | ⬜ TODO | — |
-| 5 | [Template Decomposition](step-05-template-decomposition.md) | ⬜ TODO | — |
-| 6 | [Mobile Responsive Pass](step-06-mobile-responsive-pass.md) | ⬜ TODO | — |
-| 7 | [Registration Hardening & Role Guard](step-07-registration-hardening.md) | ⬜ TODO | — |
+| 2 | [Design Token Consolidation](step-02-design-token-consolidation.md) | ✅ DONE | `7cb4a33` |
+| 3 | [Auth Views Rebrand](step-03-auth-views-rebrand.md) | ✅ DONE | `7cb4a33` |
+| 4 | [Empty States & User Feedback](step-04-empty-states-user-feedback.md) | ✅ DONE | `d3135dc` |
+| 5 | [Template Decomposition](step-05-template-decomposition.md) | ✅ DONE | `f23f98d` |
+| 6 | [Mobile Responsive Pass](step-06-mobile-responsive-pass.md) | ✅ DONE | `2e93248` |
+| 7 | [Registration Hardening & Role Guard](step-07-registration-hardening.md) | ✅ DONE | `2afc536` |
 
 ---
 

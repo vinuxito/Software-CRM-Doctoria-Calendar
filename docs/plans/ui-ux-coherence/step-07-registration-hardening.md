@@ -1,6 +1,6 @@
 # Step 7: Registration Hardening & Role Guard
 
-**Status**: ⬜ TODO  
+**Status**: ✅ DONE  
 **Depends on**: Step 3 ✅ (needs clean auth views from rebrand)  
 **Impact**: 🟡 Medium | **Effort**: ~2 hours
 
