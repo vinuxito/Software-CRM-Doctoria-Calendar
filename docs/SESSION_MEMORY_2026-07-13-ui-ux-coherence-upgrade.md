@@ -28,11 +28,18 @@
 **Lens**: *Does the planned feature work end-to-end on the happy path?*
 - **Planned Work**: Step 2 (Design Token Consolidation) and Step 3 (Auth Views Rebrand).
 - **Core Changes**:
-  - [TBD]
+  - Task 2.1: Created canonical `:root` variables block at the top of `css/style.css`.
+  - Task 2.2: Replaced old font-family and primary variables with new brand/semantic design tokens.
+  - Task 2.3: Replaced all occurrences of `var(--primary)`, `var(--secondary-text)`, etc. in `css/style.css` with the consolidated token names.
+  - Task 2.4: Loaded Outfit and Inter font families from Google Fonts inside `header.php`.
+  - Task 2.5: Extracted the 340-line patient wizard `<style>` block from `app/views/dashboard/index.php` and consolidated/appended it in `css/style.css`. Updated its specific styling variables (like `--brand-pink`, `--slate-text`, etc.) to map to the new design tokens.
+  - Task 3.1: Added `.auth-page`, `.auth-card`, and custom brand button/form classes to `css/style.css` for a premium login/registration feel.
+  - Task 3.2 & 3.3: Rewrote `app/views/auth/login.php` and `app/views/auth/register.php` with custom branded layout, centered card, and clinic logo. Removed echoed password values for security compliance.
+  - Task 3.4: Injected `body_class => 'auth-page'` and `hide_navbar => true` in all 4 register/login GET and POST routes of `app/controllers/Users.php`.
 - **Verification & Tests**:
-  - [TBD]
-- **Lessons Learned**:
-  - [TBD]
+  - Checked view syntax: `php -l` on `login.php`, `register.php`, and `Users.php` controller -> **PASSED**.
+  - Executed tests: `test_crud.php`, `test_patient_file.php`, and `test_wizard_logic.php` -> **PASSED**.
+- **Lessons Learned**: Consolidating variables and fonts in a single block resolves the cascade conflict and ensures the entire app renders predictably under the unified styling language. Storing the auth cards layout under dedicated CSS classes avoids inline styling bloat in the auth views.
 
 ---
 

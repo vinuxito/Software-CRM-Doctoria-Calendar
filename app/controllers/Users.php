@@ -23,7 +23,9 @@ class Users extends Controller {
                 'name_err' => '',
                 'email_err' => '',
                 'password_err' => '',
-                'confirm_password_err' => ''
+                'confirm_password_err' => '',
+                'body_class' => 'auth-page',
+                'hide_navbar' => true
             ];
 
             // Validate Email
@@ -88,7 +90,9 @@ class Users extends Controller {
                 'name_err' => '',
                 'email_err' => '',
                 'password_err' => '',
-                'confirm_password_err' => ''
+                'confirm_password_err' => '',
+                'body_class' => 'auth-page',
+                'hide_navbar' => true
             ];
 
             // Load view
@@ -107,6 +111,8 @@ class Users extends Controller {
                 'password' => trim($_POST['password']),
                 'email_err' => '',
                 'password_err' => '',
+                'body_class' => 'auth-page',
+                'hide_navbar' => true
             ];
 
             // Validate Email
@@ -152,6 +158,8 @@ class Users extends Controller {
                 'password' => '',
                 'email_err' => '',
                 'password_err' => '',
+                'body_class' => 'auth-page',
+                'hide_navbar' => true
             ];
 
             // Load view
