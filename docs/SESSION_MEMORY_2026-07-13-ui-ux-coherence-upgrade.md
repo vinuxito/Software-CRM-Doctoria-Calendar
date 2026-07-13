@@ -90,11 +90,16 @@
 **Lens**: *Can this run in production without exploding silently?*
 - **Planned Work**: Step 7 (Registration Hardening & Role Guard).
 - **Core Changes**:
-  - [TBD]
+  - Task 7.1 - 7.2: Removed role selector from public registration view and forced the registered user's role to `cliente` in `Users.php` registration handler, closing the privilege elevation risk.
+  - Task 7.3: Confirmed and hardened auth forms to never echo back raw passwords in the HTML inputs value attributes.
+  - Task 7.4 - 7.6: Created global session-backed CSRF token generation, field rendering, and verification helpers in `bootstrap.php`. Injected hidden csrf fields in all system forms (login, register, calendar, panel actions, chat send, user CRUD). Intercepted all POST routes in `Users.php` and `Dashboard.php` to drop request with a 400-level exception if token matches fail.
+  - Task 7.7: Implemented session-based rate-limiting lockout in the login controller (5 max failures, 5 minutes cooldown) to mitigate credential brute force.
 - **Verification & Tests**:
-  - [TBD]
-- **Lessons Learned**:
-  - [TBD]
+  - Checked role select is completely absent in public views -> **PASSED**.
+  - Verified role assignments force-defaults to `cliente` -> **PASSED**.
+  - Ran and verified mock rendering dependencies to ensure `csrfField()` resolves correctly -> **PASSED**.
+  - Ran full regression suites -> **PASSED**.
+- **Lessons Learned**: Session-backed security tokens and strict rate limit controls are highly effective, low-overhead methods to secure server endpoints without external database/redis requirements in small PHP projects.
 
 ---
 
