@@ -47,11 +47,14 @@
 **Lens**: *What breaks when reality hits this code?*
 - **Planned Work**: Step 4 (Empty States & User Feedback).
 - **Core Changes**:
-  - [TBD]
+  - Task 4.1 & 4.2: Added `.empty-state` and `.flash-bar` responsive styling classes to `css/style.css`.
+  - Task 4.3: Refactored the inline-styled flash message block L80-90 of `app/views/dashboard/index.php` to use the new `.flash-bar` CSS class. Supported custom `$data['flash_type']` with auto regex detection fallback.
+  - Task 4.4: Implemented empty-state cards for 5 sections: Doctors, Patients table, Users table, Panel pending/rejected lists, and Panel CRUD appointments list.
+  - Task 4.5: Added explicit `onclick="return confirm('...')" ` confirmation checks to all appointment deletion triggers (both inside the rejected list view and the general CRUD table).
 - **Verification & Tests**:
-  - [TBD]
-- **Lessons Learned**:
-  - [TBD]
+  - Syntax lint: `php -l app/views/dashboard/index.php` -> **PASSED**.
+  - Verified tests: `test_crud.php`, `test_patient_file.php`, and `test_wizard_logic.php` -> **PASSED**.
+- **Lessons Learned**: Gracefully handling empty arrays prevents empty layouts from appearing broken, and double confirmation on deletes prevents destructive user errors.
 
 ---
 

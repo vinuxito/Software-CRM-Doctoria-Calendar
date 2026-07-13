@@ -79,11 +79,16 @@
     <main class="main-view">
         <?php if (!empty($data['flash'])) : ?>
             <?php 
-                $isError = preg_match('/(error|incorrecto|ya está|no puedes|no válido|campos obligatorios|completados)/i', $data['flash']);
-                $flashClass = $isError ? 'calendar-flash flash-danger' : 'calendar-flash flash-success';
+                $flashType = $data['flash_type'] ?? 'auto';
+                if ($flashType === 'auto') {
+                    $isError = preg_match('/(error|incorrecto|ya está|no puedes|no válido|campos obligatorios|completados)/i', $data['flash']);
+                } else {
+                    $isError = ($flashType === 'error');
+                }
+                $flashClass = $isError ? 'flash-bar flash-danger' : 'flash-bar flash-success';
                 $flashIcon = $isError ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
             ?>
-            <div class="<?php echo $flashClass; ?>" style="display: flex; align-items: center; gap: 10px; padding: 12px 15px; margin: 15px; border-radius: 6px; font-weight: 500; font-size: 14px; background: <?php echo $isError ? '#f8d7da' : '#d1e7dd'; ?>; color: <?php echo $isError ? '#842029' : '#0f5132'; ?>; border: 1px solid <?php echo $isError ? '#f5c2c7' : '#badbcc'; ?>;">
+            <div class="<?php echo $flashClass; ?>">
                 <i class="<?php echo $flashIcon; ?>"></i>
                 <span><?php echo htmlspecialchars($data['flash']); ?></span>
             </div>
@@ -149,30 +154,38 @@
             <div class="tol-left"><div class="date-title"><span>Especialistas disponibles</span></div></div>
         </header>
         <section class="crm-content doctors-reference">
-            <div class="doctor-grid">
-                <?php
-                    $images = [
-                        URLROOT . '/../img/doctor1.png',
-                        URLROOT . '/../img/doctor2.png',
-                        URLROOT . '/../img/doctor3.png',
-                        URLROOT . '/../img/doctor4.png'
-                    ];
-                ?>
-                <?php foreach (($data['doctors'] ?? []) as $idx => $doctor) : ?>
-                    <article class="doctor-card ref">
-                        <div class="doctor-thumb" style="background-image:url('<?php echo $images[$idx % count($images)]; ?>')"></div>
-                        <div class="doctor-body">
-                            <div class="doctor-name"><?php echo htmlspecialchars($doctor->name); ?></div>
-                            <div class="doctor-role">Doctor</div>
-                            <div class="doctor-rate">★★★★★ <span>(<?php echo 80 + ($idx * 7); ?>)</span></div>
-                            <div class="doctor-actions">
-                                <a class="btn-agendar" href="<?php echo URLROOT; ?>/dashboard/calendar?doctor=<?php echo (int)$doctor->id; ?>"><i class="far fa-calendar-alt"></i> Agendar</a>
-                                <a class="btn-chat" href="<?php echo URLROOT; ?>/dashboard/chat?with=<?php echo (int)$doctor->id; ?>"><i class="far fa-comment"></i> Chat</a>
+            <?php if (empty($data['doctors'])) : ?>
+                <div class="empty-state">
+                    <div class="empty-state-icon"><i class="fas fa-user-md"></i></div>
+                    <h4>No hay especialistas registrados</h4>
+                    <p>Los médicos aparecerán aquí cuando un administrador los registre en el sistema.</p>
+                </div>
+            <?php else : ?>
+                <div class="doctor-grid">
+                    <?php
+                        $images = [
+                            URLROOT . '/../img/doctor1.png',
+                            URLROOT . '/../img/doctor2.png',
+                            URLROOT . '/../img/doctor3.png',
+                            URLROOT . '/../img/doctor4.png'
+                        ];
+                    ?>
+                    <?php foreach (($data['doctors'] ?? []) as $idx => $doctor) : ?>
+                        <article class="doctor-card ref">
+                            <div class="doctor-thumb" style="background-image:url('<?php echo $images[$idx % count($images)]; ?>')"></div>
+                            <div class="doctor-body">
+                                <div class="doctor-name"><?php echo htmlspecialchars($doctor->name); ?></div>
+                                <div class="doctor-role">Doctor</div>
+                                <div class="doctor-rate">★★★★★ <span>(<?php echo 80 + ($idx * 7); ?>)</span></div>
+                                <div class="doctor-actions">
+                                    <a class="btn-agendar" href="<?php echo URLROOT; ?>/dashboard/calendar?doctor=<?php echo (int)$doctor->id; ?>"><i class="far fa-calendar-alt"></i> Agendar</a>
+                                    <a class="btn-chat" href="<?php echo URLROOT; ?>/dashboard/chat?with=<?php echo (int)$doctor->id; ?>"><i class="far fa-comment"></i> Chat</a>
+                                </div>
                             </div>
-                        </div>
-                    </article>
-                <?php endforeach; ?>
-            </div>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
         </section>
         <?php elseif ($section === 'chat') : ?>
         <header class="toolbar">
@@ -336,46 +349,54 @@
         <section class="crm-content">
             <div class="settings-card">
                 <h3>Expedientes Clínicos (Fichas Digitales)</h3>
-                <table class="report-table crud-table" id="patients-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Grupo Sanguíneo</th><th>Dirección</th><th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach (($data['patients'] ?? []) as $p) : ?>
-                            <?php $record = $p->clinical_record; ?>
-                            <tr class="crud-record-row">
-                                <td>#<?php echo (int)$p->id; ?></td>
-                                <td><strong><?php echo htmlspecialchars($p->name); ?></strong></td>
-                                <td><?php echo htmlspecialchars($p->email); ?></td>
-                                <td><?php echo htmlspecialchars($p->phone ?? 'N/A'); ?></td>
-                                <td>
-                                    <?php if (!empty($record->blood_type)) : ?>
-                                        <span class="status-chip status-approved" style="background:#cfe2ff; color:#084298; border:1px solid #b6d4fe;"><?php echo htmlspecialchars($record->blood_type); ?></span>
-                                    <?php else : ?>
-                                        <span class="status-chip status-pending">No definido</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td><?php echo htmlspecialchars($record->address ?? 'N/A'); ?></td>
-                                <td>
-                                    <button class="btn-agendar btn-view-patient-file" 
-                                            data-id="<?php echo (int)$p->id; ?>"
-                                            data-name="<?php echo htmlspecialchars($p->name); ?>"
-                                            data-email="<?php echo htmlspecialchars($p->email); ?>"
-                                            data-phone="<?php echo htmlspecialchars($p->phone ?? ''); ?>"
-                                            data-dob="<?php echo htmlspecialchars($record->dob ?? ''); ?>"
-                                            data-address="<?php echo htmlspecialchars($record->address ?? ''); ?>"
-                                            data-blood_type="<?php echo htmlspecialchars($record->blood_type ?? ''); ?>"
-                                            data-allergies="<?php echo htmlspecialchars($record->allergies ?? ''); ?>"
-                                            data-medical_history="<?php echo htmlspecialchars($record->medical_history ?? ''); ?>"
-                                            data-medications="<?php echo htmlspecialchars($record->medications ?? ''); ?>"
-                                            data-clinical_notes="<?php echo htmlspecialchars($record->clinical_notes ?? ''); ?>"><i class="fas fa-file-medical"></i> Abrir Expediente</button>
-                                </td>
+                <?php if (empty($data['patients'])) : ?>
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><i class="fas fa-notes-medical"></i></div>
+                        <h4>No hay expedientes clínicos</h4>
+                        <p>Los expedientes se crean automáticamente cuando se registran pacientes en el sistema.</p>
+                    </div>
+                <?php else : ?>
+                    <table class="report-table crud-table" id="patients-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Grupo Sanguíneo</th><th>Dirección</th><th>Acciones</th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <?php foreach (($data['patients'] ?? []) as $p) : ?>
+                                <?php $record = $p->clinical_record; ?>
+                                <tr class="crud-record-row">
+                                    <td>#<?php echo (int)$p->id; ?></td>
+                                    <td><strong><?php echo htmlspecialchars($p->name); ?></strong></td>
+                                    <td><?php echo htmlspecialchars($p->email); ?></td>
+                                    <td><?php echo htmlspecialchars($p->phone ?? 'N/A'); ?></td>
+                                    <td>
+                                        <?php if (!empty($record->blood_type)) : ?>
+                                            <span class="status-chip status-approved" style="background:#cfe2ff; color:#084298; border:1px solid #b6d4fe;"><?php echo htmlspecialchars($record->blood_type); ?></span>
+                                        <?php else : ?>
+                                            <span class="status-chip status-pending">No definido</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><?php echo htmlspecialchars($record->address ?? 'N/A'); ?></td>
+                                    <td>
+                                        <button class="btn-agendar btn-view-patient-file" 
+                                                data-id="<?php echo (int)$p->id; ?>"
+                                                data-name="<?php echo htmlspecialchars($p->name); ?>"
+                                                data-email="<?php echo htmlspecialchars($p->email); ?>"
+                                                data-phone="<?php echo htmlspecialchars($p->phone ?? ''); ?>"
+                                                data-dob="<?php echo htmlspecialchars($record->dob ?? ''); ?>"
+                                                data-address="<?php echo htmlspecialchars($record->address ?? ''); ?>"
+                                                data-blood_type="<?php echo htmlspecialchars($record->blood_type ?? ''); ?>"
+                                                data-allergies="<?php echo htmlspecialchars($record->allergies ?? ''); ?>"
+                                                data-medical_history="<?php echo htmlspecialchars($record->medical_history ?? ''); ?>"
+                                                data-medications="<?php echo htmlspecialchars($record->medications ?? ''); ?>"
+                                                data-clinical_notes="<?php echo htmlspecialchars($record->clinical_notes ?? ''); ?>"><i class="fas fa-file-medical"></i> Abrir Expediente</button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
               <!-- Modal for Patient Clinical File -->
             <div id="patient-file-modal" class="calendar-modal-overlay">
 
@@ -809,39 +830,50 @@
         <section class="crm-content">
             <div class="settings-card">
                 <h3>Todos los Usuarios</h3>
-                <table class="report-table crud-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Rol</th><th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach (($data['users'] ?? []) as $u) : ?>
-                            <tr class="crud-record-row">
-                                <td>#<?php echo (int)$u->id; ?></td>
-                                <td><?php echo htmlspecialchars($u->name); ?></td>
-                                <td><?php echo htmlspecialchars($u->email); ?></td>
-                                <td><?php echo htmlspecialchars($u->phone ?? 'N/A'); ?></td>
-                                <td><span class="status-chip status-<?php echo htmlspecialchars($u->role); ?>"><?php echo htmlspecialchars($u->role); ?></span></td>
-                                <td>
-                                    <div class="pending-actions">
-                                        <button class="btn-agendar btn-edit-user" 
-                                                data-id="<?php echo (int)$u->id; ?>"
-                                                data-name="<?php echo htmlspecialchars($u->name); ?>"
-                                                data-email="<?php echo htmlspecialchars($u->email); ?>"
-                                                data-phone="<?php echo htmlspecialchars($u->phone ?? ''); ?>"
-                                                data-role="<?php echo htmlspecialchars($u->role); ?>">Editar</button>
-                                        <form action="<?php echo URLROOT; ?>/dashboard/users" method="post" onsubmit="return confirm('¿Seguro que deseas eliminar este usuario?');" style="display:inline;">
-                                            <input type="hidden" name="user_action" value="delete">
-                                            <input type="hidden" name="user_id" value="<?php echo (int)$u->id; ?>">
-                                            <button class="btn-chat" type="submit">Eliminar</button>
-                                        </form>
-                                    </div>
-                                </td>
+                <?php if (empty($data['users'])) : ?>
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><i class="fas fa-users"></i></div>
+                        <h4>No hay usuarios registrados</h4>
+                        <p>Crea el primer usuario para comenzar a gestionar tu equipo.</p>
+                        <button class="btn-configurar" id="btn-add-user-empty" onclick="document.getElementById('btn-add-user').click()">
+                            <i class="fas fa-user-plus"></i> Crear Usuario
+                        </button>
+                    </div>
+                <?php else : ?>
+                    <table class="report-table crud-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Rol</th><th>Acciones</th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <?php foreach (($data['users'] ?? []) as $u) : ?>
+                                <tr class="crud-record-row">
+                                    <td>#<?php echo (int)$u->id; ?></td>
+                                    <td><?php echo htmlspecialchars($u->name); ?></td>
+                                    <td><?php echo htmlspecialchars($u->email); ?></td>
+                                    <td><?php echo htmlspecialchars($u->phone ?? 'N/A'); ?></td>
+                                    <td><span class="status-chip status-<?php echo htmlspecialchars($u->role); ?>"><?php echo htmlspecialchars($u->role); ?></span></td>
+                                    <td>
+                                        <div class="pending-actions">
+                                            <button class="btn-agendar btn-edit-user" 
+                                                    data-id="<?php echo (int)$u->id; ?>"
+                                                    data-name="<?php echo htmlspecialchars($u->name); ?>"
+                                                    data-email="<?php echo htmlspecialchars($u->email); ?>"
+                                                    data-phone="<?php echo htmlspecialchars($u->phone ?? ''); ?>"
+                                                    data-role="<?php echo htmlspecialchars($u->role); ?>">Editar</button>
+                                            <form action="<?php echo URLROOT; ?>/dashboard/users" method="post" onsubmit="return confirm('¿Seguro que deseas eliminar este usuario?');" style="display:inline;">
+                                                <input type="hidden" name="user_action" value="delete">
+                                                <input type="hidden" name="user_id" value="<?php echo (int)$u->id; ?>">
+                                                <button class="btn-chat" type="submit">Eliminar</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
             </div>
             
             <!-- Modal for Add/Edit User -->
@@ -924,55 +956,71 @@
             <div class="settings-card">
                 <h3>Citas por aceptar</h3>
                 <div class="pending-list">
-                    <?php foreach (($data['pending_appointments'] ?? []) as $pending) : ?>
-                        <div class="pending-item panel-record panel-searchable" data-title="<?php echo htmlspecialchars($pending->title); ?>" data-patient="<?php echo htmlspecialchars($pending->patient_name); ?>" data-patient-phone="<?php echo htmlspecialchars($pending->patient_phone ?? ''); ?>" data-doctor="<?php echo htmlspecialchars($pending->doctor_name); ?>" data-doctor-phone="<?php echo htmlspecialchars($pending->doctor_phone ?? ''); ?>" data-status="pending" data-description="<?php echo htmlspecialchars($pending->description ?? ''); ?>">
-                            <div>
-                                <strong><?php echo htmlspecialchars($pending->title); ?></strong>
-                                    <div><?php echo htmlspecialchars($pending->patient_name); ?> (<?php echo htmlspecialchars($pending->patient_phone ?? 'sin teléfono'); ?>) con <?php echo htmlspecialchars($pending->doctor_name); ?> (<?php echo htmlspecialchars($pending->doctor_phone ?? 'sin teléfono'); ?>)</div>
-                            </div>
-                            <?php if (!empty($data['can_approve'])) : ?>
-                                <div class="pending-actions">
-                                    <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
-                                        <input type="hidden" name="appointment_id" value="<?php echo (int)$pending->id; ?>">
-                                        <input type="hidden" name="status" value="approved">
-                                        <button class="btn-agendar" type="submit">Aprobar</button>
-                                    </form>
-                                    <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
-                                        <input type="hidden" name="appointment_id" value="<?php echo (int)$pending->id; ?>">
-                                        <input type="hidden" name="status" value="rejected">
-                                        <button class="btn-chat" type="submit">Rechazar</button>
-                                    </form>
-                                </div>
-                            <?php endif; ?>
+                    <?php if (empty($data['pending_appointments'])) : ?>
+                        <div class="empty-state" style="padding: 20px 10px;">
+                            <div class="empty-state-icon" style="font-size: 32px;"><i class="fas fa-check-circle"></i></div>
+                            <h4>No hay citas por aceptar</h4>
+                            <p>Todas las citas entrantes han sido procesadas.</p>
                         </div>
-                    <?php endforeach; ?>
+                    <?php else : ?>
+                        <?php foreach (($data['pending_appointments'] ?? []) as $pending) : ?>
+                            <div class="pending-item panel-record panel-searchable" data-title="<?php echo htmlspecialchars($pending->title); ?>" data-patient="<?php echo htmlspecialchars($pending->patient_name); ?>" data-patient-phone="<?php echo htmlspecialchars($pending->patient_phone ?? ''); ?>" data-doctor="<?php echo htmlspecialchars($pending->doctor_name); ?>" data-doctor-phone="<?php echo htmlspecialchars($pending->doctor_phone ?? ''); ?>" data-status="pending" data-description="<?php echo htmlspecialchars($pending->description ?? ''); ?>">
+                                <div>
+                                    <strong><?php echo htmlspecialchars($pending->title); ?></strong>
+                                    <div><?php echo htmlspecialchars($pending->patient_name); ?> (<?php echo htmlspecialchars($pending->patient_phone ?? 'sin teléfono'); ?>) con <?php echo htmlspecialchars($pending->doctor_name); ?> (<?php echo htmlspecialchars($pending->doctor_phone ?? 'sin teléfono'); ?>)</div>
+                                </div>
+                                <?php if (!empty($data['can_approve'])) : ?>
+                                    <div class="pending-actions">
+                                        <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
+                                            <input type="hidden" name="appointment_id" value="<?php echo (int)$pending->id; ?>">
+                                            <input type="hidden" name="status" value="approved">
+                                            <button class="btn-agendar" type="submit">Aprobar</button>
+                                        </form>
+                                        <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
+                                            <input type="hidden" name="appointment_id" value="<?php echo (int)$pending->id; ?>">
+                                            <input type="hidden" name="status" value="rejected">
+                                            <button class="btn-chat" type="submit">Rechazar</button>
+                                        </form>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="settings-card">
                 <h3>Citas rechazadas</h3>
                 <div class="pending-list">
-                    <?php foreach (($data['rejected_appointments'] ?? []) as $rejected) : ?>
-                        <div class="pending-item panel-record panel-searchable" data-title="<?php echo htmlspecialchars($rejected->title); ?>" data-patient="<?php echo htmlspecialchars($rejected->patient_name); ?>" data-patient-phone="<?php echo htmlspecialchars($rejected->patient_phone ?? ''); ?>" data-doctor="<?php echo htmlspecialchars($rejected->doctor_name); ?>" data-doctor-phone="<?php echo htmlspecialchars($rejected->doctor_phone ?? ''); ?>" data-status="rejected" data-description="<?php echo htmlspecialchars($rejected->description ?? ''); ?>">
-                            <div>
-                                <strong><?php echo htmlspecialchars($rejected->title); ?></strong>
-                                <div><?php echo htmlspecialchars($rejected->patient_name); ?> (<?php echo htmlspecialchars($rejected->patient_phone ?? 'sin teléfono'); ?>) con <?php echo htmlspecialchars($rejected->doctor_name); ?> (<?php echo htmlspecialchars($rejected->doctor_phone ?? 'sin teléfono'); ?>)</div>
-                            </div>
-                            <?php if (!empty($data['can_approve'])) : ?>
-                                <div class="pending-actions">
-                                    <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
-                                        <input type="hidden" name="appointment_id" value="<?php echo (int)$rejected->id; ?>">
-                                        <input type="hidden" name="status" value="pending">
-                                        <button class="btn-agendar" type="submit">Reabrir</button>
-                                    </form>
-                                    <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
-                                        <input type="hidden" name="appointment_action" value="delete">
-                                        <input type="hidden" name="appointment_id" value="<?php echo (int)$rejected->id; ?>">
-                                        <button class="btn-chat" type="submit">Eliminar</button>
-                                    </form>
-                                </div>
-                            <?php endif; ?>
+                    <?php if (empty($data['rejected_appointments'])) : ?>
+                        <div class="empty-state" style="padding: 20px 10px;">
+                            <div class="empty-state-icon" style="font-size: 32px;"><i class="fas fa-ban"></i></div>
+                            <h4>No hay citas rechazadas</h4>
+                            <p>No se registran citas rechazadas en el sistema.</p>
                         </div>
-                    <?php endforeach; ?>
+                    <?php else : ?>
+                        <?php foreach (($data['rejected_appointments'] ?? []) as $rejected) : ?>
+                            <div class="pending-item panel-record panel-searchable" data-title="<?php echo htmlspecialchars($rejected->title); ?>" data-patient="<?php echo htmlspecialchars($rejected->patient_name); ?>" data-patient-phone="<?php echo htmlspecialchars($rejected->patient_phone ?? ''); ?>" data-doctor="<?php echo htmlspecialchars($rejected->doctor_name); ?>" data-doctor-phone="<?php echo htmlspecialchars($rejected->doctor_phone ?? ''); ?>" data-status="rejected" data-description="<?php echo htmlspecialchars($rejected->description ?? ''); ?>">
+                                <div>
+                                    <strong><?php echo htmlspecialchars($rejected->title); ?></strong>
+                                    <div><?php echo htmlspecialchars($rejected->patient_name); ?> (<?php echo htmlspecialchars($rejected->patient_phone ?? 'sin teléfono'); ?>) con <?php echo htmlspecialchars($rejected->doctor_name); ?> (<?php echo htmlspecialchars($rejected->doctor_phone ?? 'sin teléfono'); ?>)</div>
+                                </div>
+                                <?php if (!empty($data['can_approve'])) : ?>
+                                    <div class="pending-actions">
+                                        <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
+                                            <input type="hidden" name="appointment_id" value="<?php echo (int)$rejected->id; ?>">
+                                            <input type="hidden" name="status" value="pending">
+                                            <button class="btn-agendar" type="submit">Reabrir</button>
+                                        </form>
+                                        <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
+                                            <input type="hidden" name="appointment_action" value="delete">
+                                            <input type="hidden" name="appointment_id" value="<?php echo (int)$rejected->id; ?>">
+                                            <button class="btn-chat" type="submit" onclick="return confirm('¿Seguro que deseas eliminar esta cita?');">Eliminar</button>
+                                        </form>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="settings-card">
@@ -995,44 +1043,55 @@
             </div>
             <div class="settings-card">
                 <h3>CRUD de citas</h3>
-                <table class="report-table crud-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th><th>Título</th><th>Cliente</th><th>Médico</th><th>Teléfono</th><th>Estado</th><th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach (($data['appointments'] ?? []) as $item) : ?>
-                            <tr class="crud-record-row panel-record panel-searchable" data-title="<?php echo htmlspecialchars($item->title); ?>" data-patient="<?php echo htmlspecialchars($item->patient_name ?? ''); ?>" data-patient-phone="<?php echo htmlspecialchars($item->patient_phone ?? ''); ?>" data-doctor="<?php echo htmlspecialchars($item->doctor_name ?? ''); ?>" data-doctor-phone="<?php echo htmlspecialchars($item->doctor_phone ?? ''); ?>" data-status="<?php echo htmlspecialchars($item->status ?? 'pending'); ?>" data-description="<?php echo htmlspecialchars($item->description ?? ''); ?>">
-                                <td>#<?php echo (int)$item->id; ?></td>
-                                <td><?php echo htmlspecialchars($item->title); ?></td>
-                                <td><?php echo htmlspecialchars($item->patient_name ?? ''); ?></td>
-                                <td><?php echo htmlspecialchars($item->doctor_name ?? ''); ?></td>
-                                <td><?php echo htmlspecialchars($item->contact_phone ?? $item->patient_phone ?? ''); ?></td>
-                                <td><span class="status-chip status-<?php echo htmlspecialchars($item->status ?? 'pending'); ?>"><?php echo htmlspecialchars($item->status ?? 'pending'); ?></span></td>
-                                <td>
-                                    <div class="pending-actions">
-                                        <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
-                                            <input type="hidden" name="appointment_id" value="<?php echo (int)$item->id; ?>">
-                                            <input type="hidden" name="status" value="approved">
-                                            <button class="btn-agendar" type="submit">Aprobar</button>
-                                        </form>
-                                        <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
-                                            <input type="hidden" name="appointment_id" value="<?php echo (int)$item->id; ?>">
-                                            <input type="hidden" name="status" value="rejected">
-                                            <button class="btn-chat" type="submit">Rechazar</button>
-                                        </form>
-                                        <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
-                                            <input type="hidden" name="appointment_action" value="delete">
-                                            <input type="hidden" name="appointment_id" value="<?php echo (int)$item->id; ?>">
-                                            <button class="btn-chat" type="submit">Eliminar</button>
-                                        </form>
-                                    </div>
-                                </td>
+                <?php if (empty($data['appointments'])) : ?>
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><i class="fas fa-calendar-alt"></i></div>
+                        <h4>No hay citas en el sistema</h4>
+                        <p>Las citas aparecerán aquí cuando se agenden desde el calendario.</p>
+                        <a href="<?php echo URLROOT; ?>/dashboard/calendar" class="btn-configurar" style="width: auto; display: inline-block;">
+                            <i class="fas fa-calendar-plus"></i> Ir al Calendario
+                        </a>
+                    </div>
+                <?php else : ?>
+                    <table class="report-table crud-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th><th>Título</th><th>Cliente</th><th>Médico</th><th>Teléfono</th><th>Estado</th><th>Acciones</th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <?php foreach (($data['appointments'] ?? []) as $item) : ?>
+                                <tr class="crud-record-row panel-record panel-searchable" data-title="<?php echo htmlspecialchars($item->title); ?>" data-patient="<?php echo htmlspecialchars($item->patient_name ?? ''); ?>" data-patient-phone="<?php echo htmlspecialchars($item->patient_phone ?? ''); ?>" data-doctor="<?php echo htmlspecialchars($item->doctor_name ?? ''); ?>" data-doctor-phone="<?php echo htmlspecialchars($item->doctor_phone ?? ''); ?>" data-status="<?php echo htmlspecialchars($item->status ?? 'pending'); ?>" data-description="<?php echo htmlspecialchars($item->description ?? ''); ?>">
+                                    <td>#<?php echo (int)$item->id; ?></td>
+                                    <td><?php echo htmlspecialchars($item->title); ?></td>
+                                    <td><?php echo htmlspecialchars($item->patient_name ?? ''); ?></td>
+                                    <td><?php echo htmlspecialchars($item->doctor_name ?? ''); ?></td>
+                                    <td><?php echo htmlspecialchars($item->contact_phone ?? $item->patient_phone ?? ''); ?></td>
+                                    <td><span class="status-chip status-<?php echo htmlspecialchars($item->status ?? 'pending'); ?>"><?php echo htmlspecialchars($item->status ?? 'pending'); ?></span></td>
+                                    <td>
+                                        <div class="pending-actions">
+                                            <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
+                                                <input type="hidden" name="appointment_id" value="<?php echo (int)$item->id; ?>">
+                                                <input type="hidden" name="status" value="approved">
+                                                <button class="btn-agendar" type="submit">Aprobar</button>
+                                            </form>
+                                            <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
+                                                <input type="hidden" name="appointment_id" value="<?php echo (int)$item->id; ?>">
+                                                <input type="hidden" name="status" value="rejected">
+                                                <button class="btn-chat" type="submit">Rechazar</button>
+                                            </form>
+                                            <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
+                                                <input type="hidden" name="appointment_action" value="delete">
+                                                <input type="hidden" name="appointment_id" value="<?php echo (int)$item->id; ?>">
+                                                <button class="btn-chat" type="submit" onclick="return confirm('¿Seguro que deseas eliminar esta cita?');">Eliminar</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
             </div>
             <div id="panel-record-modal" class="calendar-modal-overlay panel-modal-overlay">
                 <div class="calendar-modal-card panel-detail-card">

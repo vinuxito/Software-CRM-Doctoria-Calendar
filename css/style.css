@@ -2103,3 +2103,66 @@ body {
     font-size: 0.75rem;
     color: var(--text-muted);
 }
+
+/* =============================================
+   EMPTY STATES
+   ============================================= */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+.empty-state-icon {
+    font-size: 48px;
+    color: var(--border-default);
+    margin-bottom: 16px;
+}
+
+.empty-state h4 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+}
+
+.empty-state p {
+    font-size: 0.875rem;
+    max-width: 400px;
+    margin: 0 auto 20px;
+    line-height: 1.5;
+}
+
+.empty-state .btn-configurar {
+    display: inline-block;
+    margin-top: 8px;
+}
+
+/* =============================================
+   FLASH MESSAGES
+   ============================================= */
+.flash-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    margin: 15px;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    font-size: 14px;
+    font-family: var(--font-body);
+    animation: slideInUp 280ms ease;
+}
+
+.flash-bar.flash-success {
+    background: #d1e7dd;
+    color: #0f5132;
+    border: 1px solid #badbcc;
+}
+
+.flash-bar.flash-danger {
+    background: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+}
