@@ -9,6 +9,7 @@
         <h2>Iniciar Sesión</h2>
         <p>Ingresa tus credenciales para acceder</p>
         <form action="<?php echo URLROOT; ?>/users/login" method="post">
+            <?php csrfField(); ?>
             <div class="form-group mb-3">
                 <label for="email">Email o Usuario: <sup>*</sup></label>
                 <input type="text" name="email" id="email" class="form-control <?php echo (!empty($data['email_err'])) ? 'is-invalid' : ''; ?>" value="<?php echo $data['email']; ?>">

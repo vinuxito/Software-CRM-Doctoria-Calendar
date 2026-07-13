@@ -35,6 +35,7 @@
                 <?php endforeach; ?>
             </div>
             <form class="chat-send-form" action="<?php echo URLROOT; ?>/dashboard/chat" method="post">
+                <?php csrfField(); ?>
                 <input type="hidden" name="receiver_id" value="<?php echo (int)$data['chat_with']; ?>">
                 <input type="text" name="message" placeholder="Escribe un mensaje..." required>
                 <button type="submit" class="btn-configurar">Enviar</button>

@@ -47,6 +47,9 @@ class Dashboard extends Controller {
     public function chat(){
         $currentUserId = (int)$_SESSION['user_id'];
         if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+                die('Solicitud no válida');
+            }
             $receiverId = (int)($_POST['receiver_id'] ?? 0);
             $message = trim($_POST['message'] ?? '');
             if($receiverId > 0 && $message !== ''){
@@ -72,6 +75,9 @@ class Dashboard extends Controller {
     public function panel(){
         $role = $_SESSION['user_role'] ?? 'cliente';
         if($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($role, ['admin', 'medico'])){
+            if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+                die('Solicitud no válida');
+            }
             $appointmentId = (int)($_POST['appointment_id'] ?? 0);
             $status = $_POST['status'] ?? '';
             $action = $_POST['appointment_action'] ?? 'status';
@@ -134,8 +140,12 @@ class Dashboard extends Controller {
             return;
         }
 
-        if(!isset($_POST['create_appointment'])){
+        if(!isset($_POST['create_appointment']) && !isset($_POST['appointment_action'])){
             return;
+        }
+
+        if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+            die('Solicitud no válida');
         }
 
         $role = $_SESSION['user_role'] ?? 'cliente';
@@ -209,6 +219,9 @@ class Dashboard extends Controller {
 
         // Handle POST actions: create, update, delete
         if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+                die('Solicitud no válida');
+            }
             $action = $_POST['user_action'] ?? '';
             
             if($action === 'create'){

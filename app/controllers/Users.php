@@ -9,6 +9,9 @@ class Users extends Controller {
     public function register(){
         // Check for POST
         if($_SERVER['REQUEST_METHOD'] == 'POST'){
+            if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+                die('Solicitud no válida');
+            }
             // Process form
             $_POST = filter_input_array(INPUT_POST, FILTER_DEFAULT);
 
@@ -18,7 +21,7 @@ class Users extends Controller {
                 'email' => trim($_POST['email']),
                 'phone' => trim($_POST['phone'] ?? ''),
                 'password' => trim($_POST['password']),
-                'role' => isset($_POST['role']) && in_array($_POST['role'], ['cliente', 'medico']) ? $_POST['role'] : 'cliente',
+                'role' => 'cliente',
                 'confirm_password' => trim($_POST['confirm_password']),
                 'name_err' => '',
                 'email_err' => '',
@@ -103,6 +106,30 @@ class Users extends Controller {
     public function login(){
         // Check for POST
         if($_SERVER['REQUEST_METHOD'] == 'POST'){
+            // Rate limiting
+            $maxAttempts = 5;
+            $lockoutMinutes = 5;
+            $_SESSION['login_attempts'] = $_SESSION['login_attempts'] ?? 0;
+            $_SESSION['login_lockout'] = $_SESSION['login_lockout'] ?? 0;
+
+            if ($_SESSION['login_lockout'] > time()) {
+                $remaining = ceil(($_SESSION['login_lockout'] - time()) / 60);
+                $data = [
+                    'email' => '',
+                    'password' => '',
+                    'email_err' => "Demasiados intentos. Espera {$remaining} minuto(s).",
+                    'password_err' => '',
+                    'body_class' => 'auth-page',
+                    'hide_navbar' => true
+                ];
+                $this->view('auth/login', $data);
+                return;
+            }
+
+            if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+                die('Solicitud no válida');
+            }
+
             // Process form
             $_POST = filter_input_array(INPUT_POST, FILTER_DEFAULT);
 
@@ -139,14 +166,27 @@ class Users extends Controller {
                 $loggedInUser = $this->userModel->login($data['email'], $data['password']);
 
                 if($loggedInUser){
+                    // Reset attempts on success
+                    $_SESSION['login_attempts'] = 0;
+                    $_SESSION['login_lockout'] = 0;
                     // Create Session
                     $this->createUserSession($loggedInUser);
                 } else {
+                    $_SESSION['login_attempts']++;
+                    if ($_SESSION['login_attempts'] >= $maxAttempts) {
+                        $_SESSION['login_lockout'] = time() + ($lockoutMinutes * 60);
+                        $_SESSION['login_attempts'] = 0;
+                    }
                     $data['password_err'] = 'Contraseña incorrecta';
 
                     $this->view('auth/login', $data);
                 }
             } else {
+                $_SESSION['login_attempts']++;
+                if ($_SESSION['login_attempts'] >= $maxAttempts) {
+                    $_SESSION['login_lockout'] = time() + ($lockoutMinutes * 60);
+                    $_SESSION['login_attempts'] = 0;
+                }
                 // Load view with errors
                 $this->view('auth/login', $data);
             }

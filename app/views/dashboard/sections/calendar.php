@@ -29,6 +29,7 @@
             <button type="button" id="calendar-modal-close" class="calendar-modal-close">×</button>
         </div>
         <form action="<?php echo URLROOT; ?>/dashboard/calendar" method="post" class="calendar-modal-form">
+            <?php csrfField(); ?>
             <input type="hidden" name="appointment_action" id="modal-appointment-action" value="save">
             <input type="hidden" name="appointment_id" id="modal-appointment-id" value="0">
             <label>Título de la cita</label>

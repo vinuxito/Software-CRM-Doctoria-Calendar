@@ -56,11 +56,13 @@
                         <?php if (!empty($data['can_approve'])) : ?>
                             <div class="pending-actions">
                                 <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
+                                    <?php csrfField(); ?>
                                     <input type="hidden" name="appointment_id" value="<?php echo (int)$pending->id; ?>">
                                     <input type="hidden" name="status" value="approved">
                                     <button class="btn-agendar" type="submit">Aprobar</button>
                                 </form>
                                 <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
+                                    <?php csrfField(); ?>
                                     <input type="hidden" name="appointment_id" value="<?php echo (int)$pending->id; ?>">
                                     <input type="hidden" name="status" value="rejected">
                                     <button class="btn-chat" type="submit">Rechazar</button>
@@ -91,11 +93,13 @@
                         <?php if (!empty($data['can_approve'])) : ?>
                             <div class="pending-actions">
                                 <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
+                                    <?php csrfField(); ?>
                                     <input type="hidden" name="appointment_id" value="<?php echo (int)$rejected->id; ?>">
                                     <input type="hidden" name="status" value="pending">
                                     <button class="btn-agendar" type="submit">Reabrir</button>
                                 </form>
                                 <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
+                                    <?php csrfField(); ?>
                                     <input type="hidden" name="appointment_action" value="delete">
                                     <input type="hidden" name="appointment_id" value="<?php echo (int)$rejected->id; ?>">
                                     <button class="btn-chat" type="submit" onclick="return confirm('¿Seguro que deseas eliminar esta cita?');">Eliminar</button>
@@ -155,16 +159,19 @@
                             <td>
                                 <div class="pending-actions">
                                     <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
+                                        <?php csrfField(); ?>
                                         <input type="hidden" name="appointment_id" value="<?php echo (int)$item->id; ?>">
                                         <input type="hidden" name="status" value="approved">
                                         <button class="btn-agendar" type="submit">Aprobar</button>
                                     </form>
                                     <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
+                                        <?php csrfField(); ?>
                                         <input type="hidden" name="appointment_id" value="<?php echo (int)$item->id; ?>">
                                         <input type="hidden" name="status" value="rejected">
                                         <button class="btn-chat" type="submit">Rechazar</button>
                                     </form>
                                     <form action="<?php echo URLROOT; ?>/dashboard/panel" method="post">
+                                        <?php csrfField(); ?>
                                         <input type="hidden" name="appointment_action" value="delete">
                                         <input type="hidden" name="appointment_id" value="<?php echo (int)$item->id; ?>">
                                         <button class="btn-chat" type="submit" onclick="return confirm('¿Seguro que deseas eliminar esta cita?');">Eliminar</button>

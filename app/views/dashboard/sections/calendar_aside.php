@@ -21,6 +21,7 @@
     <?php endif; ?>
     <?php if (!empty($data['can_schedule'])) : ?>
         <form action="<?php echo URLROOT; ?>/dashboard/calendar" method="post" class="quick-appointment-form">
+            <?php csrfField(); ?>
             <input type="hidden" name="create_appointment" value="1">
             <input type="text" name="title" placeholder="Título de cita" required>
             <select name="doctor_id" required>

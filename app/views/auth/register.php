@@ -9,6 +9,7 @@
         <h2>Crear Cuenta</h2>
         <p>Completa el formulario para registrarte</p>
         <form action="<?php echo URLROOT; ?>/users/register" method="post">
+            <?php csrfField(); ?>
             <div class="form-group mb-3">
                 <label for="name">Nombre: <sup>*</sup></label>
                 <input type="text" name="name" id="name" class="form-control <?php echo (!empty($data['name_err'])) ? 'is-invalid' : ''; ?>" value="<?php echo $data['name']; ?>">
@@ -27,13 +28,6 @@
                 <label for="password">Contraseña: <sup>*</sup></label>
                 <input type="password" name="password" id="password" class="form-control <?php echo (!empty($data['password_err'])) ? 'is-invalid' : ''; ?>" value="">
                 <span class="invalid-feedback"><?php echo $data['password_err']; ?></span>
-            </div>
-            <div class="form-group mb-3">
-                <label for="role">Rol: <sup>*</sup></label>
-                <select name="role" id="role" class="form-control">
-                    <option value="cliente" <?php echo (($data['role'] ?? 'cliente') === 'cliente') ? 'selected' : ''; ?>>Cliente</option>
-                    <option value="medico" <?php echo (($data['role'] ?? '') === 'medico') ? 'selected' : ''; ?>>Médico</option>
-                </select>
             </div>
             <div class="form-group mb-3">
                 <label for="confirm_password">Confirmar Contraseña: <sup>*</sup></label>

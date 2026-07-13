@@ -1,6 +1,5 @@
 <?php
-require_once 'config/config.php';
-require_once 'app/core/Controller.php';
+require_once 'app/bootstrap.php';
 
 class MockController extends Controller {
     public function renderLogin($data) {

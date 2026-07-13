@@ -40,6 +40,7 @@
                                             data-phone="<?php echo htmlspecialchars($u->phone ?? ''); ?>"
                                             data-role="<?php echo htmlspecialchars($u->role); ?>">Editar</button>
                                     <form action="<?php echo URLROOT; ?>/dashboard/users" method="post" onsubmit="return confirm('¿Seguro que deseas eliminar este usuario?');" style="display:inline;">
+                                        <?php csrfField(); ?>
                                         <input type="hidden" name="user_action" value="delete">
                                         <input type="hidden" name="user_id" value="<?php echo (int)$u->id; ?>">
                                         <button class="btn-chat" type="submit">Eliminar</button>
@@ -61,6 +62,7 @@
                 <button type="button" id="user-modal-close" class="calendar-modal-close">×</button>
             </div>
             <form action="<?php echo URLROOT; ?>/dashboard/users" method="post" class="calendar-modal-form">
+                <?php csrfField(); ?>
                 <input type="hidden" name="user_action" id="user-form-action" value="create">
                 <input type="hidden" name="user_id" id="user-form-id" value="0">
                 
