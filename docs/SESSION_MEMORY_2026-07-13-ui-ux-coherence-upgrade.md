@@ -62,11 +62,12 @@
 **Lens**: *Can we prove it works — and prove it stays working?*
 - **Planned Work**: Comprehensive CLI & browser checks, regression verification.
 - **Core Changes**:
-  - [TBD]
+  - Task 4.1: Created a new programmatic test suite `test_auth_render.php` to verify login/register layouts.
+  - Task 4.2: Implemented verification cases for `body_class` output value, correct inclusion/exclusion of the main navigation bar based on flags, presence of logo assets, input parameter retention (old username/email recovery), and specific Spanish localization string presence.
+  - Task 4.3: Implemented regression tests verifying that passwords are never returned in HTML fields when form submissions trigger validation failures.
 - **Verification & Tests**:
-  - [TBD]
-- **Lessons Learned**:
-  - [TBD]
+  - Executed full test suite: `php test_crud.php && php test_patient_file.php && php test_wizard_logic.php && php test_auth_render.php` -> **PASSED**.
+- **Lessons Learned**: Mocking Controller rendering outputs in simple test cases allows fast CI/CD validation of UX invariants without the overhead of headless browsers.
 
 ---
 
