@@ -75,11 +75,14 @@
 **Lens**: *Would a real user understand and trust this?*
 - **Planned Work**: Step 5 (Template Decomposition) and Step 6 (Mobile Responsive Pass).
 - **Core Changes**:
-  - [TBD]
+  - Task 5.1 - 5.3: Split the monolithic 2,500+ line `app/views/dashboard/index.php` into 9 cleanly separated partial PHP views inside `app/views/dashboard/sections/` and a lightweight 48-line wrapper shell.
+  - Task 5.4 - 5.6: Extracted 4 inline `<script>` blocks into static modular JS files inside `js/sections/`. Created window-level metadata-driven `URLROOT` resolution in `js/main.js` and injected matching header tag. Passed calendar DB events list via clean HTML5 `data-events` serialization on the element container.
+  - Task 6.1 - 6.4: Appended 3 responsive design media breakpoints (768px tablet, 600px mobile portrait, 400px small phone) to `css/style.css`.
+  - Task 6.5: Optimized mobile navigation bar (translates sidebar to a bottom sticky bar for phones), made report tables horizontally scrollable, and adjusted wizard modal sizes to full viewport.
 - **Verification & Tests**:
-  - [TBD]
-- **Lessons Learned**:
-  - [TBD]
+  - Validated syntax: `php -l app/views/dashboard/index.php` and `find app/views/dashboard/sections/ -name '*.php' -exec php -l {} \;` -> **PASSED**.
+  - Verified tests: `test_crud.php`, `test_patient_file.php`, `test_wizard_logic.php`, and `test_auth_render.php` -> **PASSED**.
+- **Lessons Learned**: Splitting layouts into small targeted files dramatically reduces cognitive overhead, and using native semantic viewport structures makes mobile responsive CSS straightforward.
 
 ---
 
