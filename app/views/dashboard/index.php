@@ -375,6 +375,7 @@
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
+                </table>
               <!-- Modal for Patient Clinical File -->
             <div id="patient-file-modal" class="calendar-modal-overlay">
                 <style>
@@ -1135,7 +1136,6 @@
                 </div>
             </div>
         </section>
-        <?php elseif ($section === 'users') : ?>        </section>
         <?php elseif ($section === 'users') : ?>
         <header class="toolbar">
             <div class="tol-left"><div class="date-title"><span>Gestión de Usuarios</span></div></div>
