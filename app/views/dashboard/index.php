@@ -649,6 +649,21 @@
                         0% { transform: scale(0.9); opacity: 0.6; }
                         100% { transform: scale(1.3); opacity: 1; }
                     }
+                    .wizard-scroll-indicator {
+                        position: absolute;
+                        bottom: 60px;
+                        left: 0;
+                        right: 0;
+                        height: 25px;
+                        background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.85));
+                        pointer-events: none;
+                        opacity: 0;
+                        transition: opacity 0.3s ease;
+                        z-index: 5;
+                    }
+                    .wizard-scroll-indicator.visible {
+                        opacity: 1;
+                    }
                     .eva-container {
                         background: #f8f9fa;
                         padding: 20px;
@@ -1104,8 +1119,11 @@
                             </div>
                         </div>
 
+                        <!-- Scroll Fade Indicator -->
+                        <div class="wizard-scroll-indicator" id="wizard-scroll-fade"></div>
+
                         <!-- Navigation controls -->
-                        <div class="calendar-modal-actions" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+                        <div class="calendar-modal-actions" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 10;">
                             <button type="button" class="btn-outline" id="wizard-btn-prev" style="display: none;"><i class="fas fa-chevron-left"></i> Anterior</button>
                             <span style="font-size: 11px; color: #888;" id="wizard-step-label">Paso 1 de 5</span>
                             <div style="display: flex; gap: 10px;">
@@ -2130,6 +2148,18 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    var scrollFade = document.getElementById('wizard-scroll-fade');
+    function updateScrollIndicator(el) {
+        if (!scrollFade || !el) return;
+        var hasScroll = el.scrollHeight > el.clientHeight;
+        var isNearBottom = el.scrollHeight - el.scrollTop <= el.clientHeight + 8;
+        if (hasScroll && !isNearBottom) {
+            scrollFade.classList.add('visible');
+        } else {
+            scrollFade.classList.remove('visible');
+        }
+    }
+
     // Surgical scar master toggle toggle
     var cicatrizMasterSi = document.querySelector('#cicatriz-master-control button[data-val="1"]');
     var cicatrizMasterNo = document.querySelector('#cicatriz-master-control button[data-val="0"]');
@@ -2489,6 +2519,11 @@ document.addEventListener('DOMContentLoaded', function () {
             saveBtn.style.display = 'none';
         }
         label.textContent = `Paso ${stepNum} de 5`;
+
+        var activeContent = document.getElementById(`step-content-${stepNum}`);
+        if (activeContent) {
+            updateScrollIndicator(activeContent);
+        }
     }
 
     document.getElementById('wizard-btn-prev').addEventListener('click', function () {
@@ -2680,6 +2715,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     setupOptionChips();
     setupTAMask();
+
+    document.querySelectorAll('.wizard-step-content').forEach(function (content) {
+        content.addEventListener('scroll', function () {
+            updateScrollIndicator(content);
+        });
+    });
 
     var estInput = document.getElementById('exploracion-estatura');
     var pesInput = document.getElementById('exploracion-peso');
