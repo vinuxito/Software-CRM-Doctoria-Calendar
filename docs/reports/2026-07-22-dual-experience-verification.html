@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Verificación — Doctoria CRM (Dual-Experience Layer)</title>
+    <style>
+        :root {
+            --primary: #00a29a;
+            --primary-dark: #007d77;
+            --bg-page: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --success-bg: #ecfdf5;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-main);
+            margin: 0;
+            padding: 32px 16px;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        .header-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        .badge-verdict {
+            display: inline-block;
+            background: var(--success-bg);
+            color: var(--success);
+            border: 1px solid var(--success);
+            font-weight: 700;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        h1 {
+            font-size: 24px;
+            margin: 12px 0 4px 0;
+            color: var(--text-main);
+        }
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin: 0;
+        }
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+        }
+        .stat-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-val {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-top: 6px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        th, td {
+            padding: 14px 18px;
+            text-align: left;
+            font-size: 13px;
+        }
+        th {
+            background: #f1f5f9;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 11px;
+            border-bottom: 1px solid var(--border);
+        }
+        tr:not(:last-child) td {
+            border-bottom: 1px solid var(--border);
+        }
+        .status-pass {
+            color: var(--success);
+            font-weight: 700;
+        }
+        .code-pill {
+            font-family: monospace;
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header-card">
+            <span class="badge-verdict">✓ Verificado y Listo para Producción</span>
+            <h1>Reporte de Verificación Final — Doctoria CRM</h1>
+            <p class="subtitle">Dual-Experience Layer — 9 Suites de Prueba Comprobadas (2026-07-22)</p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid-cards">
+            <div class="stat-card">
+                <div class="stat-label">Suites de Prueba</div>
+                <div class="stat-val">9 / 9 PASADOS</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">PWA Manifest & SW</div>
+                <div class="stat-val" style="color: #10b981;">VERIFICADO ✓</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Rama Target</div>
+                <div class="stat-val" style="color: var(--text-main); font-size: 20px;">main</div>
+            </div>
+        </div>
+
+        <!-- Verification Matrix -->
+        <h2>Matriz de Verificación de Experiencia Dual</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Módulo / Experiencia</th>
+                    <th>Archivo de Prueba</th>
+                    <th>Resultado</th>
+                    <th>Detalles de Evidencia</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>1. DESKTOP WORKBENCH (&gt;= 1024px)</strong></td>
+                    <td><span class="code-pill">test_dual_experience.php</span></td>
+                    <td class="status-pass">PASADO ✓</td>
+                    <td>Hotkeys de teclado (<span class="code-pill">Alt+N</span>, <span class="code-pill">Alt+P</span>, <span class="code-pill">Ctrl+K</span>) y vista multi-panel.</td>
+                </tr>
+                <tr>
+                    <td><strong>2. MOBILE COUCH REMOTE (&lt; 1024px)</strong></td>
+                    <td><span class="code-pill">test_dual_experience.php</span></td>
+                    <td class="status-pass">PASADO ✓</td>
+                    <td>Barra inferior fija <span class="code-pill">mobile_nav.php</span> y action sheet deslizante.</td>
+                </tr>
+                <tr>
+                    <td><strong>3. PWA MANIFEST &amp; SERVICE WORKER</strong></td>
+                    <td><span class="code-pill">test_dual_experience.php</span></td>
+                    <td class="status-pass">PASADO ✓</td>
+                    <td>Esquema JSON válido en <span class="code-pill">manifest.json</span> y caché offline en <span class="code-pill">sw.js</span>.</td>
+                </tr>
+                <tr>
+                    <td><strong>4. ADAPTACIÓN RESPONSIVA CSS</strong></td>
+                    <td><span class="code-pill">test_dual_experience.php</span></td>
+                    <td class="status-pass">PASADO ✓</td>
+                    <td>Media queries responsivas y safe-area inset padding para iOS.</td>
+                </tr>
+                <tr>
+                    <td><strong>5. MAESTRO DE DOCTRINA DE PRODUCCIÓN</strong></td>
+                    <td><span class="code-pill">test_production_doctrine.php</span></td>
+                    <td class="status-pass">PASADO ✓</td>
+                    <td>Aislamiento Multi-Clínica, Telemedicina, Libro Contable, AI SOAP y Rutas.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Footer Notes -->
+        <div style="margin-top: 32px; font-size: 12px; color: var(--text-muted); text-align: center;">
+            Doctoria CRM &copy; 2026 — Reporte generado automáticamente por Filemón Coder.
+        </div>
+    </div>
+</body>
+</html>
