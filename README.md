@@ -196,10 +196,11 @@ Software-CRM-Doctoria-Calendar/
 
 ## 📊 Recent Verifications & Reports / Verificaciones y Reportes Recientes
 
-- **Operation DINNER OUT Session Memory**: [session-2026-07-22-dinner-out-verification.md](file:///lamp/www/naxielly/docs/memories/session-2026-07-22-dinner-out-verification.md)
-- **Verification Report MD**: [2026-07-22-dinner-out-verification.md](file:///lamp/www/naxielly/docs/reports/2026-07-22-dinner-out-verification.md)
-- **Interactive Verification Report HTML**: [2026-07-22-dinner-out-verification.html](file:///lamp/www/naxielly/docs/reports/2026-07-22-dinner-out-verification.html)
-- **Master Test Suite Command**: `/lamp/php/bin/php test_runner.php` (Passes 7/7)
+- **Production Launch Session Memory**: [session-2026-07-22-production-launch-verification.md](file:///lamp/www/naxielly/docs/memories/session-2026-07-22-production-launch-verification.md)
+- **Verification Report MD**: [2026-07-22-production-launch-verification.md](file:///lamp/www/naxielly/docs/reports/2026-07-22-production-launch-verification.md)
+- **Interactive Verification Report HTML**: [2026-07-22-production-launch-verification.html](file:///lamp/www/naxielly/docs/reports/2026-07-22-production-launch-verification.html)
+- **Master Test Suite Command**: `/lamp/php/bin/php test_runner.php` (Passes 8/8 Suites 100% Green)
+- **Automated DB Backup Command**: `./scripts/backup_database.sh`
 - **Current Status**: **SAFE TO CONTINUE (Verified & Shippable on `main`)**
 
 ## 📄 License / Licencia
