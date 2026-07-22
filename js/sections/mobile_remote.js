@@ -22,5 +22,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 overlay.style.display = 'none';
             }
         });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && overlay.style.display === 'flex') {
+                overlay.style.display = 'none';
+            }
+        });
     }
 });
