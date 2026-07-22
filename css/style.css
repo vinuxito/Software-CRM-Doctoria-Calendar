@@ -156,9 +156,15 @@ body {
     text-overflow: ellipsis;
 }
 
+.nav-icon:focus-visible, button:focus-visible, a:focus-visible {
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+}
+
 .nav-icon:hover {
     background-color: var(--brand-primary-light);
     color: var(--brand-primary);
+    transform: translateX(2px);
 }
 
 .nav-icon.active {
