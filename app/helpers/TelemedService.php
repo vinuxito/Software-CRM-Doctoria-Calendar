@@ -13,4 +13,12 @@ class TelemedService {
         $url = self::buildPatientJoinUrl($token);
         return "Hola " . $patientName . ", tu videoconsulta con " . $doctorName . " está lista. Únete aquí: " . $url;
     }
+
+    public static function validateRoomToken($token) {
+        $cleanToken = preg_replace('/[^a-f0-9]/', '', strtolower(trim((string)$token)));
+        if (strlen($cleanToken) !== 64) {
+            return false;
+        }
+        return true;
+    }
 }

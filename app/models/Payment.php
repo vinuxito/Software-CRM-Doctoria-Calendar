@@ -21,8 +21,10 @@ class Payment {
     }
 
     public function recordTransaction($data){
-        $amount = (float)$data['amount'];
-        $commissionRate = isset($data['commission_rate']) ? (float)$data['commission_rate'] : 50.0;
+        $amount = max(0.0, (float)($data['amount'] ?? 0));
+        $rawCommissionRate = isset($data['commission_rate']) ? (float)$data['commission_rate'] : 50.0;
+        $commissionRate = max(0.0, min(100.0, $rawCommissionRate));
+        
         $doctorCommission = round($amount * ($commissionRate / 100.0), 2);
         $clinicNet = round($amount - $doctorCommission, 2);
 
