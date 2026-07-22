@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Verificación — Doctoria CRM (Operation DINNER OUT)</title>
+    <style>
+        :root {
+            --primary: #00a29a;
+            --primary-dark: #007d77;
+            --bg-page: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --success-bg: #ecfdf5;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-main);
+            margin: 0;
+            padding: 32px 16px;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        .header-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        .badge-verdict {
+            display: inline-block;
+            background: var(--success-bg);
+            color: var(--success);
+            border: 1px solid var(--success);
+            font-weight: 700;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        h1 {
+            font-size: 24px;
+            margin: 12px 0 4px 0;
+            color: var(--text-main);
+        }
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin: 0;
+        }
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+        }
+        .stat-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-val {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-top: 6px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        th, td {
+            padding: 14px 18px;
+            text-align: left;
+            font-size: 13px;
+        }
+        th {
+            background: #f1f5f9;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 11px;
+            border-bottom: 1px solid var(--border);
+        }
+        tr:not(:last-child) td {
+            border-bottom: 1px solid var(--border);
+        }
+        .status-pass {
+            color: var(--success);
+            font-weight: 700;
+        }
+        .code-pill {
+            font-family: monospace;
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header-card">
+            <span class="badge-verdict">✓ Verificado y Aprobado</span>
+            <h1>Reporte de Verificación Final — Doctoria CRM</h1>
+            <p class="subtitle">Operation DINNER OUT — 7 Upgrades Completo (2026-07-22)</p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid-cards">
+            <div class="stat-card">
+                <div class="stat-label">Suites de Prueba</div>
+                <div class="stat-val">7 / 7 PASADOS</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Estado Servidor HTTP</div>
+                <div class="stat-val">200 OK</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Rama Git Target</div>
+                <div class="stat-val" style="color: var(--text-main); font-size: 20px;">main</div>
+            </div>
+        </div>
+
+        <!-- Verification Matrix -->
+        <h2>Matriz de Verificación de Módulos</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Módulo</th>
+                    <th>Archivo de Prueba</th>
+                    <th>Resultado</th>
+                    <th>Detalles de Evidencia</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>1. NAVEGACIÓN Y COMANDO (CTRL+K)</strong></td>
+                    <td><span class="code-pill">test_global_search.php</span></td>
+                    <td class="status-pass">PASADO ✓</td>
+                    <td>Búsqueda global AJAX en tiempo real para pacientes y citas.</td>
+                </tr>
+                <tr>
+                    <td><strong>2. MAPA ANATÓMICO DE DOLOR</strong></td>
+                    <td><span class="code-pill">test_body_map.php</span></td>
+                    <td class="status-pass">PASADO ✓</td>
+                    <td>Pines SVG de dolor (EVA 1-10) guardados en tabla <span class="code-pill">dolor_puntos</span>.</td>
+                </tr>
+                <tr>
+                    <td><strong>3. RECORDATORIOS WHATSAPP</strong></td>
+                    <td><span class="code-pill">test_whatsapp_token.php</span></td>
+                    <td class="status-pass">PASADO ✓</td>
+                    <td>Links <span class="code-pill">wa.me</span> con token de confirmación en 1-click.</td>
+                </tr>
+                <tr>
+                    <td><strong>4. FACTURACIÓN CFDI 4.0 SAT</strong></td>
+                    <td><span class="code-pill">test_cfdi_invoice.php</span></td>
+                    <td class="status-pass">PASADO ✓</td>
+                    <td>Perfil fiscal RFC guardado (Uso D01) e invoice UUID SAT timbrada.</td>
+                </tr>
+                <tr>
+                    <td><strong>5. ANALÍTICA DE REHABILITACIÓN</strong></td>
+                    <td><span class="code-pill">test_analytics.php</span></td>
+                    <td class="status-pass">PASADO ✓</td>
+                    <td>Gráficas de dolor EVA y puntaje de marcha Tinetti.</td>
+                </tr>
+                <tr>
+                    <td><strong>6. EXPORTADOR PDF DE EXPEDIENTE</strong></td>
+                    <td><span class="code-pill">test_pdf_export.php</span></td>
+                    <td class="status-pass">PASADO ✓</td>
+                    <td>Plantilla HTML/PDF oficial lista para impresión con firma.</td>
+                </tr>
+                <tr>
+                    <td><strong>7. RECURSOS Y CUBÍCULOS</strong></td>
+                    <td><span class="code-pill">test_resource_optimizer.php</span></td>
+                    <td class="status-pass">PASADO ✓</td>
+                    <td>Gestión de consultorios/camillas (<span class="code-pill">clinic_resources</span>).</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Footer Notes -->
+        <div style="margin-top: 32px; font-size: 12px; color: var(--text-muted); text-align: center;">
+            Doctoria CRM &copy; 2026 — Reporte generado automáticamente por Filemón Coder.
+        </div>
+    </div>
+</body>
+</html>

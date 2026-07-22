@@ -19,11 +19,16 @@ Welcome to **Doctoria CRM & Calendar**, a fully-featured, elegant web-based appl
 
 ### 🌟 Key Features
 
+*   🔍 **Smart Visual Navigation & Command Palette (`Ctrl+K`):** Labeled expanded sidebar and global instant search overlay across patients, doctors, and appointments.
+*   🧍 **Interactive Anatomical Body Map:** Dual-view anterior/posterior 2D human silhouette canvas for placing EVA scale pain pins (1-10) with max-limit enforcement.
+*   💬 **Automated WhatsApp Reminders Engine:** 1-Click WhatsApp appointment reminders with tokenized 1-click patient confirmation links.
+*   🧾 **CFDI 4.0 SAT Medical Invoicing Engine:** Complete Mexican SAT CFDI 4.0 medical invoice generator with RFC fiscal profile management (Uso CFDI `D01` Honorarios Médicos).
+*   📈 **Rehabilitation Progress Analytics:** Visual analytics dashboard tracking EVA pain reduction curves over time and Tinetti gait mobility scores.
+*   📄 **1-Click Clinical PDF Report Exporter:** Printable digital expediente layout featuring clinic header, patient summary, pain ratings, and specialist signature block.
+*   🚪 **Multi-Therapist Resource Optimizer:** Treatment cubicle and equipment management (`clinic_resources`) with maintenance status toggles to prevent double-booking.
 *   📅 **Smart Calendar Integration:** Visual, drag-and-drop capabilities for effortless schedule coordination.
 *   👥 **Comprehensive Patient Management:** Real-time patient overview, clinical histories, and status tracking.
-*   📊 **Executive Dashboard & Analytics:** Understand your clinic's performance with deep metrics and revenue analytics.
 *   🔐 **Secure Access & Auth:** Role-based access control protecting PII and sensitive medical data.
-*   💬 **Integrated Messaging:** Internal messaging and patient communication modules.
 
 ### 📸 Software Previews
 
@@ -191,9 +196,11 @@ Software-CRM-Doctoria-Calendar/
 
 ## 📊 Recent Verifications & Reports / Verificaciones y Reportes Recientes
 
-- **Latest Session Memory / Memoria de Sesión Reciente**: [session-2026-07-13-mcp-login-fixes.md](file:///lamp/www/naxielly/docs/memories/session-2026-07-13-mcp-login-fixes.md)
-- **Verification Report / Reporte de Verificación MD**: [2026-07-13-mcp-login-fixes-verification.md](file:///lamp/www/naxielly/docs/reports/2026-07-13-mcp-login-fixes-verification.md)
-- **Interactive Verification Report / Reporte Interactivo HTML**: [2026-07-13-mcp-login-fixes-verification.html](file:///lamp/www/naxielly/docs/reports/2026-07-13-mcp-login-fixes-verification.html)
+- **Operation DINNER OUT Session Memory**: [session-2026-07-22-dinner-out-verification.md](file:///lamp/www/naxielly/docs/memories/session-2026-07-22-dinner-out-verification.md)
+- **Verification Report MD**: [2026-07-22-dinner-out-verification.md](file:///lamp/www/naxielly/docs/reports/2026-07-22-dinner-out-verification.md)
+- **Interactive Verification Report HTML**: [2026-07-22-dinner-out-verification.html](file:///lamp/www/naxielly/docs/reports/2026-07-22-dinner-out-verification.html)
+- **Master Test Suite Command**: `/lamp/php/bin/php test_runner.php` (Passes 7/7)
+- **Current Status**: **SAFE TO CONTINUE (Verified & Shippable on `main`)**
 
 ## 📄 License / Licencia
 
