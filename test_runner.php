@@ -11,7 +11,8 @@ $scripts = [
     'Step 5: Rehab Progress Analytics' => 'test_analytics.php',
     'Step 6: Clinical PDF Report Exporter' => 'test_pdf_export.php',
     'Step 7: Multi-Therapist Resource Optimizer' => 'test_resource_optimizer.php',
-    'Step 8: Production Launch Doctrine Master Suite' => 'test_production_doctrine.php'
+    'Step 8: Production Launch Doctrine Master Suite' => 'test_production_doctrine.php',
+    'Step 9: Dual-Experience Layer Master Suite' => 'test_dual_experience.php'
 ];
 
 $passedCount = 0;
