@@ -589,6 +589,7 @@ class Dashboard extends Controller {
                     'uso_cfdi' => $usoCfdi
                 ]);
                 if ($saved) {
+                    error_log("AUDIT LOG: User [{$_SESSION['user_email']}] SAVED RFC Fiscal Profile for patient ID [{$patientId}]. RFC: [{$rfc}].");
                     $_SESSION['flash'] = 'Perfil Fiscal RFC guardado correctamente.';
                 } else {
                     $_SESSION['flash'] = 'Error al guardar el perfil fiscal.';
@@ -642,6 +643,8 @@ class Dashboard extends Controller {
             'dolor_puntos' => $expedienteData['dolor_puntos'] ?? []
         ];
 
+        error_log("AUDIT LOG: User [{$_SESSION['user_email']}] EXPORTED PDF Clinical Expediente for patient ID [{$patientId}].");
+
         require_once APPROOT . '/views/dashboard/expediente_pdf.php';
         exit;
     }
@@ -676,6 +679,7 @@ class Dashboard extends Controller {
                     'type' => $type,
                     'status' => 'available'
                 ]);
+                error_log("AUDIT LOG: User [{$_SESSION['user_email']}] ADDED Clinic Resource [{$name}].");
                 $_SESSION['flash'] = 'Cubículo / Recurso registrado correctamente.';
             } else {
                 $_SESSION['flash'] = 'Ingresa un nombre para el recurso.';
@@ -697,6 +701,7 @@ class Dashboard extends Controller {
 
             if ($resId > 0) {
                 $this->resourceModel->updateStatus($resId, $newStatus);
+                error_log("AUDIT LOG: User [{$_SESSION['user_email']}] TOGGLED Resource ID [{$resId}] status to [{$newStatus}].");
                 $_SESSION['flash'] = 'Estado del recurso actualizado.';
             }
         }
