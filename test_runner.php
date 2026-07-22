@@ -10,7 +10,8 @@ $scripts = [
     'Step 4: CFDI 4.0 SAT Medical Invoicing' => 'test_cfdi_invoice.php',
     'Step 5: Rehab Progress Analytics' => 'test_analytics.php',
     'Step 6: Clinical PDF Report Exporter' => 'test_pdf_export.php',
-    'Step 7: Multi-Therapist Resource Optimizer' => 'test_resource_optimizer.php'
+    'Step 7: Multi-Therapist Resource Optimizer' => 'test_resource_optimizer.php',
+    'Step 8: Production Launch Doctrine Master Suite' => 'test_production_doctrine.php'
 ];
 
 $passedCount = 0;
@@ -37,6 +38,6 @@ echo "-------------------------------------------------------\n";
 if ($failedCount > 0) {
     exit(1);
 } else {
-    echo "ALL 7 TEST SUITES PASSED SUCCESSFULLY!\n";
+    echo "ALL " . count($scripts) . " TEST SUITES PASSED SUCCESSFULLY!\n";
     exit(0);
 }
