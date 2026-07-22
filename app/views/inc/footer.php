@@ -11,5 +11,7 @@
     <!-- Custom JS -->
     <script src="<?php echo URLROOT; ?>/js/main.js"></script>
     <script src="<?php echo URLROOT; ?>/js/sections/command_palette.js"></script>
+    <script src="<?php echo URLROOT; ?>/js/sections/mobile_remote.js"></script>
+    <script src="<?php echo URLROOT; ?>/js/sections/workbench.js"></script>
 </body>
 </html>

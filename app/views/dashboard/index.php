@@ -102,5 +102,7 @@
     </main>
 </div>
 
+<?php require APPROOT . '/views/inc/mobile_nav.php'; ?>
+<?php require APPROOT . '/views/inc/action_sheet.php'; ?>
 <?php require APPROOT . '/views/inc/command_palette.php'; ?>
 <?php require APPROOT . '/views/inc/footer.php'; ?>
