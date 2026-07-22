@@ -570,13 +570,16 @@ class Dashboard extends Controller {
             }
 
             $patientId = (int)($_POST['patient_id'] ?? 0);
-            $rfc = strtoupper(trim($_POST['rfc'] ?? ''));
+            $rfc = strtoupper(preg_replace('/[^A-Za-z0-9&Ññ]/', '', trim($_POST['rfc'] ?? '')));
             $razonSocial = trim($_POST['razon_social'] ?? '');
-            $codigoPostal = trim($_POST['codigo_postal'] ?? '');
+            $codigoPostal = preg_replace('/[^0-9]/', '', trim($_POST['codigo_postal'] ?? ''));
             $usoCfdi = trim($_POST['uso_cfdi'] ?? 'D01');
 
-            if ($patientId <= 0 || strlen($rfc) < 12 || empty($razonSocial) || strlen($codigoPostal) !== 5) {
-                $_SESSION['flash'] = 'Por favor verifica los datos fiscales (RFC válido y CP de 5 dígitos).';
+            $isValidRfc = preg_match('/^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/', $rfc);
+            $isValidCp = preg_match('/^\d{5}$/', $codigoPostal);
+
+            if ($patientId <= 0 || !$isValidRfc || empty($razonSocial) || !$isValidCp) {
+                $_SESSION['flash'] = 'Por favor ingresa un RFC válido (12-13 caracteres) y un Código Postal de 5 dígitos.';
             } else {
                 $saved = $this->invoiceModel->saveFiscalProfile([
                     'patient_id' => $patientId,

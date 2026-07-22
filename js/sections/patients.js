@@ -1173,9 +1173,14 @@ document.addEventListener('DOMContentLoaded', function () {
     var wrappers = document.querySelectorAll('.body-map-wrapper');
     wrappers.forEach(function (wrap) {
         wrap.addEventListener('click', function (e) {
+            if ((window.activePainPins || []).length >= 15) {
+                alert('Se ha alcanzado el límite máximo de 15 puntos de dolor por expediente.');
+                return;
+            }
+
             var rect = wrap.getBoundingClientRect();
-            var xPct = ((e.clientX - rect.left) / rect.width) * 100;
-            var yPct = ((e.clientY - rect.top) / rect.height) * 100;
+            var xPct = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+            var yPct = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
             var vista = wrap.getAttribute('data-vista') || 'anterior';
 
             var eva = prompt('Grado de Dolor en la Escala EVA (1 - 10):', '5');
