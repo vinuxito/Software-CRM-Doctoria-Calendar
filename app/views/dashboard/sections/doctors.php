@@ -11,20 +11,14 @@
     <?php else : ?>
         <div class="doctor-grid">
             <?php
-                $images = [
-                    URLROOT . '/../img/doctor1.png',
-                    URLROOT . '/../img/doctor2.png',
-                    URLROOT . '/../img/doctor3.png',
-                    URLROOT . '/../img/doctor4.png'
-                ];
+                $docColors = ['#E8A0AC', '#00a29a', '#6C63FF', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7'];
             ?>
             <?php foreach (($data['doctors'] ?? []) as $idx => $doctor) : ?>
                 <article class="doctor-card ref">
-                    <div class="doctor-thumb" style="background-image:url('<?php echo $images[$idx % count($images)]; ?>')"></div>
+                    <div class="doctor-thumb" style="background:<?php echo $docColors[$idx % count($docColors)]; ?>;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:32px;"><?php echo strtoupper(substr($doctor->name, 0, 1)); ?></div>
                     <div class="doctor-body">
                         <div class="doctor-name"><?php echo htmlspecialchars($doctor->name); ?></div>
-                        <div class="doctor-role">Doctor</div>
-                        <div class="doctor-rate">★★★★★ <span>(<?php echo 80 + ($idx * 7); ?>)</span></div>
+                        <div class="doctor-role">Especialista</div>
                         <div class="doctor-actions">
                             <a class="btn-agendar" href="<?php echo URLROOT; ?>/dashboard/calendar?doctor=<?php echo (int)$doctor->id; ?>"><i class="far fa-calendar-alt"></i> Agendar</a>
                             <a class="btn-chat" href="<?php echo URLROOT; ?>/dashboard/chat?with=<?php echo (int)$doctor->id; ?>"><i class="far fa-comment"></i> Chat</a>

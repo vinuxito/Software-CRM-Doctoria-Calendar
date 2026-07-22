@@ -12,6 +12,9 @@ class Database {
     public function __construct(){
         // Set DSN
         $dsn = 'mysql:host=' . $this->host . ';dbname=' . $this->dbname;
+        if (defined('DB_SOCKET') && DB_SOCKET !== '') {
+            $dsn .= ';unix_socket=' . DB_SOCKET;
+        }
         $options = array(
             PDO::ATTR_PERSISTENT => true,
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
@@ -72,5 +75,10 @@ class Database {
     // Get row count
     public function rowCount(){
         return $this->stmt->rowCount();
+    }
+
+    // Get last inserted ID
+    public function lastInsertId(){
+        return $this->dbh->lastInsertId();
     }
 }

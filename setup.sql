@@ -85,3 +85,20 @@ INSERT INTO chat_messages (sender_id, receiver_id, message) VALUES
 (4, 7, 'Sí, te los reviso en consulta hoy'),
 (8, 3, 'Necesito renovar mi fórmula'),
 (3, 8, 'Listo, te la envío por correo');
+
+-- --------------------------------------------------------
+-- Table structure for `dolor_puntos` (Interactive Body Map)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS dolor_puntos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    expediente_id INT NOT NULL,
+    region VARCHAR(50) NOT NULL,
+    vista VARCHAR(20) NOT NULL DEFAULT 'anterior',
+    eva_nivel INT NOT NULL DEFAULT 5,
+    tipo_dolor VARCHAR(50) DEFAULT 'sordo',
+    notas VARCHAR(255) DEFAULT NULL,
+    pos_x FLOAT NOT NULL,
+    pos_y FLOAT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (expediente_id) REFERENCES expedientes(id) ON DELETE CASCADE
+);

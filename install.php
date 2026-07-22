@@ -1,6 +1,12 @@
 <?php
-// Load Config
+// SECURITY: Only allow install when accessed by an authenticated admin
 require_once 'config/config.php';
+require_once 'app/bootstrap.php';
+
+if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] ?? '') !== 'admin') {
+    http_response_code(403);
+    die('Acceso denegado. Solo un administrador autenticado puede ejecutar la instalación.');
+}
 
 // Connect to MySQL server without selecting DB
 try {

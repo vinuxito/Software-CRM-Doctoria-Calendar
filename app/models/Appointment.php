@@ -191,4 +191,34 @@ class Appointment {
         ');
         return $this->db->single();
     }
+
+    public function getAppointmentById($id){
+        $this->db->query('
+            SELECT 
+                a.*,
+                doctor.name AS doctor_name,
+                doctor.phone AS doctor_phone,
+                patient.name AS patient_name,
+                patient.phone AS patient_phone
+            FROM appointments a
+            LEFT JOIN users doctor ON doctor.id = a.doctor_id
+            LEFT JOIN users patient ON patient.id = a.patient_id
+            WHERE a.id = :id
+        ');
+        $this->db->bind(':id', (int)$id);
+        return $this->db->single();
+    }
+
+    public function setConfirmationToken($id, $token){
+        $this->db->query('UPDATE appointments SET confirmation_token = :token, reminder_sent = 1, confirmation_status = "pending_confirmation" WHERE id = :id');
+        $this->db->bind(':token', $token);
+        $this->db->bind(':id', (int)$id);
+        return $this->db->execute();
+    }
+
+    public function confirmAppointmentByToken($token){
+        $this->db->query('UPDATE appointments SET confirmation_status = "confirmed", status = "approved" WHERE confirmation_token = :token');
+        $this->db->bind(':token', $token);
+        return $this->db->execute();
+    }
 }

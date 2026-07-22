@@ -45,7 +45,7 @@ class User {
 
     // Find user by email
     public function findUserByEmail($email){
-        $this->db->query('SELECT * FROM users WHERE email = :email');
+        $this->db->query('SELECT * FROM users WHERE email = :email AND is_deleted = 0');
         $this->db->bind(':email', $email);
 
         $row = $this->db->single();
@@ -111,7 +111,7 @@ class User {
     }
 
     public function getUserByEmail($email){
-        $this->db->query('SELECT * FROM users WHERE email = :email');
+        $this->db->query('SELECT * FROM users WHERE email = :email AND is_deleted = 0');
         $this->db->bind(':email', $email);
         return $this->db->single();
     }

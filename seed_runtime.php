@@ -1,5 +1,12 @@
 <?php
 require_once 'config/config.php';
+require_once 'app/bootstrap.php';
+
+// SECURITY: Only allow seeding when accessed by an authenticated admin
+if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] ?? '') !== 'admin') {
+    http_response_code(403);
+    die('Acceso denegado. Solo un administrador autenticado puede ejecutar el seeder.');
+}
 
 $pdo = new PDO(
     "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME,

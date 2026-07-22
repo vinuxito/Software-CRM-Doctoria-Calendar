@@ -12,13 +12,20 @@
                     <div class="profile-mail"><?php echo htmlspecialchars($profile->email ?? ''); ?></div>
                 </div>
             </div>
-            <div class="profile-grid">
-                <label><span>Nombre</span><input type="text" value="<?php echo htmlspecialchars($profile->name ?? $data['user_name']); ?>"></label>
-                <label><span>Email</span><input type="email" value="<?php echo htmlspecialchars($profile->email ?? ''); ?>"></label>
-                <label><span>Teléfono</span><input type="text" value="+57 300 000 0000"></label>
-                <label><span>Especialidad</span><input type="text" value="Medicina general"></label>
-            </div>
-            <button class="btn-outline setting-save">Actualizar perfil</button>
+            <form action="<?php echo URLROOT; ?>/dashboard/profile" method="post">
+                <?php csrfField(); ?>
+                <div class="profile-grid">
+                    <label><span>Nombre</span><input type="text" name="name" value="<?php echo htmlspecialchars($profile->name ?? $data['user_name']); ?>" required></label>
+                    <label><span>Email</span><input type="email" name="email" value="<?php echo htmlspecialchars($profile->email ?? ''); ?>" required></label>
+                    <label><span>Teléfono</span><input type="text" name="phone" value="<?php echo htmlspecialchars($profile->phone ?? ''); ?>"></label>
+                    <label><span>Rol</span><input type="text" value="<?php $roleLabels = ['admin' => 'Administrador', 'medico' => 'Médico / Especialista', 'cliente' => 'Paciente']; echo htmlspecialchars($roleLabels[$profile->role ?? ''] ?? $profile->role ?? ''); ?>" readonly></label>
+                </div>
+                <div class="profile-grid" style="margin-top: 16px;">
+                    <label><span>Nueva contraseña</span><input type="password" name="password" placeholder="Dejar vacío para mantener la actual" minlength="6"></label>
+                    <label><span>Confirmar contraseña</span><input type="password" name="password_confirm" placeholder="Repetir nueva contraseña"></label>
+                </div>
+                <button type="submit" class="btn-configurar" style="margin-top: 16px;">Actualizar perfil</button>
+            </form>
         </div>
     </div>
 </section>

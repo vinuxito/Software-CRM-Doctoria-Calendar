@@ -68,7 +68,9 @@
                     <span id="autosave-glow-dot" class="autosave-glow-dot"></span>
                     <span id="autosave-text"></span>
                 </span>
-                <span id="wizard-offline-banner" style="display: none; background: #dc3545; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-left: 10px; align-items: center;">SIN CONEXIÓN</span>
+                <button type="button" id="btn-export-pdf-expediente" class="btn-configurar" style="background: var(--brand-primary); color: #fff; border: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; margin-left: auto; margin-right: 10px; cursor: pointer;">
+                    <i class="fas fa-file-pdf"></i> Imprimir / PDF
+                </button>
                 <button type="button" id="patient-file-modal-close" class="calendar-modal-close">×</button>
             </div>
             <form id="wizard-form" class="calendar-modal-form" onsubmit="event.preventDefault();">
@@ -194,8 +196,11 @@
 
                 <!-- STEP 3: Exploración y Valoración -->
                 <div class="wizard-step-content" id="step-content-3">
-                    <h4 style="margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 5px; color: #333;"><i class="fas fa-stethoscope"></i> Exploración Física y Funcional</h4>
+                    <h4 style="margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 5px; color: #333;"><i class="fas fa-stethoscope"></i> Exploración Física y Mapa Anatómico de Dolor</h4>
                     
+                    <!-- Interactive Anatomical Body Map -->
+                    <?php require APPROOT . '/views/inc/body_map_svg.php'; ?>
+
                     <div class="form-grid-3">
                         <div>
                             <label>Estatura (cm)</label>

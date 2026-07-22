@@ -5,17 +5,22 @@ class Dashboard extends Controller {
     private $chatModel;
     private $patientFileModel;
     private $expedienteModel;
+    private $invoiceModel;
+    private $resourceModel;
 
     public function __construct(){
         if(!isset($_SESSION['user_id'])){
             // Redirect to login
             header('location: ' . URLROOT . '/users/login');
+            exit;
         }
         $this->appointmentModel = $this->model('Appointment');
         $this->userModel = $this->model('User');
         $this->chatModel = $this->model('Chat');
         $this->patientFileModel = $this->model('PatientFile');
         $this->expedienteModel = $this->model('Expediente');
+        $this->invoiceModel = $this->model('Invoice');
+        $this->resourceModel = $this->model('Resource');
     }
 
     public function index(){
@@ -98,8 +103,7 @@ class Dashboard extends Controller {
         $data = $this->baseData('panel');
         $data['appointments'] = $appointments;
         $data['total_appointments'] = count($appointments);
-        $data['online_appointments'] = (int) ceil(count($appointments) * 0.35);
-        $data['offline_appointments'] = count($appointments) - $data['online_appointments'];
+
         $data['pending_appointments'] = $pendingAppointments;
         $data['rejected_appointments'] = $rejectedAppointments;
         $data['summary'] = $summary;
@@ -114,7 +118,53 @@ class Dashboard extends Controller {
     }
 
     public function profile(){
-        $user = $this->userModel->getUserById($_SESSION['user_id']);
+        $userId = (int)$_SESSION['user_id'];
+
+        // Handle POST: update profile
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+                die('Solicitud no válida');
+            }
+            $name = trim($_POST['name'] ?? '');
+            $email = trim($_POST['email'] ?? '');
+            $phone = trim($_POST['phone'] ?? '');
+            $passwordRaw = trim($_POST['password'] ?? '');
+            $passwordConfirm = trim($_POST['password_confirm'] ?? '');
+
+            $existingUser = $this->userModel->getUserByEmail($email);
+
+            if(empty($name) || empty($email)){
+                $_SESSION['flash'] = 'Nombre y correo electrónico son obligatorios.';
+            } elseif(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+                $_SESSION['flash'] = 'El formato del correo electrónico no es válido.';
+            } elseif($existingUser && (int)$existingUser->id !== $userId){
+                $_SESSION['flash'] = 'El correo electrónico ya está registrado por otro usuario.';
+            } elseif(!empty($passwordRaw) && $passwordRaw !== $passwordConfirm){
+                $_SESSION['flash'] = 'Las contraseñas no coinciden.';
+            } elseif(!empty($passwordRaw) && strlen($passwordRaw) < 6){
+                $_SESSION['flash'] = 'La contraseña debe tener al menos 6 caracteres.';
+            } else {
+                $data = [
+                    'id' => $userId,
+                    'name' => $name,
+                    'email' => $email,
+                    'phone' => $phone,
+                    'role' => $_SESSION['user_role'],
+                    'password' => !empty($passwordRaw) ? password_hash($passwordRaw, PASSWORD_DEFAULT) : ''
+                ];
+                if($this->userModel->updateUser($data)){
+                    $_SESSION['user_name'] = $name;
+                    $_SESSION['user_email'] = $email;
+                    $_SESSION['flash'] = 'Perfil actualizado exitosamente.';
+                } else {
+                    $_SESSION['flash'] = 'Ocurrió un error al actualizar el perfil.';
+                }
+            }
+            header('location: ' . URLROOT . '/dashboard/profile');
+            return;
+        }
+
+        $user = $this->userModel->getUserById($userId);
         $data = $this->baseData('profile');
         $data['profile'] = $user;
         $this->view('dashboard/index', $data);
@@ -328,68 +378,6 @@ class Dashboard extends Controller {
             return;
         }
 
-        // Handle POST actions: update patient profile + clinical file
-        if($_SERVER['REQUEST_METHOD'] === 'POST'){
-            $patientId = (int)($_POST['patient_id'] ?? 0);
-            $name = trim($_POST['name'] ?? '');
-            $email = trim($_POST['email'] ?? '');
-            $phone = trim($_POST['phone'] ?? '');
-            
-            $dob = trim($_POST['dob'] ?? '');
-            $address = trim($_POST['address'] ?? '');
-            $bloodType = trim($_POST['blood_type'] ?? '');
-            $allergies = trim($_POST['allergies'] ?? '');
-            $medicalHistory = trim($_POST['medical_history'] ?? '');
-            $medications = trim($_POST['medications'] ?? '');
-            $clinicalNotes = trim($_POST['clinical_notes'] ?? '');
-
-            $existingUser = $this->userModel->getUserByEmail($email);
-
-            if($patientId <= 0){
-                $_SESSION['flash'] = 'ID de paciente no válido.';
-            } elseif(empty($name) || empty($email)){
-                $_SESSION['flash'] = 'Nombre y Correo electrónico son obligatorios.';
-            } elseif(!filter_var($email, FILTER_VALIDATE_EMAIL)){
-                $_SESSION['flash'] = 'El formato del correo electrónico no es válido.';
-            } elseif($existingUser && (int)$existingUser->id !== $patientId){
-                $_SESSION['flash'] = 'El correo electrónico ya está registrado por otro usuario.';
-            } else {
-                // 1. Update User basic info
-                $userData = [
-                    'id' => $patientId,
-                    'name' => $name,
-                    'email' => $email,
-                    'phone' => $phone,
-                    'role' => 'cliente',
-                    'password' => '' // Keep existing password
-                ];
-                $userSuccess = $this->userModel->updateUser($userData);
-
-                // 2. Update Patient File clinical info
-                $fileData = [
-                    'patient_id' => $patientId,
-                    'dob' => $dob,
-                    'address' => $address,
-                    'blood_type' => $bloodType,
-                    'allergies' => $allergies,
-                    'medical_history' => $medicalHistory,
-                    'medications' => $medications,
-                    'clinical_notes' => $clinicalNotes
-                ];
-                $fileSuccess = $this->patientFileModel->updateFile($fileData);
-
-                if($userSuccess && $fileSuccess){
-                    $_SESSION['flash'] = 'Expediente digital actualizado exitosamente.';
-                    error_log("AUDIT LOG: Admin/Medico User [{$_SESSION['user_email']}] UPDATED Patient Digital File for ID [{$patientId}]. SUCCESS.");
-                } else {
-                    $_SESSION['flash'] = 'Ocurrió un error al guardar el expediente.';
-                    error_log("AUDIT LOG: Admin/Medico User [{$_SESSION['user_email']}] UPDATED Patient Digital File for ID [{$patientId}]. FAILED.");
-                }
-            }
-            header('location: ' . URLROOT . '/dashboard/patients');
-            return;
-        }
-
         $patients = $this->userModel->getUsersByRole('cliente');
         // Attach clinical record to each patient
         foreach($patients as $p){
@@ -422,6 +410,13 @@ class Dashboard extends Controller {
             exit;
         }
 
+        // CSRF verification for JSON API
+        $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+        if (!verifyCsrfToken($csrfToken)) {
+            echo json_encode(['status' => 'error', 'message' => 'Token CSRF inválido']);
+            exit;
+        }
+
         $raw = file_get_contents('php://input');
         $payload = json_decode($raw, true);
 
@@ -443,6 +438,261 @@ class Dashboard extends Controller {
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al guardar el expediente']);
         }
+        exit;
+    }
+
+    public function globalSearch(){
+        header('Content-Type: application/json');
+        $q = trim($_GET['q'] ?? '');
+        if(strlen($q) < 2){
+            echo json_encode(['results' => []]);
+            exit;
+        }
+
+        $results = [];
+
+        // 1. Search Patients
+        $patients = $this->userModel->getUsersByRole('cliente');
+        foreach($patients as $p){
+            if(stripos($p->name, $q) !== false || stripos($p->email, $q) !== false || stripos($p->phone ?? '', $q) !== false){
+                $results[] = [
+                    'title' => $p->name,
+                    'subtitle' => 'Paciente • ' . $p->email,
+                    'category' => 'Paciente',
+                    'icon' => 'fas fa-notes-medical',
+                    'url' => URLROOT . '/dashboard/patients?highlight=' . $p->id
+                ];
+            }
+        }
+
+        // 2. Search Specialists / Doctors
+        $doctors = $this->userModel->getUsersByRole('medico');
+        foreach($doctors as $d){
+            if(stripos($d->name, $q) !== false || stripos($d->email, $q) !== false){
+                $results[] = [
+                    'title' => $d->name,
+                    'subtitle' => 'Médico Especialista • ' . $d->email,
+                    'category' => 'Especialista',
+                    'icon' => 'fas fa-user-md',
+                    'url' => URLROOT . '/dashboard/doctors'
+                ];
+            }
+        }
+
+        // 3. Search Appointments
+        $appointments = $this->appointmentModel->getAppointments();
+        foreach($appointments as $app){
+            if(stripos($app->title, $q) !== false || stripos($app->patient_name ?? '', $q) !== false || stripos($app->doctor_name ?? '', $q) !== false){
+                $results[] = [
+                    'title' => $app->title,
+                    'subtitle' => ($app->patient_name ?? 'Paciente') . ' con ' . ($app->doctor_name ?? 'Médico'),
+                    'category' => 'Cita',
+                    'icon' => 'far fa-calendar-alt',
+                    'url' => URLROOT . '/dashboard/calendar'
+                ];
+            }
+        }
+
+        echo json_encode(['results' => array_slice($results, 0, 10)]);
+        exit;
+    }
+
+    public function sendAppointmentReminder($appointmentId){
+        require_once APPROOT . '/helpers/WhatsAppService.php';
+
+        $appointment = $this->appointmentModel->getAppointmentById($appointmentId);
+        if (!$appointment) {
+            $_SESSION['flash'] = 'Cita no encontrada.';
+            header('location: ' . URLROOT . '/dashboard/calendar');
+            return;
+        }
+
+        $token = bin2hex(random_bytes(16));
+        $this->appointmentModel->setConfirmationToken($appointmentId, $token);
+
+        $waUrl = WhatsAppService::generateReminderUrl(
+            $appointment->contact_phone ?: ($appointment->patient_phone ?? ''),
+            $appointment->patient_name ?? 'Paciente',
+            $appointment->doctor_name ?? 'Dr. Especialista',
+            $appointment->start_date,
+            $token
+        );
+
+        header('location: ' . $waUrl);
+        exit;
+    }
+
+    public function confirmAppointment($token){
+        if (empty($token)) {
+            die('Token de confirmación no válido.');
+        }
+
+        $confirmed = $this->appointmentModel->confirmAppointmentByToken($token);
+        if ($confirmed) {
+            echo '<div style="font-family: sans-serif; text-align: center; padding: 50px;">' .
+                 '<h1 style="color: #00a29a;">¡Cita Confirmada Exitosamente!</h1>' .
+                 '<p>Tu asistencia ha sido registrada en el sistema de Doctoria CRM. ¡Te esperamos!</p>' .
+                 '</div>';
+        } else {
+            echo '<div style="font-family: sans-serif; text-align: center; padding: 50px;">' .
+                 '<h1 style="color: #e53e3e;">Enlace de confirmación no válido o expirado.</h1>' .
+                 '</div>';
+        }
+        exit;
+    }
+
+    public function invoices(){
+        $role = $_SESSION['user_role'] ?? 'cliente';
+        if(!in_array($role, ['admin', 'medico'], true)){
+            header('location: ' . URLROOT . '/dashboard');
+            return;
+        }
+
+        $invoices = $this->invoiceModel->getInvoices();
+        $patients = $this->userModel->getUsersByRole('cliente');
+
+        $data = $this->baseData('invoices');
+        $data['invoices'] = $invoices;
+        $data['patients'] = $patients;
+
+        $this->view('dashboard/index', $data);
+    }
+
+    public function saveFiscalProfile(){
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+                die('Solicitud no válida');
+            }
+
+            $patientId = (int)($_POST['patient_id'] ?? 0);
+            $rfc = strtoupper(trim($_POST['rfc'] ?? ''));
+            $razonSocial = trim($_POST['razon_social'] ?? '');
+            $codigoPostal = trim($_POST['codigo_postal'] ?? '');
+            $usoCfdi = trim($_POST['uso_cfdi'] ?? 'D01');
+
+            if ($patientId <= 0 || strlen($rfc) < 12 || empty($razonSocial) || strlen($codigoPostal) !== 5) {
+                $_SESSION['flash'] = 'Por favor verifica los datos fiscales (RFC válido y CP de 5 dígitos).';
+            } else {
+                $saved = $this->invoiceModel->saveFiscalProfile([
+                    'patient_id' => $patientId,
+                    'rfc' => $rfc,
+                    'razon_social' => $razonSocial,
+                    'codigo_postal' => $codigoPostal,
+                    'uso_cfdi' => $usoCfdi
+                ]);
+                if ($saved) {
+                    $_SESSION['flash'] = 'Perfil Fiscal RFC guardado correctamente.';
+                } else {
+                    $_SESSION['flash'] = 'Error al guardar el perfil fiscal.';
+                }
+            }
+        }
+        header('location: ' . URLROOT . '/dashboard/invoices');
+        exit;
+    }
+
+    public function analytics(){
+        $role = $_SESSION['user_role'] ?? 'cliente';
+        if(!in_array($role, ['admin', 'medico'], true)){
+            header('location: ' . URLROOT . '/dashboard');
+            return;
+        }
+
+        $patients = $this->userModel->getUsersByRole('cliente');
+        $selectedPatientId = (int)($_GET['patient_id'] ?? ($patients[0]->id ?? 0));
+
+        $progressHistory = [];
+        if ($selectedPatientId > 0) {
+            $progressHistory = $this->expedienteModel->getPatientProgressHistory($selectedPatientId);
+        }
+
+        $data = $this->baseData('analytics');
+        $data['patients'] = $patients;
+        $data['selected_patient_id'] = $selectedPatientId;
+        $data['progress_history'] = $progressHistory;
+
+        $this->view('dashboard/index', $data);
+    }
+
+    public function exportExpedientePdf($patientId){
+        $role = $_SESSION['user_role'] ?? 'cliente';
+        if(!in_array($role, ['admin', 'medico'], true)){
+            die('No autorizado');
+        }
+
+        $expedienteData = $this->expedienteModel->loadExpedienteData((int)$patientId);
+        if (!$expedienteData || empty($expedienteData['patient'])) {
+            die('Expediente no encontrado.');
+        }
+
+        $data = [
+            'patient' => $expedienteData['patient'],
+            'expediente' => $expedienteData['expediente'],
+            'antecedentes' => $expedienteData['antecedentes'],
+            'exploracion' => $expedienteData['exploracion'],
+            'marcha' => $expedienteData['marcha'],
+            'dolor_puntos' => $expedienteData['dolor_puntos'] ?? []
+        ];
+
+        require_once APPROOT . '/views/dashboard/expediente_pdf.php';
+        exit;
+    }
+
+    public function resources(){
+        $role = $_SESSION['user_role'] ?? 'cliente';
+        if(!in_array($role, ['admin', 'medico'], true)){
+            header('location: ' . URLROOT . '/dashboard');
+            return;
+        }
+
+        $resources = $this->resourceModel->getResources();
+
+        $data = $this->baseData('resources');
+        $data['resources'] = $resources;
+
+        $this->view('dashboard/index', $data);
+    }
+
+    public function addResource(){
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+                die('Solicitud no válida');
+            }
+
+            $name = trim($_POST['name'] ?? '');
+            $type = trim($_POST['type'] ?? 'cubiculo');
+
+            if (!empty($name)) {
+                $this->resourceModel->addResource([
+                    'name' => $name,
+                    'type' => $type,
+                    'status' => 'available'
+                ]);
+                $_SESSION['flash'] = 'Cubículo / Recurso registrado correctamente.';
+            } else {
+                $_SESSION['flash'] = 'Ingresa un nombre para el recurso.';
+            }
+        }
+        header('location: ' . URLROOT . '/dashboard/resources');
+        exit;
+    }
+
+    public function toggleResourceStatus(){
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+                die('Solicitud no válida');
+            }
+
+            $resId = (int)($_POST['resource_id'] ?? 0);
+            $currStatus = trim($_POST['current_status'] ?? 'available');
+            $newStatus = ($currStatus === 'available') ? 'maintenance' : 'available';
+
+            if ($resId > 0) {
+                $this->resourceModel->updateStatus($resId, $newStatus);
+                $_SESSION['flash'] = 'Estado del recurso actualizado.';
+            }
+        }
+        header('location: ' . URLROOT . '/dashboard/resources');
         exit;
     }
 }

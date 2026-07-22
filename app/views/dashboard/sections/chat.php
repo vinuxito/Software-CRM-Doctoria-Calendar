@@ -2,18 +2,13 @@
     <div class="tol-left"><div class="date-title"><span>Mensajes</span></div></div>
 </header>
 <section class="crm-content chat-reference">
-    <aside class="chat-list ref">
+<aside class="chat-list ref">
         <?php
-            $chatAvatars = [
-                URLROOT . '/../img/doctor1.png',
-                URLROOT . '/../img/doctor2.png',
-                URLROOT . '/../img/doctor3.png',
-                URLROOT . '/../img/doctor4.png'
-            ];
+            $avatarColors = ['#E8A0AC', '#00a29a', '#6C63FF', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7'];
         ?>
         <?php foreach (($data['chat_contacts'] ?? []) as $contact) : ?>
             <a class="chat-item" href="<?php echo URLROOT; ?>/dashboard/chat?with=<?php echo (int)$contact->id; ?>">
-                <div class="chat-avatar-photo" style="background-image:url('<?php echo $chatAvatars[$contact->id % count($chatAvatars)]; ?>')"></div>
+                <div class="chat-avatar-photo" style="background:<?php echo $avatarColors[$contact->id % count($avatarColors)]; ?>;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;border-radius:50%;"><?php echo strtoupper(substr($contact->name, 0, 1)); ?></div>
                 <div class="chat-meta">
                     <div class="chat-name"><?php echo htmlspecialchars($contact->name); ?></div>
                     <div class="chat-last"><?php echo htmlspecialchars($contact->last_message ?? $contact->role); ?></div>
@@ -26,7 +21,7 @@
             <div class="chat-messages">
                 <?php foreach (($data['chat_messages'] ?? []) as $message) : ?>
                     <div class="chat-row <?php echo ((int)$message->sender_id === (int)$_SESSION['user_id']) ? 'own' : ''; ?>">
-                        <div class="chat-avatar-mini" style="background-image:url('<?php echo $chatAvatars[$message->sender_id % count($chatAvatars)]; ?>')"></div>
+                        <div class="chat-avatar-mini" style="background:<?php echo $avatarColors[$message->sender_id % count($avatarColors)]; ?>;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:11px;border-radius:50%;"><?php echo strtoupper(substr($message->sender_name, 0, 1)); ?></div>
                         <div class="chat-bubble-live">
                             <strong><?php echo htmlspecialchars($message->sender_name); ?>:</strong>
                             <?php echo htmlspecialchars($message->message); ?>

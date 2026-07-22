@@ -102,6 +102,11 @@ class Expediente {
             $marcha = $this->db->single();
         }
 
+        // Fetch dolor_puntos (interactive body map)
+        $this->db->query('SELECT * FROM dolor_puntos WHERE expediente_id = :expediente_id');
+        $this->db->bind(':expediente_id', $expedienteId);
+        $dolor_puntos = $this->db->resultSet();
+
         return [
             'expediente' => $draft,
             'patient' => $patient,
@@ -111,7 +116,8 @@ class Expediente {
             'padecimiento' => $padecimiento,
             'problemas' => $problemas,
             'plan_sesiones' => $plan_sesiones,
-            'marcha' => $marcha
+            'marcha' => $marcha,
+            'dolor_puntos' => $dolor_puntos
         ];
     }
 
@@ -341,6 +347,44 @@ class Expediente {
             $this->db->execute();
         }
 
+        // Save dolor_puntos (interactive body map pins)
+        if (isset($data['dolor_puntos']) && is_array($data['dolor_puntos'])) {
+            $this->db->query('DELETE FROM dolor_puntos WHERE expediente_id = :expediente_id');
+            $this->db->bind(':expediente_id', $expedienteId);
+            $this->db->execute();
+
+            foreach ($data['dolor_puntos'] as $p) {
+                if (empty($p['region'])) continue;
+                $this->db->query('INSERT INTO dolor_puntos (expediente_id, region, vista, eva_nivel, tipo_dolor, notas, pos_x, pos_y) VALUES (:expediente_id, :region, :vista, :eva_nivel, :tipo_dolor, :notas, :pos_x, :pos_y)');
+                $this->db->bind(':expediente_id', $expedienteId);
+                $this->db->bind(':region', $p['region'] ?? 'zona');
+                $this->db->bind(':vista', $p['vista'] ?? 'anterior');
+                $this->db->bind(':eva_nivel', (int)($p['eva_nivel'] ?? 5));
+                $this->db->bind(':tipo_dolor', $p['tipo_dolor'] ?? 'sordo');
+                $this->db->bind(':notas', $p['notas'] ?? null);
+                $this->db->bind(':pos_x', (float)($p['pos_x'] ?? 50.0));
+                $this->db->bind(':pos_y', (float)($p['pos_y'] ?? 50.0));
+                $this->db->execute();
+            }
+        }
+
         return true;
+    }
+
+    public function getPatientProgressHistory($patientId){
+        $this->db->query('
+            SELECT 
+                e.id AS expediente_id,
+                e.eva_dolor,
+                e.created_at,
+                m.total_general AS tinetti_score,
+                (SELECT COUNT(*) FROM plan_sesiones ps WHERE ps.expediente_id = e.id) AS sesiones_totales
+            FROM expedientes e
+            LEFT JOIN marchas m ON m.expediente_id = e.id
+            WHERE e.patient_id = :patient_id
+            ORDER BY e.created_at ASC
+        ');
+        $this->db->bind(':patient_id', (int)$patientId);
+        return $this->db->resultSet();
     }
 }

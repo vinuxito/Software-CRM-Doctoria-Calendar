@@ -5,35 +5,19 @@
             <i class="fas fa-search"></i>
             <input id="panel-live-search" type="text" placeholder="Buscar cita, cliente o médico...">
         </div>
-        <select class="btn-outline"><option>Año actual</option></select>
-        <select class="btn-outline"><option>Todos los especialistas</option></select>
-        <select class="btn-outline"><option>Todas las direcciones</option></select>
     </div>
 </header>
 <section class="crm-content panel-layout">
     <div class="panel-left">
         <div class="panel-title">Citas reservadas</div>
         <div class="panel-kpi"><?php echo number_format($data['total_appointments'] ?? 0, 0, ',', '.'); ?></div>
-        <div class="panel-bars">
-            <div class="bar-wrap"><div class="bar-off" style="height:68%"></div><div class="bar-on" style="height:10%"></div></div>
-            <div class="bar-wrap"><div class="bar-off" style="height:40%"></div><div class="bar-on" style="height:8%"></div></div>
-            <div class="bar-wrap"><div class="bar-off" style="height:26%"></div><div class="bar-on" style="height:5%"></div></div>
-            <div class="bar-wrap"><div class="bar-off" style="height:55%"></div><div class="bar-on" style="height:9%"></div></div>
-            <div class="bar-wrap"><div class="bar-off" style="height:48%"></div><div class="bar-on" style="height:7%"></div></div>
-            <div class="bar-wrap"><div class="bar-off" style="height:72%"></div><div class="bar-on" style="height:12%"></div></div>
-            <div class="bar-wrap"><div class="bar-off" style="height:62%"></div><div class="bar-on" style="height:10%"></div></div>
-        </div>
     </div>
     <div class="panel-right">
-        <div class="panel-title">Citas reservadas online</div>
-        <div class="panel-kpi online"><?php echo (int) ($data['online_appointments'] ?? 0); ?> citas</div>
-        <div class="panel-stat-row"><span>Citas pendientes</span><strong><?php echo (int)($data['summary']->pending ?? 0); ?></strong></div>
-        <div class="panel-stat-row"><span>Citas aprobadas</span><strong><?php echo (int)($data['summary']->approved ?? 0); ?></strong></div>
-        <div class="panel-title small">Dónde se reservaron</div>
-        <div class="panel-stat-row"><span>Doctoralia</span><strong>70%</strong></div>
-        <div class="panel-stat-row"><span>Su web</span><strong>25%</strong></div>
-        <div class="panel-stat-row"><span>Buzón de voz</span><strong>5%</strong></div>
-        <div class="panel-stat-row"><span>Campañas</span><strong>0%</strong></div>
+        <div class="panel-title">Resumen de citas</div>
+        <div class="panel-stat-row"><span>Pendientes</span><strong><?php echo (int)($data['summary']->pending ?? 0); ?></strong></div>
+        <div class="panel-stat-row"><span>Aprobadas</span><strong><?php echo (int)($data['summary']->approved ?? 0); ?></strong></div>
+        <div class="panel-stat-row"><span>Completadas</span><strong><?php echo (int)($data['summary']->completed ?? 0); ?></strong></div>
+        <div class="panel-stat-row"><span>Rechazadas</span><strong><?php echo (int)($data['summary']->rejected ?? 0); ?></strong></div>
     </div>
 </section>
 <section class="crm-content">

@@ -991,7 +991,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 tronco: getRadioValue('tinetti-tronco'),
                 postura_marcha: getRadioValue('tinetti-postura_marcha'),
                 total_balance_manual: sbalVal
-            }
+            },
+            dolor_puntos: window.activePainPins || []
         };
         return payload;
     }
@@ -1042,9 +1043,13 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!payload.patient.name) return;
 
             var url = (window.URLROOT || '') + `/dashboard/saveExpediente/${activePatientId}`;
+            var csrfToken = document.querySelector('meta[name="csrf-token"]');
             fetch(url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken ? csrfToken.getAttribute('content') : ''
+                },
                 body: JSON.stringify(payload)
             })
             .then(function (res) { return res.json(); })
@@ -1161,4 +1166,96 @@ document.addEventListener('DOMContentLoaded', function () {
         if (offlineBanner) offlineBanner.style.display = 'inline-flex';
         updateAutosaveUI('error', 'Guardado localmente');
     });
+
+    // Interactive Body Map Pin Logic
+    window.activePainPins = [];
+
+    var wrappers = document.querySelectorAll('.body-map-wrapper');
+    wrappers.forEach(function (wrap) {
+        wrap.addEventListener('click', function (e) {
+            var rect = wrap.getBoundingClientRect();
+            var xPct = ((e.clientX - rect.left) / rect.width) * 100;
+            var yPct = ((e.clientY - rect.top) / rect.height) * 100;
+            var vista = wrap.getAttribute('data-vista') || 'anterior';
+
+            var eva = prompt('Grado de Dolor en la Escala EVA (1 - 10):', '5');
+            if (eva === null) return;
+            var evaNum = parseInt(eva) || 5;
+            if (evaNum < 1) evaNum = 1;
+            if (evaNum > 10) evaNum = 10;
+
+            var tipo = prompt('Tipo de Dolor (Punzante, Sordo, Urente, Opresivo):', 'Sordo');
+
+            window.activePainPins.push({
+                region: 'Punto ' + (window.activePainPins.length + 1),
+                vista: vista,
+                eva_nivel: evaNum,
+                tipo_dolor: tipo || 'Sordo',
+                notas: '',
+                pos_x: xPct,
+                pos_y: yPct
+            });
+
+            renderBodyMapPins();
+            runAutosave();
+        });
+    });
+
+    window.renderBodyMapPins = function () {
+        var layerAnt = document.getElementById('pins-layer-anterior');
+        var layerPost = document.getElementById('pins-layer-posterior');
+        if (layerAnt) layerAnt.innerHTML = '';
+        if (layerPost) layerPost.innerHTML = '';
+
+        (window.activePainPins || []).forEach(function (pin, idx) {
+            var targetLayer = pin.vista === 'posterior' ? layerPost : layerAnt;
+            if (!targetLayer) return;
+
+            var pinEl = document.createElement('div');
+            pinEl.className = 'pain-pin-dot';
+            pinEl.style.position = 'absolute';
+            pinEl.style.left = pin.pos_x + '%';
+            pinEl.style.top = pin.pos_y + '%';
+            pinEl.style.transform = 'translate(-50%, -50%)';
+            pinEl.style.width = '20px';
+            pinEl.style.height = '20px';
+            pinEl.style.borderRadius = '50%';
+            pinEl.style.background = pin.eva_nivel >= 7 ? '#ef4444' : (pin.eva_nivel >= 4 ? '#f59e0b' : '#3b82f6');
+            pinEl.style.color = '#ffffff';
+            pinEl.style.fontSize = '10px';
+            pinEl.style.fontWeight = 'bold';
+            pinEl.style.display = 'flex';
+            pinEl.style.alignItems = 'center';
+            pinEl.style.justifyContent = 'center';
+            pinEl.style.border = '2px solid #ffffff';
+            pinEl.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+            pinEl.style.pointerEvents = 'auto';
+            pinEl.style.cursor = 'pointer';
+            pinEl.title = (pin.region || 'Punto') + ' (EVA: ' + pin.eva_nivel + '/10, ' + pin.tipo_dolor + ')';
+            pinEl.textContent = pin.eva_nivel;
+
+            pinEl.addEventListener('click', function (ev) {
+                ev.stopPropagation();
+                if (confirm('¿Eliminar este punto de dolor (EVA ' + pin.eva_nivel + ')?')) {
+                    window.activePainPins.splice(idx, 1);
+                    renderBodyMapPins();
+                    runAutosave();
+                }
+            });
+
+            targetLayer.appendChild(pinEl);
+        });
+    };
+
+    var exportPdfBtn = document.getElementById('btn-export-pdf-expediente');
+    if (exportPdfBtn) {
+        exportPdfBtn.addEventListener('click', function () {
+            if (activePatientId) {
+                var url = (window.URLROOT || '') + '/dashboard/exportExpedientePdf/' + activePatientId;
+                window.open(url, '_blank');
+            } else {
+                alert('Selecciona un expediente primero.');
+            }
+        });
+    }
 });

@@ -5,15 +5,7 @@
         <button id="crm-next" class="inline-nav">❯</button>
         <div class="date-title"><span id="crm-title">Cargando...</span></div>
     </div>
-    <div class="tol-right">
-        <div class="panel-search-wrap">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Buscar citas o pacientes...">
-        </div>
-        <select class="btn-outline"><option>Todos los consultorios</option></select>
-        <select class="btn-outline"><option>Todos los especialistas</option></select>
-        <button class="btn-outline"><i class="fas fa-filter"></i></button>
-    </div>
+    <div class="tol-right"></div>
 </header>
 <section class="crm-content">
     <div class="calendar-card">

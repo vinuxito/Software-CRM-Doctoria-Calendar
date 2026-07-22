@@ -1,6 +1,7 @@
 <?php
 // Database params
-define('DB_HOST', '127.0.0.1');
+define('DB_HOST', 'localhost');
+define('DB_SOCKET', '/lamp/mysql/mysql.sock');
 define('DB_USER', 'root');
 define('DB_PASS', 'M@chiavell1');
 define('DB_NAME', 'crm_doctoria');

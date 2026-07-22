@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'timeGridWeek',
         locale: 'es',
-        initialDate: '2026-03-14',
+        initialDate: new Date().toISOString().slice(0, 10),
         firstDay: 6,
         allDaySlot: false,
         selectable: true,
