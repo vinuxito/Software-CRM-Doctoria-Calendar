@@ -34,10 +34,12 @@ class Dashboard extends Controller {
         $appointments = $this->appointmentModel->getAppointmentsForUser($userId, $role);
         $doctors = $this->userModel->getUsersByRole('medico');
         $clients = $this->userModel->getUsersByRole('cliente');
+        $resources = $this->resourceModel->getResources();
         $data = $this->baseData('calendar');
         $data['appointments'] = $appointments;
         $data['doctors'] = $doctors;
         $data['clients'] = $clients;
+        $data['resources'] = $resources;
         $data['can_schedule'] = in_array($role, ['admin', 'medico', 'cliente']);
         $this->view('dashboard/index', $data);
     }
@@ -205,6 +207,7 @@ class Dashboard extends Controller {
 
         $doctorId = (int)($_POST['doctor_id'] ?? 0);
         $patientId = (int)($_POST['patient_id'] ?? 0);
+        $resourceId = (int)($_POST['resource_id'] ?? 0);
         $appointmentId = (int)($_POST['appointment_id'] ?? 0);
         $action = $_POST['appointment_action'] ?? 'save';
         $startDate = trim($_POST['start_date'] ?? '');
@@ -233,6 +236,7 @@ class Dashboard extends Controller {
                 'title' => $title,
                 'doctor_id' => $doctorId,
                 'patient_id' => $patientId,
+                'resource_id' => $resourceId,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
                 'contact_phone' => $contactPhone,
@@ -246,6 +250,7 @@ class Dashboard extends Controller {
                 'title' => $title,
                 'doctor_id' => $doctorId,
                 'patient_id' => $patientId,
+                'resource_id' => $resourceId,
                 'created_by' => (int)$_SESSION['user_id'],
                 'start_date' => $startDate,
                 'end_date' => $endDate,

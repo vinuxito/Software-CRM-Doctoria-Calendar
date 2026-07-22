@@ -26,6 +26,12 @@
                     <option value="<?php echo (int)$clientItem->id; ?>"><?php echo htmlspecialchars($clientItem->name); ?></option>
                 <?php endforeach; ?>
             </select>
+            <select name="resource_id">
+                <option value="">Cubículo / Sin asignar</option>
+                <?php foreach (($data['resources'] ?? []) as $resItem) : ?>
+                    <option value="<?php echo (int)$resItem->id; ?>"><?php echo htmlspecialchars($resItem->name); ?></option>
+                <?php endforeach; ?>
+            </select>
             <div class="quick-date-field">
                 <label class="field-label" for="start_date">Desde</label>
                 <input id="start_date" type="datetime-local" name="start_date" required>

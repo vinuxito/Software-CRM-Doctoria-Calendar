@@ -14,11 +14,13 @@ class Appointment {
                 doctor.phone AS doctor_phone,
                 patient.name AS patient_name,
                 patient.phone AS patient_phone,
-                creator.name AS created_by_name
+                creator.name AS created_by_name,
+                r.name AS resource_name
             FROM appointments a
             LEFT JOIN users doctor ON doctor.id = a.doctor_id
             LEFT JOIN users patient ON patient.id = a.patient_id
             LEFT JOIN users creator ON creator.id = a.created_by
+            LEFT JOIN clinic_resources r ON r.id = a.resource_id
             ORDER BY a.start_date ASC
         ');
         return $this->db->resultSet();
@@ -37,11 +39,13 @@ class Appointment {
                     doctor.phone AS doctor_phone,
                     patient.name AS patient_name,
                     patient.phone AS patient_phone,
-                    creator.name AS created_by_name
+                    creator.name AS created_by_name,
+                    r.name AS resource_name
                 FROM appointments a
                 LEFT JOIN users doctor ON doctor.id = a.doctor_id
                 LEFT JOIN users patient ON patient.id = a.patient_id
                 LEFT JOIN users creator ON creator.id = a.created_by
+                LEFT JOIN clinic_resources r ON r.id = a.resource_id
                 WHERE a.doctor_id = :user_id OR a.created_by = :user_id
                 ORDER BY a.start_date ASC
             ');
@@ -56,11 +60,13 @@ class Appointment {
                 doctor.phone AS doctor_phone,
                 patient.name AS patient_name,
                 patient.phone AS patient_phone,
-                creator.name AS created_by_name
+                creator.name AS created_by_name,
+                r.name AS resource_name
             FROM appointments a
             LEFT JOIN users doctor ON doctor.id = a.doctor_id
             LEFT JOIN users patient ON patient.id = a.patient_id
             LEFT JOIN users creator ON creator.id = a.created_by
+            LEFT JOIN clinic_resources r ON r.id = a.resource_id
             WHERE a.patient_id = :user_id OR a.created_by = :user_id
             ORDER BY a.start_date ASC
         ');
@@ -71,14 +77,15 @@ class Appointment {
     public function addAppointment($data){
         $this->db->query('
             INSERT INTO appointments 
-            (user_id, title, doctor_id, patient_id, created_by, start_date, end_date, contact_phone, description, status, source_channel) 
+            (user_id, title, doctor_id, patient_id, resource_id, created_by, start_date, end_date, contact_phone, description, status, source_channel) 
             VALUES
-            (:user_id, :title, :doctor_id, :patient_id, :created_by, :start_date, :end_date, :contact_phone, :description, :status, :source_channel)
+            (:user_id, :title, :doctor_id, :patient_id, :resource_id, :created_by, :start_date, :end_date, :contact_phone, :description, :status, :source_channel)
         ');
         $this->db->bind(':user_id', $data['user_id']);
         $this->db->bind(':title', $data['title']);
         $this->db->bind(':doctor_id', $data['doctor_id']);
         $this->db->bind(':patient_id', $data['patient_id']);
+        $this->db->bind(':resource_id', !empty($data['resource_id']) ? (int)$data['resource_id'] : null);
         $this->db->bind(':created_by', $data['created_by']);
         $this->db->bind(':start_date', $data['start_date']);
         $this->db->bind(':end_date', $data['end_date']);
@@ -103,6 +110,7 @@ class Appointment {
                 title = :title,
                 doctor_id = :doctor_id,
                 patient_id = :patient_id,
+                resource_id = :resource_id,
                 user_id = :user_id,
                 start_date = :start_date,
                 end_date = :end_date,
@@ -115,6 +123,7 @@ class Appointment {
         $this->db->bind(':title', $data['title']);
         $this->db->bind(':doctor_id', (int)$data['doctor_id']);
         $this->db->bind(':patient_id', (int)$data['patient_id']);
+        $this->db->bind(':resource_id', !empty($data['resource_id']) ? (int)$data['resource_id'] : null);
         $this->db->bind(':user_id', (int)$data['patient_id']);
         $this->db->bind(':start_date', $data['start_date']);
         $this->db->bind(':end_date', $data['end_date']);
