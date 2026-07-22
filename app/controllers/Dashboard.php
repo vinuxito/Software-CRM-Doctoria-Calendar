@@ -7,6 +7,9 @@ class Dashboard extends Controller {
     private $expedienteModel;
     private $invoiceModel;
     private $resourceModel;
+    private $clinicModel;
+    private $paymentModel;
+    private $pathwayModel;
 
     public function __construct(){
         if(!isset($_SESSION['user_id'])){
@@ -21,6 +24,13 @@ class Dashboard extends Controller {
         $this->expedienteModel = $this->model('Expediente');
         $this->invoiceModel = $this->model('Invoice');
         $this->resourceModel = $this->model('Resource');
+        $this->clinicModel = $this->model('Clinic');
+        $this->paymentModel = $this->model('Payment');
+        $this->pathwayModel = $this->model('CarePathway');
+
+        if(!isset($_SESSION['active_clinic_id'])){
+            $_SESSION['active_clinic_id'] = 1;
+        }
     }
 
     public function index(){
@@ -707,5 +717,66 @@ class Dashboard extends Controller {
         }
         header('location: ' . URLROOT . '/dashboard/resources');
         exit;
+    }
+
+    public function switchClinic(){
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+                die('Solicitud no válida');
+            }
+            $clinicId = (int)($_POST['clinic_id'] ?? 1);
+            $_SESSION['active_clinic_id'] = $clinicId;
+            error_log("AUDIT LOG: User [{$_SESSION['user_email']}] SWITCHED active clinic to ID [{$clinicId}].");
+            $_SESSION['flash'] = 'Sede / Clínica cambiada correctamente.';
+        }
+        header('location: ' . URLROOT . '/dashboard/calendar');
+        exit;
+    }
+
+    public function payments(){
+        $role = $_SESSION['user_role'] ?? 'cliente';
+        if(!in_array($role, ['admin', 'medico'], true)){
+            header('location: ' . URLROOT . '/dashboard');
+            return;
+        }
+
+        $transactions = $this->paymentModel->getTransactions($_SESSION['active_clinic_id']);
+        $summary = $this->paymentModel->getFinancialSummary();
+
+        $data = $this->baseData('payments');
+        $data['transactions'] = $transactions;
+        $data['summary'] = $summary;
+
+        $this->view('dashboard/index', $data);
+    }
+
+    public function pathways(){
+        $role = $_SESSION['user_role'] ?? 'cliente';
+        if(!in_array($role, ['admin', 'medico'], true)){
+            header('location: ' . URLROOT . '/dashboard');
+            return;
+        }
+
+        $pathways = $this->pathwayModel->getPathways();
+        $patients = $this->userModel->getUsersByRole('cliente');
+
+        $data = $this->baseData('pathways');
+        $data['pathways'] = $pathways;
+        $data['patients'] = $patients;
+
+        $this->view('dashboard/index', $data);
+    }
+
+    public function startTelemedSession($appointmentId){
+        require_once APPROOT . '/helpers/TelemedService.php';
+        $token = TelemedService::generateRoomToken((int)$appointmentId);
+        error_log("AUDIT LOG: User [{$_SESSION['user_email']}] STARTED Telemed Session for appointment ID [{$appointmentId}]. Token: [{$token}]");
+        
+        $data = $this->baseData('telemed');
+        $data['appointment_id'] = (int)$appointmentId;
+        $data['room_token'] = $token;
+        $data['join_url'] = TelemedService::buildPatientJoinUrl($token);
+
+        $this->view('dashboard/index', $data);
     }
 }

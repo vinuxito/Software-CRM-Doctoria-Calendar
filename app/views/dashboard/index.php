@@ -26,9 +26,12 @@
         <a href="<?php echo URLROOT; ?>/dashboard/invoices" class="nav-icon <?php echo $section === 'invoices' ? 'active' : ''; ?>" title="Facturación CFDI 4.0"><i class="fas fa-file-invoice-dollar"></i><span class="nav-label">Facturación</span></a>
         <a href="<?php echo URLROOT; ?>/dashboard/analytics" class="nav-icon <?php echo $section === 'analytics' ? 'active' : ''; ?>" title="Analítica Clínica"><i class="fas fa-chart-pie"></i><span class="nav-label">Analítica</span></a>
         <a href="<?php echo URLROOT; ?>/dashboard/resources" class="nav-icon <?php echo $section === 'resources' ? 'active' : ''; ?>" title="Recursos y Cubículos"><i class="fas fa-door-open"></i><span class="nav-label">Recursos</span></a>
+        <a href="<?php echo URLROOT; ?>/dashboard/payments" class="nav-icon <?php echo $section === 'payments' ? 'active' : ''; ?>" title="Libro Contable & Comisiones"><i class="fas fa-wallet"></i><span class="nav-label">Contabilidad</span></a>
+        <a href="<?php echo URLROOT; ?>/dashboard/pathways" class="nav-icon <?php echo $section === 'pathways' ? 'active' : ''; ?>" title="Rutas de Rehabilitación"><i class="fas fa-route"></i><span class="nav-label">Protocolos</span></a>
         <?php endif; ?>
 
         <a href="<?php echo URLROOT; ?>/dashboard/chat" class="nav-icon <?php echo $section === 'chat' ? 'active' : ''; ?>" title="Mensajería"><i class="far fa-comment"></i><span class="nav-label">Mensajes</span></a>
+        <a href="<?php echo URLROOT; ?>/dashboard/telemed" class="nav-icon <?php echo $section === 'telemed' ? 'active' : ''; ?>" title="Telemedicina"><i class="fas fa-video"></i><span class="nav-label">Telemed</span></a>
         
         <?php if (($data['user_role'] ?? '') === 'admin') : ?>
         <a href="<?php echo URLROOT; ?>/dashboard/users" class="nav-icon <?php echo $section === 'users' ? 'active' : ''; ?>" title="Control de Usuarios"><i class="fas fa-users-cog"></i><span class="nav-label">Usuarios</span></a>
@@ -53,14 +56,11 @@
                 $flashType = $data['flash_type'] ?? 'auto';
                 if ($flashType === 'auto') {
                     $isError = preg_match('/(error|incorrecto|ya está|no puedes|no válido|campos obligatorios|completados)/i', $data['flash']);
-                } else {
-                    $isError = ($flashType === 'error');
+                    $flashType = $isError ? 'error' : 'success';
                 }
-                $flashClass = $isError ? 'flash-bar flash-danger' : 'flash-bar flash-success';
-                $flashIcon = $isError ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
             ?>
-            <div class="<?php echo $flashClass; ?>">
-                <i class="<?php echo $flashIcon; ?>"></i>
+            <div class="flash-bar flash-bar-<?php echo $flashType; ?>">
+                <i class="fas <?php echo $flashType === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'; ?>"></i>
                 <span><?php echo htmlspecialchars($data['flash']); ?></span>
             </div>
         <?php endif; ?>
@@ -85,6 +85,12 @@
             <?php require APPROOT . '/views/dashboard/sections/analytics.php'; ?>
         <?php elseif ($section === 'resources' && file_exists(APPROOT . '/views/dashboard/sections/resources.php')) : ?>
             <?php require APPROOT . '/views/dashboard/sections/resources.php'; ?>
+        <?php elseif ($section === 'payments' && file_exists(APPROOT . '/views/dashboard/sections/payments.php')) : ?>
+            <?php require APPROOT . '/views/dashboard/sections/payments.php'; ?>
+        <?php elseif ($section === 'pathways' && file_exists(APPROOT . '/views/dashboard/sections/pathways.php')) : ?>
+            <?php require APPROOT . '/views/dashboard/sections/pathways.php'; ?>
+        <?php elseif ($section === 'telemed' && file_exists(APPROOT . '/views/dashboard/sections/telemed.php')) : ?>
+            <?php require APPROOT . '/views/dashboard/sections/telemed.php'; ?>
         <?php else : ?>
             <?php require APPROOT . '/views/dashboard/sections/panel.php'; ?>
         <?php endif; ?>
