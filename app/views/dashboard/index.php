@@ -7,6 +7,11 @@
             <span class="brand-title">Doctoria</span>
         </div>
         
+        <!-- Clinic Branch Selector Badge -->
+        <div style="padding: 4px 8px; background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; font-size: 11px; font-weight: 700; color: #0369a1; text-align: center; margin-bottom: 8px;">
+            <i class="fas fa-hospital-alt"></i> Clínica Central
+        </div>
+
         <!-- Command Palette Trigger Button -->
         <button type="button" id="open-cmd-palette-btn" class="nav-icon" style="background: #f8fafc; border: 1px solid var(--border-default); cursor: pointer; text-align: left;" title="Buscar (Ctrl + K)">
             <i class="fas fa-search" style="color: var(--brand-primary);"></i>
